@@ -1,0 +1,276 @@
+import { supabase } from './supabase';
+import type { Coordinate } from '../types/map';
+import type { ActiveSpawn } from '../types/spawns';
+import { calculateHaversineDistanceWorklet } from '../utils/haversine';
+import {
+  UNISABANA_POLYGON,
+  HOME_CAJICA_POLYGON,
+  CAMPUS_CENTER_COORDINATE,
+  HOME_CAJICA_CENTER,
+  isPointInPolygonWorklet,
+} from '../utils/geofence';
+
+// Especies según rareza de Generación 1
+const RARITY_POKEMON_IDS = {
+  common: [16, 19, 10, 13, 41, 43, 60, 69, 74, 96, 98, 118, 129], // Pidgey, Rattata, Caterpie, Zubat, Magikarp...
+  uncommon: [1, 4, 7, 25, 37, 58, 63, 66, 92, 133], // Starters, Pikachu, Vulpix, Growlithe, Eevee...
+  rare: [131, 143, 147, 123, 125, 126, 130, 65, 94], // Lapras, Snorlax, Dratini, Gyarados, Gengar...
+  epic: [149, 144, 145, 146, 150, 151], // Dragonite, Aves Legendarias, Mewtwo, Mew
+};
+
+/**
+ * Selecciona un ID de Pokémon basado en la distribución de probabilidad reglamentaria:
+ * Común 60%, Poco Común 25%, Raro 12%, Épico 3%
+ */
+function pickRandomPokemonId(): number {
+  const roll = Math.random();
+  let pool: number[];
+
+  if (roll < 0.60) {
+    pool = RARITY_POKEMON_IDS.common;
+  } else if (roll < 0.85) {
+    pool = RARITY_POKEMON_IDS.uncommon;
+  } else if (roll < 0.97) {
+    pool = RARITY_POKEMON_IDS.rare;
+  } else {
+    pool = RARITY_POKEMON_IDS.epic;
+  }
+
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+/**
+ * Genera una coordenada aleatoria garantizada dentro de un polígono delimitado
+ */
+function getRandomCoordinateInPolygon(
+  polygon: Coordinate[],
+  fallbackCenter: Coordinate
+): Coordinate {
+  let minLat = 90,
+    maxLat = -90,
+    minLon = 180,
+    maxLon = -180;
+
+  for (const p of polygon) {
+    if (p.latitude < minLat) minLat = p.latitude;
+    if (p.latitude > maxLat) maxLat = p.latitude;
+    if (p.longitude < minLon) minLon = p.longitude;
+    if (p.longitude > maxLon) maxLon = p.longitude;
+  }
+
+  // Hasta 15 intentos de muestreo por rechazo (Rejection Sampling)
+  for (let i = 0; i < 15; i++) {
+    const lat = minLat + Math.random() * (maxLat - minLat);
+    const lon = minLon + Math.random() * (maxLon - minLon);
+    const candidate: Coordinate = { latitude: lat, longitude: lon };
+
+    if (isPointInPolygonWorklet(candidate, polygon)) {
+      return candidate;
+    }
+  }
+
+  // Fallback con jitter suave de 20 metros si el muestreo no converge
+  const jitterLat = (Math.random() - 0.5) * 0.0003;
+  const jitterLon = (Math.random() - 0.5) * 0.0003;
+  return {
+    latitude: fallbackCenter.latitude + jitterLat,
+    longitude: fallbackCenter.longitude + jitterLon,
+  };
+}
+
+/**
+ * Calcula los Puntos de Combate (CP) con la fórmula matemática oficial
+ */
+function calculateCombatPower(
+  baseAtk: number,
+  baseDef: number,
+  baseHp: number,
+  ivAtk: number,
+  ivDef: number,
+  ivHp: number
+): number {
+  const atk = baseAtk + ivAtk;
+  const def = baseDef + ivDef;
+  const hp = baseHp + ivHp;
+  const cpCalc = Math.floor((atk * Math.sqrt(def) * Math.sqrt(hp)) / 10);
+  return Math.max(10, cpCalc);
+}
+
+/**
+ * Genera spawns salvajes en Supabase si el número de criaturas activas es bajo
+ */
+export async function seedWildSpawnsIfLow(isTestZone: boolean): Promise<void> {
+  try {
+    const nowIso = new Date().toISOString();
+
+    // 1. Contar spawns vigentes
+    let query = supabase
+      .from('active_spawns')
+      .select('id', { count: 'exact', head: true })
+      .eq('is_active', true)
+      .gt('expires_at', nowIso);
+
+    if (!isTestZone) {
+      query = query.eq('is_test_zone', false);
+    }
+
+    const { count, error } = await query;
+    if (error) {
+      return;
+    }
+
+    // Mantener un mínimo de 6 criaturas simultáneas
+    const currentActive = count || 0;
+    if (currentActive >= 6) {
+      return;
+    }
+
+    const needed = 6 - currentActive;
+    const newSpawns: any[] = [];
+
+    // Cargar estadísticas base de los Pokémon disponibles
+    const { data: baseList } = await supabase
+      .from('pokemon_base')
+      .select('id, base_attack, base_defense, base_hp');
+
+    if (!baseList || baseList.length === 0) return;
+    const baseMap = new Map<number, any>(baseList.map(b => [b.id, b]));
+
+    for (let i = 0; i < needed; i++) {
+      const pokemonId = pickRandomPokemonId();
+      const baseStats = baseMap.get(pokemonId) || {
+        base_attack: 100,
+        base_defense: 100,
+        base_hp: 100,
+      };
+
+      const ivAtk = Math.floor(Math.random() * 16);
+      const ivDef = Math.floor(Math.random() * 16);
+      const ivHp = Math.floor(Math.random() * 16);
+      const cp = calculateCombatPower(
+        baseStats.base_attack,
+        baseStats.base_defense,
+        baseStats.base_hp,
+        ivAtk,
+        ivDef,
+        ivHp
+      );
+
+      // Decidir zona de spawn
+      const inCajica = isTestZone && Math.random() > 0.4;
+      const coords = inCajica
+        ? getRandomCoordinateInPolygon(HOME_CAJICA_POLYGON, HOME_CAJICA_CENTER)
+        : getRandomCoordinateInPolygon(UNISABANA_POLYGON, CAMPUS_CENTER_COORDINATE);
+
+      // TTL de 10 a 15 minutos (600 a 900 segundos)
+      const ttlMinutes = 10 + Math.floor(Math.random() * 6);
+      const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000).toISOString();
+
+      newSpawns.push({
+        pokemon_id: pokemonId,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        is_test_zone: inCajica,
+        spawned_at: nowIso,
+        expires_at: expiresAt,
+        iv_attack: ivAtk,
+        iv_defense: ivDef,
+        iv_hp: ivHp,
+        cp,
+        is_active: true,
+      });
+    }
+
+    if (newSpawns.length > 0) {
+      await supabase.from('active_spawns').insert(newSpawns);
+    }
+  } catch (err) {
+    console.warn('Error sembrando criaturas salvajes:', err);
+  }
+}
+
+/**
+ * Consulta las criaturas salvajes activas y calcula reactivamente si están
+ * dentro del radio visual de 30 metros del entrenador.
+ */
+export async function fetchNearbySpawns(
+  userCoords: Coordinate,
+  isTestZone: boolean
+): Promise<ActiveSpawn[]> {
+  try {
+    const nowIso = new Date().toISOString();
+
+    let query = supabase
+      .from('active_spawns')
+      .select(`
+        id,
+        pokemon_id,
+        latitude,
+        longitude,
+        is_test_zone,
+        spawned_at,
+        expires_at,
+        iv_attack,
+        iv_defense,
+        iv_hp,
+        cp,
+        is_active,
+        pokemon_base:pokemon_id (
+          id,
+          name,
+          sprite_url,
+          animation_url,
+          base_attack,
+          base_defense,
+          base_hp
+        )
+      `)
+      .eq('is_active', true)
+      .gt('expires_at', nowIso);
+
+    if (!isTestZone) {
+      query = query.eq('is_test_zone', false);
+    }
+
+    const { data, error } = await query;
+    if (error || !data) {
+      return [];
+    }
+
+    const result: ActiveSpawn[] = [];
+
+    for (const item of data) {
+      const spawnCoord: Coordinate = {
+        latitude: item.latitude,
+        longitude: item.longitude,
+      };
+
+      // Cálculo geodésico de alta precisión con Worklet de Haversine
+      const distance = calculateHaversineDistanceWorklet(userCoords, spawnCoord);
+
+      result.push({
+        id: item.id,
+        pokemon_id: item.pokemon_id,
+        latitude: item.latitude,
+        longitude: item.longitude,
+        is_test_zone: item.is_test_zone,
+        spawned_at: item.spawned_at,
+        expires_at: item.expires_at,
+        iv_attack: item.iv_attack,
+        iv_defense: item.iv_defense,
+        iv_hp: item.iv_hp,
+        cp: item.cp,
+        is_active: item.is_active,
+        pokemon: item.pokemon_base as any,
+        distance_meters: Math.round(distance),
+        // REGLA ESTRICTA: Solo visible si está a 30 metros o menos del jugador
+        is_in_range: distance <= 30,
+      });
+    }
+
+    return result;
+  } catch (err) {
+    console.warn('Error consultando spawns cercanos:', err);
+    return [];
+  }
+}

@@ -1,14 +1,26 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapboxGL from '@rnmapbox/maps';
 import { useLocationTracker } from '../hooks/useLocationTracker';
 import { useHeadingTracker } from '../hooks/useHeadingTracker';
-import { UNISABANA_POLYGON, getGeofenceGeoJSON, CAMPUS_CENTER_COORDINATE } from '../utils/geofence';
+import {
+  CAMPUS_CENTER_COORDINATE,
+  getGeofenceGeoJSON,
+  isTestZoneEnabled,
+} from '../utils/geofence';
+import { calculateHaversineDistanceWorklet } from '../utils/haversine';
 import { OutOfBoundsModal } from '../components/OutOfBoundsModal';
 import { MapAvatarMarker } from '../components/MapAvatarMarker';
+import { PokestopModal } from '../components/PokestopModal';
+import { GymModal } from '../components/GymModal';
+import { WildPokemonMarker } from '../components/WildPokemonMarker';
+import { SpawnEncounterModal } from '../components/SpawnEncounterModal';
 import { supabase } from '../services/supabase';
+import { checkPokestopCooldown } from '../services/inventoryService';
+import { seedWildSpawnsIfLow, fetchNearbySpawns } from '../services/spawnEngine';
 import type { CampusPOIMarker } from '../types/map';
+import type { ActiveSpawn } from '../types/spawns';
 
 const mapboxToken = process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
 if (mapboxToken) {
@@ -17,11 +29,12 @@ if (mapboxToken) {
 
 export const MapScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const testZoneActive = isTestZoneEnabled();
+
   const {
     location,
     isInsideGeofence,
     isLoading: isLoadingLocation,
-    errorMsg,
     isMocked,
     toggleMockLocation,
   } = useLocationTracker();
@@ -29,60 +42,144 @@ export const MapScreen: React.FC = () => {
   const { heading } = useHeadingTracker();
 
   const [pois, setPois] = useState<CampusPOIMarker[]>([]);
-  const [isLoadingPOIs, setIsLoadingPOIs] = useState<boolean>(true);
+  const [activeSpawns, setActiveSpawns] = useState<ActiveSpawn[]>([]);
+  const [cooldownMap, setCooldownMap] = useState<Record<string, boolean>>({});
 
-  // GeoJSON para los perímetros autorizados (Campus UniSabana y Sector Buena Suerte Cajicá)
-  const geofenceGeoJSON = useMemo(() => getGeofenceGeoJSON(), []);
+  // Estados de Modales interactivos
+  const [selectedPokestop, setSelectedPokestop] = useState<CampusPOIMarker | null>(null);
+  const [selectedGym, setSelectedGym] = useState<CampusPOIMarker | null>(null);
+  const [selectedSpawn, setSelectedSpawn] = useState<ActiveSpawn | null>(null);
+
+  // GeoJSON según entorno (Solo UniSabana o UniSabana + Cajicá)
+  const geofenceGeoJSON = useMemo(() => getGeofenceGeoJSON(testZoneActive), [testZoneActive]);
 
   // Coordenada activa (real o campus por defecto mientras carga GPS)
   const currentCoords = location || CAMPUS_CENTER_COORDINATE;
 
   // Cargar Poképaradas y Gimnasios desde Supabase
+  const loadCampusPOIs = useCallback(async () => {
+    try {
+      let stopsQuery = supabase.from('pokestops').select('id, name, latitude, longitude, is_test_zone');
+      let gymsQuery = supabase.from('gymnasiums').select('id, name, latitude, longitude, is_test_zone');
+
+      // Si el modo de pruebas está apagado, filtrar estrictamente solo los POIs de UniSabana
+      if (!testZoneActive) {
+        stopsQuery = stopsQuery.eq('is_test_zone', false);
+        gymsQuery = gymsQuery.eq('is_test_zone', false);
+      }
+
+      const [stopsRes, gymsRes] = await Promise.all([stopsQuery, gymsQuery]);
+      const loadedPOIs: CampusPOIMarker[] = [];
+
+      if (stopsRes.data) {
+        for (const s of stopsRes.data) {
+          loadedPOIs.push({
+            id: s.id,
+            name: s.name,
+            type: 'pokestop',
+            latitude: s.latitude,
+            longitude: s.longitude,
+          });
+        }
+      }
+
+      if (gymsRes.data) {
+        for (const g of gymsRes.data) {
+          loadedPOIs.push({
+            id: g.id,
+            name: g.name,
+            type: 'gym',
+            latitude: g.latitude,
+            longitude: g.longitude,
+          });
+        }
+      }
+
+      setPois(loadedPOIs);
+    } catch (e) {
+      console.warn('Error cargando POIs de Supabase:', e);
+    }
+  }, [testZoneActive]);
+
+  // Actualizar estados de enfriamiento de Poképaradas
+  const refreshCooldowns = useCallback(async () => {
+    const newCooldowns: Record<string, boolean> = {};
+    for (const poi of pois) {
+      if (poi.type === 'pokestop') {
+        const { canSpin } = await checkPokestopCooldown(poi.id);
+        newCooldowns[poi.id] = !canSpin; // true si está en cooldown
+      }
+    }
+    setCooldownMap(newCooldowns);
+  }, [pois]);
+
+  // Ciclo de vida inicial: Cargar POIs
   useEffect(() => {
-    async function loadCampusPOIs() {
-      try {
-        setIsLoadingPOIs(true);
-        const [stopsRes, gymsRes] = await Promise.all([
-          supabase.from('pokestops').select('id, name, latitude, longitude'),
-          supabase.from('gymnasiums').select('id, name, latitude, longitude'),
-        ]);
+    loadCampusPOIs();
+  }, [loadCampusPOIs]);
 
-        const loadedPOIs: CampusPOIMarker[] = [];
+  // Refrescar cooldowns cuando cambien los POIs
+  useEffect(() => {
+    if (pois.length > 0) {
+      refreshCooldowns();
+    }
+  }, [pois, refreshCooldowns]);
 
-        if (stopsRes.data) {
-          stopsRes.data.forEach((s: any) => {
-            loadedPOIs.push({
-              id: s.id,
-              name: s.name,
-              type: 'pokestop',
-              latitude: s.latitude,
-              longitude: s.longitude,
-            });
-          });
-        }
+  // Sincronización del Motor de Spawns
+  useEffect(() => {
+    let isMounted = true;
 
-        if (gymsRes.data) {
-          gymsRes.data.forEach((g: any) => {
-            loadedPOIs.push({
-              id: g.id,
-              name: g.name,
-              type: 'gym',
-              latitude: g.latitude,
-              longitude: g.longitude,
-            });
-          });
-        }
+    async function syncSpawns() {
+      // 1. Sembrar spawns si hay pocos
+      await seedWildSpawnsIfLow(testZoneActive);
 
-        setPois(loadedPOIs);
-      } catch (e) {
-        console.warn('Error cargando POIs de Supabase:', e);
-      } finally {
-        setIsLoadingPOIs(false);
+      // 2. Consultar y evaluar proximidad a 30 metros con Haversine
+      const nearby = await fetchNearbySpawns(currentCoords, testZoneActive);
+      if (isMounted) {
+        setActiveSpawns(nearby);
       }
     }
 
-    loadCampusPOIs();
-  }, []);
+    syncSpawns();
+    const interval = setInterval(syncSpawns, 12000); // Cada 12 segundos
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [currentCoords, testZoneActive]);
+
+  // Distancia calculada con Worklet de Haversine para la Poképarada seleccionada
+  const selectedPokestopDistance = useMemo(() => {
+    if (!selectedPokestop) return 999;
+    return Math.round(
+      calculateHaversineDistanceWorklet(currentCoords, {
+        latitude: selectedPokestop.latitude,
+        longitude: selectedPokestop.longitude,
+      })
+    );
+  }, [selectedPokestop, currentCoords]);
+
+  // Distancia calculada con Worklet de Haversine para el Gimnasio seleccionado
+  const selectedGymDistance = useMemo(() => {
+    if (!selectedGym) return 999;
+    return Math.round(
+      calculateHaversineDistanceWorklet(currentCoords, {
+        latitude: selectedGym.latitude,
+        longitude: selectedGym.longitude,
+      })
+    );
+  }, [selectedGym, currentCoords]);
+
+  // Manejador de encuentro salvaje (preparación para Etapa 5)
+  const handleStartCapture = (spawn: ActiveSpawn) => {
+    setSelectedSpawn(null);
+    Alert.alert(
+      '¡Modo Captura!',
+      `Iniciando encuentro con ${spawn.pokemon?.name || 'Pokémon'} (CP ${spawn.cp}). En la Etapa 5 se activará la cámara AR.`,
+      [{ text: 'Entendido' }]
+    );
+  };
 
   if (!mapboxToken) {
     return (
@@ -120,7 +217,7 @@ export const MapScreen: React.FC = () => {
           animationDuration={1500}
         />
 
-        {/* Polígono Perimetral de Geofencing del Campus */}
+        {/* Polígonos Perimetrales de Geofencing */}
         <MapboxGL.ShapeSource id="campusGeofenceSource" shape={geofenceGeoJSON as any}>
           <MapboxGL.FillLayer
             id="campusGeofenceFill"
@@ -139,21 +236,53 @@ export const MapScreen: React.FC = () => {
           />
         </MapboxGL.ShapeSource>
 
-        {/* Marcadores de Hitos: Poképaradas y Gimnasios del Campus */}
-        {pois.map(poi => (
-          <MapboxGL.PointAnnotation
-            key={poi.id}
-            id={`poi-${poi.id}`}
-            coordinate={[poi.longitude, poi.latitude]}
-          >
-            <View style={[styles.poiBadge, poi.type === 'gym' ? styles.gymBadge : styles.stopBadge]}>
-              <Text style={styles.poiEmoji}>{poi.type === 'gym' ? '🏟️' : '🔵'}</Text>
-            </View>
-            <MapboxGL.Callout title={poi.name} />
-          </MapboxGL.PointAnnotation>
+        {/* Marcadores de Hitos: Poképaradas y Gimnasios */}
+        {pois.map(poi => {
+          const isStop = poi.type === 'pokestop';
+          const inCooldown = isStop && !!cooldownMap[poi.id];
+
+          return (
+            <MapboxGL.PointAnnotation
+              key={poi.id}
+              id={`poi-${poi.id}`}
+              coordinate={[poi.longitude, poi.latitude]}
+              onSelected={() => {
+                if (isStop) {
+                  setSelectedPokestop(poi);
+                } else {
+                  setSelectedGym(poi);
+                }
+              }}
+            >
+              <View
+                style={[
+                  styles.poiBadge,
+                  !isStop
+                    ? styles.gymBadge
+                    : inCooldown
+                    ? styles.stopCooldownBadge
+                    : styles.stopBadge,
+                ]}
+              >
+                <Text style={styles.poiEmoji}>
+                  {!isStop ? '🏟️' : inCooldown ? '🟣' : '🔵'}
+                </Text>
+              </View>
+              <MapboxGL.Callout title={poi.name} />
+            </MapboxGL.PointAnnotation>
+          );
+        })}
+
+        {/* Criaturas Salvajes Visibles (Filtro Estricto: <= 30 metros del entrenador) */}
+        {activeSpawns.map(spawn => (
+          <WildPokemonMarker
+            key={spawn.id}
+            spawn={spawn}
+            onPress={s => setSelectedSpawn(s)}
+          />
         ))}
 
-        {/* Marcador del Avatar del Jugador con Orientación Azimutal por Magnetómetro (MarkerView reactivo a 60 FPS) */}
+        {/* Marcador del Avatar del Jugador con Orientación Azimutal por Magnetómetro */}
         <MapboxGL.MarkerView
           id="userAvatarMarker"
           coordinate={[currentCoords.longitude, currentCoords.latitude]}
@@ -167,19 +296,21 @@ export const MapScreen: React.FC = () => {
       {/* Barra de Estado Superior HUD */}
       <View style={[styles.hudOverlay, { top: insets.top + 8 }]}>
         <View style={styles.hudCard}>
-          <Text style={styles.hudTitle}>📍 Campus UniSabana</Text>
+          <Text style={styles.hudTitle}>
+            {testZoneActive ? '📍 UniSabana + Cajicá (Demo)' : '📍 Campus UniSabana'}
+          </Text>
           <Text style={styles.hudCoords}>
             {currentCoords.latitude.toFixed(5)}, {currentCoords.longitude.toFixed(5)} | Rumbo: {heading}°
           </Text>
           <View style={styles.statusRow}>
             <View style={[styles.statusDot, isInsideGeofence ? styles.dotGreen : styles.dotRed]} />
             <Text style={styles.statusText}>
-              {isInsideGeofence ? 'DENTRO DEL CAMPUS' : 'FUERA DE LÍMITES'}
+              {isInsideGeofence ? 'DENTRO DE ZONA' : 'FUERA DE LÍMITES'}
             </Text>
           </View>
         </View>
 
-        {/* Botón de alternancia de Simulación (Para evaluación / Sustentación) */}
+        {/* Botón de alternancia de Simulación */}
         <TouchableOpacity
           style={[styles.simButton, isMocked && styles.simButtonActive]}
           onPress={toggleMockLocation}
@@ -191,7 +322,7 @@ export const MapScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Indicador de carga inicial: solo se muestra si NO está en simulación y aún no hay GPS */}
+      {/* Indicador de carga inicial */}
       {isLoadingLocation && !isMocked && !location && (
         <View style={[styles.loadingBox, { bottom: insets.bottom + 16 }]}>
           <ActivityIndicator size="small" color="#38BDF8" />
@@ -199,11 +330,36 @@ export const MapScreen: React.FC = () => {
         </View>
       )}
 
-      {/* Modal Bloqueante Persistente cuando el usuario sale del polígono */}
+      {/* Modal Bloqueante Persistente cuando el usuario sale del perímetro */}
       <OutOfBoundsModal
         visible={!isInsideGeofence}
         onRetry={() => {}}
         onSimulateCampus={toggleMockLocation}
+      />
+
+      {/* Modal Interactivo de Poképarada con Cooldown de 5 minutos */}
+      <PokestopModal
+        visible={!!selectedPokestop}
+        pokestop={selectedPokestop}
+        distanceMeters={selectedPokestopDistance}
+        onClose={() => setSelectedPokestop(null)}
+        onSpunSuccess={refreshCooldowns}
+      />
+
+      {/* Modal Interactivo de Gimnasio con Radio de 40m */}
+      <GymModal
+        visible={!!selectedGym}
+        gym={selectedGym}
+        distanceMeters={selectedGymDistance}
+        onClose={() => setSelectedGym(null)}
+      />
+
+      {/* Modal de Encuentro con Pokémon Salvaje en Radio de 30m */}
+      <SpawnEncounterModal
+        visible={!!selectedSpawn}
+        spawn={selectedSpawn}
+        onClose={() => setSelectedSpawn(null)}
+        onStartCapture={handleStartCapture}
       />
     </View>
   );
@@ -262,26 +418,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#EF4444',
   },
   statusText: {
-    fontSize: 10,
-    fontWeight: '800',
     color: '#F8FAFC',
-    letterSpacing: 0.5,
+    fontSize: 11,
+    fontWeight: '600',
   },
   simButton: {
-    backgroundColor: 'rgba(30, 41, 59, 0.9)',
-    borderWidth: 1,
-    borderColor: '#475569',
+    backgroundColor: '#1E293B',
     paddingHorizontal: 12,
     paddingVertical: 10,
-    borderRadius: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#38BDF8',
   },
   simButtonActive: {
-    backgroundColor: '#0369A1',
-    borderColor: '#38BDF8',
+    backgroundColor: '#0284C7',
+    borderColor: '#FFFFFF',
   },
   simButtonText: {
     color: '#F8FAFC',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '700',
   },
   poiBadge: {
@@ -301,6 +456,10 @@ const styles = StyleSheet.create({
   stopBadge: {
     backgroundColor: '#2563EB',
   },
+  stopCooldownBadge: {
+    backgroundColor: '#7E22CE',
+    borderColor: '#C084FC',
+  },
   gymBadge: {
     backgroundColor: '#DC2626',
   },
@@ -309,7 +468,6 @@ const styles = StyleSheet.create({
   },
   loadingBox: {
     position: 'absolute',
-    bottom: 24,
     alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',

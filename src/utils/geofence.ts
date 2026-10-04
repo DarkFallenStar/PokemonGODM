@@ -73,52 +73,68 @@ export function isPointInPolygonWorklet(
   return inside;
 }
 
+export const isTestZoneEnabled = (): boolean => {
+  return process.env.EXPO_PUBLIC_ENABLE_TEST_ZONE === 'true';
+};
+
 /**
- * Evalúa si un punto se encuentra en cualquiera de las zonas de juego autorizadas:
- * 1. Campus Universidad de La Sabana (Chía)
- * 2. Sector Buena Suerte (Cajicá)
+ * Evalúa si un punto se encuentra en las zonas autorizadas.
+ * - Si enableTestZone es true: Evalúa tanto UniSabana como Cajicá.
+ * - Si enableTestZone es false: Evalúa ESTRICTAMENTE el Campus UniSabana (Modo Oficial).
  */
-export function isPointInAuthorizedZonesWorklet(point: Coordinate): boolean {
+export function isPointInAuthorizedZonesWorklet(
+  point: Coordinate,
+  enableTestZone: boolean = false
+): boolean {
   'worklet';
-  return (
-    isPointInPolygonWorklet(point, UNISABANA_POLYGON) ||
-    isPointInPolygonWorklet(point, HOME_CAJICA_POLYGON)
-  );
+  const inUniSabana = isPointInPolygonWorklet(point, UNISABANA_POLYGON);
+  if (inUniSabana) {
+    return true;
+  }
+  if (enableTestZone) {
+    return isPointInPolygonWorklet(point, HOME_CAJICA_POLYGON);
+  }
+  return false;
 }
 
 /**
- * Genera una estructura GeoJSON FeatureCollection para dibujar ambos polígonos
- * perimetrales en Mapbox ShapeSource.
+ * Genera una estructura GeoJSON FeatureCollection para dibujar los polígonos
+ * perimetrales autorizados en Mapbox ShapeSource según el modo de entorno.
  */
-export function getGeofenceGeoJSON() {
+export function getGeofenceGeoJSON(enableTestZone: boolean = false) {
   const sabanaCoords = UNISABANA_POLYGON.map(p => [p.longitude, p.latitude]);
-  const cajicaCoords = HOME_CAJICA_POLYGON.map(p => [p.longitude, p.latitude]);
+
+  const features: any[] = [
+    {
+      type: 'Feature' as const,
+      properties: {
+        id: 'unisabana',
+        name: 'Campus Universidad de La Sabana',
+      },
+      geometry: {
+        type: 'Polygon' as const,
+        coordinates: [sabanaCoords],
+      },
+    },
+  ];
+
+  if (enableTestZone) {
+    const cajicaCoords = HOME_CAJICA_POLYGON.map(p => [p.longitude, p.latitude]);
+    features.push({
+      type: 'Feature' as const,
+      properties: {
+        id: 'cajica-buena-suerte',
+        name: 'Sector Buena Suerte (Cajicá - Modo Pruebas)',
+      },
+      geometry: {
+        type: 'Polygon' as const,
+        coordinates: [cajicaCoords],
+      },
+    });
+  }
 
   return {
     type: 'FeatureCollection' as const,
-    features: [
-      {
-        type: 'Feature' as const,
-        properties: {
-          id: 'unisabana',
-          name: 'Campus Universidad de La Sabana',
-        },
-        geometry: {
-          type: 'Polygon' as const,
-          coordinates: [sabanaCoords],
-        },
-      },
-      {
-        type: 'Feature' as const,
-        properties: {
-          id: 'cajica-buena-suerte',
-          name: 'Sector Buena Suerte (Cajicá)',
-        },
-        geometry: {
-          type: 'Polygon' as const,
-          coordinates: [cajicaCoords],
-        },
-      },
-    ],
+    features,
   };
 }
