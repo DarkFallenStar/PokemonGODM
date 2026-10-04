@@ -31,8 +31,8 @@ export const MapScreen: React.FC = () => {
   const [pois, setPois] = useState<CampusPOIMarker[]>([]);
   const [isLoadingPOIs, setIsLoadingPOIs] = useState<boolean>(true);
 
-  // GeoJSON para el perímetro del Campus UniSabana
-  const geofenceGeoJSON = useMemo(() => getGeofenceGeoJSON(UNISABANA_POLYGON), []);
+  // GeoJSON para los perímetros autorizados (Campus UniSabana y Sector Buena Suerte Cajicá)
+  const geofenceGeoJSON = useMemo(() => getGeofenceGeoJSON(), []);
 
   // Coordenada activa (real o campus por defecto mientras carga GPS)
   const currentCoords = location || CAMPUS_CENTER_COORDINATE;

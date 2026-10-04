@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import * as Location from 'expo-location';
 import type { Coordinate } from '../types/map';
-import { UNISABANA_POLYGON, CAMPUS_CENTER_COORDINATE, isPointInPolygonWorklet } from '../utils/geofence';
+import {
+  CAMPUS_CENTER_COORDINATE,
+  isPointInAuthorizedZonesWorklet,
+} from '../utils/geofence';
 
 export function useLocationTracker() {
   const [location, setLocation] = useState<Coordinate | null>(null);
@@ -12,9 +15,9 @@ export function useLocationTracker() {
 
   const subscriberRef = useRef<Location.LocationSubscription | null>(null);
 
-  // Evalúa si la coordenada se encuentra dentro del polígono del campus
+  // Evalúa si la coordenada se encuentra dentro de las zonas autorizadas (UniSabana o Cajicá)
   const checkGeofence = useCallback((coords: Coordinate) => {
-    const inside = isPointInPolygonWorklet(coords, UNISABANA_POLYGON);
+    const inside = isPointInAuthorizedZonesWorklet(coords);
     setIsInsideGeofence(inside);
   }, []);
 

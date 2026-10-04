@@ -18,6 +18,24 @@ export const CAMPUS_CENTER_COORDINATE: Coordinate = {
   longitude: -74.03264,
 };
 
+// Coordenadas perimetrales del Sector Buena Suerte (Cajicá, Cundinamarca)
+export const HOME_CAJICA_POLYGON: Coordinate[] = [
+  { latitude: 4.89120, longitude: -74.03400 }, // 1. Noroeste
+  { latitude: 4.89150, longitude: -74.03175 }, // 2. Norte
+  { latitude: 4.89120, longitude: -74.02950 }, // 3. Noreste
+  { latitude: 4.88885, longitude: -74.02920 }, // 4. Este
+  { latitude: 4.88650, longitude: -74.02950 }, // 5. Sureste
+  { latitude: 4.88620, longitude: -74.03175 }, // 6. Sur
+  { latitude: 4.88650, longitude: -74.03400 }, // 7. Suroeste
+  { latitude: 4.88885, longitude: -74.03430 }, // 8. Oeste
+  { latitude: 4.89120, longitude: -74.03400 }, // Cierre
+];
+
+export const HOME_CAJICA_CENTER: Coordinate = {
+  latitude: 4.8888463,
+  longitude: -74.0317459,
+};
+
 /**
  * Algoritmo de Punto en Polígono (Ray-Casting Algorithm / Even-Odd Rule).
  * Marcado con la directiva 'worklet' para ejecutarse en el runtime de C++ de Reanimated
@@ -56,12 +74,25 @@ export function isPointInPolygonWorklet(
 }
 
 /**
- * Genera una estructura GeoJSON FeatureCollection para dibujar el polígono perimetral
- * en Mapbox ShapeSource.
+ * Evalúa si un punto se encuentra en cualquiera de las zonas de juego autorizadas:
+ * 1. Campus Universidad de La Sabana (Chía)
+ * 2. Sector Buena Suerte (Cajicá)
  */
-export function getGeofenceGeoJSON(polygon: Coordinate[]) {
-  // GeoJSON espera coordenadas en formato [longitud, latitud]
-  const coordinates = polygon.map(p => [p.longitude, p.latitude]);
+export function isPointInAuthorizedZonesWorklet(point: Coordinate): boolean {
+  'worklet';
+  return (
+    isPointInPolygonWorklet(point, UNISABANA_POLYGON) ||
+    isPointInPolygonWorklet(point, HOME_CAJICA_POLYGON)
+  );
+}
+
+/**
+ * Genera una estructura GeoJSON FeatureCollection para dibujar ambos polígonos
+ * perimetrales en Mapbox ShapeSource.
+ */
+export function getGeofenceGeoJSON() {
+  const sabanaCoords = UNISABANA_POLYGON.map(p => [p.longitude, p.latitude]);
+  const cajicaCoords = HOME_CAJICA_POLYGON.map(p => [p.longitude, p.latitude]);
 
   return {
     type: 'FeatureCollection' as const,
@@ -69,11 +100,23 @@ export function getGeofenceGeoJSON(polygon: Coordinate[]) {
       {
         type: 'Feature' as const,
         properties: {
+          id: 'unisabana',
           name: 'Campus Universidad de La Sabana',
         },
         geometry: {
           type: 'Polygon' as const,
-          coordinates: [coordinates],
+          coordinates: [sabanaCoords],
+        },
+      },
+      {
+        type: 'Feature' as const,
+        properties: {
+          id: 'cajica-buena-suerte',
+          name: 'Sector Buena Suerte (Cajicá)',
+        },
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [cajicaCoords],
         },
       },
     ],
