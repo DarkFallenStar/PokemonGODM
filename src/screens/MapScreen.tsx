@@ -153,13 +153,15 @@ export const MapScreen: React.FC = () => {
           </MapboxGL.PointAnnotation>
         ))}
 
-        {/* Marcador del Avatar del Jugador con Orientación Azimutal por Magnetómetro */}
-        <MapboxGL.PointAnnotation
+        {/* Marcador del Avatar del Jugador con Orientación Azimutal por Magnetómetro (MarkerView reactivo a 60 FPS) */}
+        <MapboxGL.MarkerView
           id="userAvatarMarker"
           coordinate={[currentCoords.longitude, currentCoords.latitude]}
+          anchor={{ x: 0.5, y: 0.5 }}
+          allowOverlap={true}
         >
           <MapAvatarMarker heading={heading} />
-        </MapboxGL.PointAnnotation>
+        </MapboxGL.MarkerView>
       </MapboxGL.MapView>
 
       {/* Barra de Estado Superior HUD */}
@@ -189,8 +191,8 @@ export const MapScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Indicador de carga inicial */}
-      {isLoadingLocation && (
+      {/* Indicador de carga inicial: solo se muestra si NO está en simulación y aún no hay GPS */}
+      {isLoadingLocation && !isMocked && !location && (
         <View style={[styles.loadingBox, { bottom: insets.bottom + 16 }]}>
           <ActivityIndicator size="small" color="#38BDF8" />
           <Text style={styles.loadingText}>Conectando GPS...</Text>

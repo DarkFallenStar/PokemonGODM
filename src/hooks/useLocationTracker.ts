@@ -22,6 +22,7 @@ export function useLocationTracker() {
   const toggleMockLocation = useCallback(() => {
     setIsMocked(prev => {
       const nextMock = !prev;
+      setIsLoading(false);
       if (nextMock) {
         // Simular ubicación dentro del campus
         setLocation(CAMPUS_CENTER_COORDINATE);
@@ -36,7 +37,9 @@ export function useLocationTracker() {
 
     async function startWatching() {
       try {
-        setIsLoading(true);
+        if (!isMocked && !location) {
+          setIsLoading(true);
+        }
         setErrorMsg(null);
 
         const { status } = await Location.requestForegroundPermissionsAsync();
@@ -48,18 +51,33 @@ export function useLocationTracker() {
           return;
         }
 
-        // Obtener posición inicial inmediata
-        const initial = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        });
+        // 1. Obtener última posición conocida inmediatamente (0ms latencia)
+        const lastKnown = await Location.getLastKnownPositionAsync().catch(() => null);
+        if (lastKnown && isMounted && !isMocked) {
+          const coords: Coordinate = {
+            latitude: lastKnown.coords.latitude,
+            longitude: lastKnown.coords.longitude,
+          };
+          setLocation(coords);
+          checkGeofence(coords);
+          setIsLoading(false);
+        }
 
-        if (isMounted && !isMocked) {
+        // 2. Obtener posición actual con timeout para evitar colgado indefinido en interiores
+        const initial = await Promise.race([
+          Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+          new Promise<null>(resolve => setTimeout(() => resolve(null), 3500)),
+        ]).catch(() => null);
+
+        if (initial && isMounted && !isMocked) {
           const coords: Coordinate = {
             latitude: initial.coords.latitude,
             longitude: initial.coords.longitude,
           };
           setLocation(coords);
           checkGeofence(coords);
+          setIsLoading(false);
+        } else if (isMounted) {
           setIsLoading(false);
         }
 

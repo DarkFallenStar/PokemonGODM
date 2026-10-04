@@ -9,24 +9,23 @@ export function useHeadingTracker() {
     let subscription: { remove: () => void } | null = null;
 
     async function initMagnetometer() {
-      const available = await Magnetometer.isAvailableAsync();
-      setIsAvailable(available);
+      try {
+        Magnetometer.setUpdateInterval(80);
 
-      if (!available) {
-        return;
+        subscription = Magnetometer.addListener(data => {
+          if (!data) return;
+          let angle = Math.atan2(-data.x, data.y) * (180 / Math.PI);
+          if (angle < 0) {
+            angle += 360;
+          }
+          setHeading(Math.round(angle));
+        });
+
+        const available = await Magnetometer.isAvailableAsync().catch(() => true);
+        setIsAvailable(available);
+      } catch (err) {
+        console.warn('Magnetometer init error:', err);
       }
-
-      // Intervalo de 200ms para rotación fluida y balance de energía
-      Magnetometer.setUpdateInterval(200);
-
-      subscription = Magnetometer.addListener(data => {
-        // Cálculo del ángulo azimutal a partir de los vectores x e y
-        let angle = Math.atan2(-data.x, data.y) * (180 / Math.PI);
-        if (angle < 0) {
-          angle += 360;
-        }
-        setHeading(Math.round(angle));
-      });
     }
 
     initMagnetometer();
