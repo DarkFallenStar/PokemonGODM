@@ -39,3 +39,18 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+
+## Spec-Driven Development (SDD) & Codebase Memory
+
+Este proyecto opera bajo el marco de ingeniería **Spec-Driven Development (SDD)** asistido por **Codebase Memory MCP**:
+
+1. **Topología Primero**: Antes de diseñar o codificar, inspeccionar las relaciones y símbolos con `codebase-memory`:
+   - Consultar arquitectura y dependencias con `get_architecture`.
+   - Localizar símbolos con `search_graph` y cadenas de llamada con `trace_path`.
+2. **Especificación Previa (`.specs/*.spec.md`)**:
+   - Cada feature o cambio no trivial debe contar con su especificación detallando contratos de TypeScript, componentes afectados y escenarios Given-When-Then.
+3. **Implementación Estricta**:
+   - Codificar únicamente lo establecido en el spec, respetando las versiones del Expo SDK actual.
+4. **Verificación y Sincronización**:
+   - Validar con `npx tsc --noEmit` y linters.
+   - Sincronizar el grafo con `detect_changes` o re-indexar si hay cambios estructurales.
