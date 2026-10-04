@@ -35,6 +35,10 @@ DO $$ BEGIN
         CREATE POLICY "Allow Insert Effectiveness" ON public.type_effectiveness FOR INSERT WITH CHECK (true);
         CREATE POLICY "Allow Update Effectiveness" ON public.type_effectiveness FOR UPDATE USING (true);
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow Insert Pokemon Moves') THEN
+        CREATE POLICY "Allow Insert Pokemon Moves" ON public.pokemon_moves FOR INSERT WITH CHECK (true);
+        CREATE POLICY "Allow Update Pokemon Moves" ON public.pokemon_moves FOR UPDATE USING (true);
+    END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow Delete Pokestops') THEN
         CREATE POLICY "Allow Delete Pokestops" ON public.pokestops FOR DELETE USING (true);
     END IF;

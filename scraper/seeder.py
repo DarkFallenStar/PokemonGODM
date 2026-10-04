@@ -102,13 +102,18 @@ def seed_database(pokemon_list: List[PokemonScrapedModel]) -> bool:
     # 4. Seeding de Pokémon Base
     print(f"[4/6] Insertando catálogo de los {len(pokemon_list)} Pokémon Base...")
     batch = []
-    pokemon_moves_batch = []
 
-    # Mapeo rápido de moves por type_id para asociar
+    # Consultar los IDs reales de los movimientos generados en la base de datos
+    moves_res = client.table("moves").select("id, type_id").execute()
+    db_moves = moves_res.data or []
     type_to_moves = {}
-    for m in GEN1_MOVES:
+    for m in db_moves:
         type_to_moves.setdefault(m["type_id"], []).append(m["id"])
 
+    # Fallback si Tackle no existe, usar el primer ID de movimiento disponible
+    default_move_id = db_moves[0]["id"] if db_moves else 1
+
+    pokemon_moves_batch = []
     for p in pokemon_list:
         p_primary_id = type_name_to_id.get(p.type_primary.lower(), 1)
         p_secondary_id = type_name_to_id.get(p.type_secondary.lower()) if p.type_secondary else None
@@ -132,12 +137,11 @@ def seed_database(pokemon_list: List[PokemonScrapedModel]) -> bool:
         batch.append(record)
 
         # Asociar movimientos compatibles según tipo (N:M pokemon_moves)
-        compatible_moves = type_to_moves.get(p_primary_id, [])
+        compatible_moves = list(type_to_moves.get(p_primary_id, []))
         if p_secondary_id:
-            compatible_moves = compatible_moves + type_to_moves.get(p_secondary_id, [])
-        # Siempre añadir al menos Tackle (id: 1) si no tiene
-        if 1 not in compatible_moves:
-            compatible_moves.append(1)
+            compatible_moves.extend(type_to_moves.get(p_secondary_id, []))
+        if not compatible_moves:
+            compatible_moves.append(default_move_id)
 
         for m_id in compatible_moves:
             pokemon_moves_batch.append({"pokemon_id": p.id, "move_id": m_id})
@@ -157,12 +161,15 @@ def seed_database(pokemon_list: List[PokemonScrapedModel]) -> bool:
 
     # Insertar pokemon_moves
     print(f"  [*] Asociando {len(pokemon_moves_batch)} relaciones en pokemon_moves...")
+    inserted_moves_count = 0
     for i in range(0, len(pokemon_moves_batch), 100):
         chunk = pokemon_moves_batch[i:i+100]
         try:
             client.table("pokemon_moves").upsert(chunk).execute()
+            inserted_moves_count += len(chunk)
         except Exception as e:
-            pass
+            print(f"  [!] Error al insertar lote en pokemon_moves: {e}")
+    print(f"  [OK] {inserted_moves_count} asociaciones insertadas en pokemon_moves.")
 
     # 5. Seeding de Poképaradas UniSabana (Sin duplicar)
     print("[5/6] Sincronizando Poképaradas del Campus UniSabana...")
