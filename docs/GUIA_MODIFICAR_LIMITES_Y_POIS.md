@@ -16,14 +16,21 @@ Dentro del archivo encontrarás la constante `UNISABANA_POLYGON`. Contiene los v
 
 ```typescript
 export const UNISABANA_POLYGON: Coordinate[] = [
-  { latitude: 4.86450, longitude: -74.03750 }, // Vértice 1 (Noroeste)
-  { latitude: 4.86520, longitude: -74.03200 }, // Vértice 2 (Norte / Autopista)
-  { latitude: 4.86310, longitude: -74.02850 }, // Vértice 3 (Noreste)
-  { latitude: 4.85900, longitude: -74.02900 }, // Vértice 4 (Este / Río Bogotá)
-  { latitude: 4.85650, longitude: -74.03250 }, // Vértice 5 (Sureste)
-  { latitude: 4.85700, longitude: -74.03680 }, // Vértice 6 (Sur)
-  { latitude: 4.86020, longitude: -74.03920 }, // Vértice 7 (Suroeste)
-  { latitude: 4.86300, longitude: -74.03900 }, // Vértice 8 (Oeste)
+  { latitude: 4.86430, longitude: -74.03520 },
+  ...
+];
+
+// Zona 2: Sector Buena Suerte (Cajicá)
+export const HOME_CAJICA_POLYGON: Coordinate[] = [
+  { latitude: 4.89120, longitude: -74.03400 },
+  { latitude: 4.89150, longitude: -74.03175 },
+  { latitude: 4.89120, longitude: -74.02950 },
+  { latitude: 4.88885, longitude: -74.02920 },
+  { latitude: 4.88650, longitude: -74.02950 },
+  { latitude: 4.88620, longitude: -74.03175 },
+  { latitude: 4.88650, longitude: -74.03400 },
+  { latitude: 4.88885, longitude: -74.03430 },
+  { latitude: 4.89120, longitude: -74.03400 },
 ];
 ```
 
@@ -32,15 +39,10 @@ export const UNISABANA_POLYGON: Coordinate[] = [
 2. **Sentido de los puntos:** Deben colocarse en orden secuencial consecutivo (en el sentido de las agujas del reloj o antihorario) para formar una figura cerrada sin cruces en "ocho".
 3. **Mínimo y máximo:** Puedes tener desde 3 puntos (un triángulo) hasta 20 o más puntos. Como la función está delegada a un **Worklet en C++**, se calcula en menos de 0.05 ms sin importar la cantidad de vértices.
 
-### 1.4 Coordenada Central del Campus (`CAMPUS_CENTER_COORDINATE`)
-En el mismo archivo, puedes ajustar el punto central donde aterriza la cámara y donde te sitúa el botón de simulación:
-
-```typescript
-export const CAMPUS_CENTER_COORDINATE: Coordinate = {
-  latitude: 4.86110,
-  longitude: -74.03450,
-};
-```
+### 1.4 Coordenadas Centrales de Referencia
+En el mismo archivo, cuentas con los puntos de referencia:
+- `CAMPUS_CENTER_COORDINATE`: Universidad de La Sabana (`4.86082, -74.03264`).
+- `HOME_CAJICA_CENTER`: Sector Buena Suerte, Cajicá (`4.8888463, -74.0317459`).
 
 > **Efecto Inmediato:** Al guardar `src/utils/geofence.ts`, Metro actualizará el mapa y la delimitación automáticamente sin reiniciar el servidor.
 
