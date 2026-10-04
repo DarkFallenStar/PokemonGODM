@@ -94,6 +94,38 @@ npx expo start --dev-client
 npx tsc --noEmit
 ```
 
+### 5.4 Guía Paso a Paso para Probar y Sustentar en Vivo
+
+1. **Abrir la Aplicación en el Dispositivo:**
+   - Una vez instalado el nuevo APK generado por EAS, abre la aplicación `PokemonGoExam`.
+   - Conéctate al servidor de desarrollo que corre en tu PC (`npx expo start --dev-client`) seleccionando la URL local o escaneando el código QR.
+
+2. **Verificación de Detección Fuera del Perímetro (Geofencing Activo):**
+   - Si estás físicamente fuera del campus de la Universidad de La Sabana, la app detectará automáticamente tu coordenada GPS real.
+   - El algoritmo de **Ray-Casting en Worklet** calculará que el punto no pertenece al polígono.
+   - **Resultado Esperado:** Se despliega en pantalla el modal rojo: `⚠️ Fuera de Límites del Campus UniSabana` y todos los gestos del mapa (zoom, arrastre, rotación) quedan **completamente congelados**.
+
+3. **Demostración de Entrada al Campus (Simulador / Mock GPS):**
+   - En la esquina superior derecha del mapa, presiona el botón interactivo **`GPS: Real / Campus`**.
+   - Esto activa el modo de simulación, situando al avatar en el centro exacto del campus (`4.86110, -74.03450`).
+   - **Resultado Esperado:** El modal rojo desaparece instantáneamente, el mapa se desbloquea, y la cámara vuela suavemente hacia el centro de la universidad.
+
+4. **Verificación de Puntos de Interés (POIs de Supabase):**
+   - En el mapa verás renderizadas las marcas en sus coordenadas reales:
+     - 🔵 **Poképaradas:** Biblioteca Octavio Arizmendi Posada, Puente de Madera, Fuente de los Sabios, Edificio E.
+     - 🔴 **Gimnasios:** Edificio Ad Portas, Concha Acústica.
+   - Al tocar cualquier marcador, se desplegará el callout con su nombre oficial.
+
+5. **Prueba del Magnetómetro y Brújula del Avatar:**
+   - Observa el avatar del entrenador (círculo azul con flecha direccional blanca).
+   - Gira físicamente tu teléfono hacia el norte, sur, este u oeste.
+   - **Resultado Esperado:** La flecha rota en tiempo real sincronizada con la orientación física del teléfono gracias al sensor de campo magnético (`expo-sensors`).
+
+6. **Verificación Visual del Polígono:**
+   - Aleja ligeramente el mapa con dos dedos.
+   - Verás claramente dibujado el polígono azul con borde cian que delimita con precisión el contorno geográfico del campus UniSabana.
+
+
 ---
 
 ## 6. Preguntas de Sustentación para la Evaluación Oral
