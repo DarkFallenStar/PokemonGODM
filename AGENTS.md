@@ -54,3 +54,13 @@ Este proyecto opera bajo el marco de ingeniería **Spec-Driven Development (SDD)
 4. **Verificación y Sincronización**:
    - Validar con `npx tsc --noEmit` y linters.
    - Sincronizar el grafo con `detect_changes` o re-indexar si hay cambios estructurales.
+5. **Documentación Obligatoria por Módulo (`docs/README_MODULO_X.md`)**:
+   - Cada etapa concluida DEBE generar obligatoriamente su archivo `docs/README_MODULO_X.md`.
+   - **Estructura Requerida sin Excepción**:
+     1. Fundamento técnico y matemático de los algoritmos implementados.
+     2. **Guía Paso a Paso para Probar y Sustentar en Vivo**: Procedimiento explícito de cómo el estudiante o evaluador debe operar la app (o scripts) para validar el 100% de los criterios de la rúbrica.
+     3. Instrucciones de ejecución y advertencia expresa de recompilación nativa (`npx eas-cli build -p android --profile development`) si se incorporaron módulos nativos.
+     4. Mínimo 3 preguntas técnicas de sustentación con sus respuestas modelo (100% de la nota).
+6. **Memoria de Arquitectura (ADR en Codebase-Memory)**:
+   - Registrar las decisiones estructurales y reglas de verificación directamente en el grafo mediante `manage_adr`.
+

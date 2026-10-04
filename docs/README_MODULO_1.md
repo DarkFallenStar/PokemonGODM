@@ -110,3 +110,31 @@ npx expo start --dev-client
 2. **Pestaña Mochila (🎒)**: Transiciona de inmediato mostrando la vista de inventario y Pokédex.
 3. **Barra de Navegación**: Observa que la barra inferior respeta los bordes seguros del dispositivo sin traslaparse con la barra de gestos del sistema.
 4. **Verificación de Tipos**: Ejecuta `npx tsc --noEmit` en cualquier momento para confirmar que no existen discrepancias en contratos de TypeScript.
+
+---
+
+## 5. Guía Paso a Paso para Probar y Sustentar en Vivo (Evaluación Oral)
+
+Para obtener el 100% de la calificación en la sustentación de este módulo, sigue este procedimiento ante el evaluador:
+
+1. **Demostración de Navegación y Cero Bloat:**
+   - Abre la app en el dispositivo físico conectado a Metro (`npx expo start --dev-client`).
+   - Muestra la barra inferior con únicamente dos pestañas: **Mapa** y **Mochila**.
+   - **Explicación al evaluador:** *«La arquitectura implementa un RootStack nativo sobre un BottomTabNavigator estricto. Se eliminaron pantallas de perfil o configuraciones innecesarias respetando la directiva de Cero Bloat y optimizando el ciclo de vida de componentes».*
+
+2. **Demostración de Desacoplamiento de Pantallas en Memoria (`react-native-screens`):**
+   - Cambia alternadamente entre la pestaña **Mapa** y la pestaña **Mochila**.
+   - **Explicación al evaluador:** *«Las pestañas no son vistas ocultas por CSS; están respaldadas por Fragments nativos en Android y UIViewControllers en iOS. Gracias a `detachInactiveScreens`, la vista inactiva se suspende del pipeline de dibujo de la GPU, previniendo fugas de memoria o cierres por OOM».*
+
+3. **Demostración del Cliente Singleton Supabase:**
+   - Abre el archivo `src/services/supabase.ts` en el editor.
+   - Señala la importación de `react-native-url-polyfill/auto` y la aserción de `EXPO_PUBLIC_SUPABASE_URL` y `EXPO_PUBLIC_SUPABASE_ANON_KEY`.
+   - **Explicación al evaluador:** *«Hermes no implementa la especificación WHATWG de URLs de forma nativa. El polyfill garantiza que las consultas REST y canales Realtime de Supabase no colapsen en runtime, mientras que el patrón Singleton asegura una sola instancia de red compartida para toda la aplicación».*
+
+4. **Verificación Estática de Tipado:**
+   - En la terminal del proyecto, ejecuta:
+     ```bash
+     npx tsc --noEmit
+     ```
+   - Demuestra que el compilador finaliza con **0 errores**, validando los contratos de TypeScript de rutas y parámetros.
+

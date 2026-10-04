@@ -100,3 +100,43 @@ Desde la terminal del proyecto en tu PC:
   - Verifica que `pokemon_base` contenga **151 registros** con sus tipos y stats.
   - Verifica que `pokestops` contenga las 4 Poképaradas del campus UniSabana.
   - Verifica que `gymnasiums` contenga los 2 Gimnasios (Ad Portas y Arena Deportiva).
+
+---
+
+## 5. Guía Paso a Paso para Probar y Sustentar en Vivo (Evaluación Oral)
+
+Para demostrar el cumplimiento del 100% de la rúbrica ante el evaluador, sigue estos pasos:
+
+1. **Demostración de No Uso de APIs Públicas (Pipeline Scraping Autónomo):**
+   - Abre `scraper/parser.py` en el editor.
+   - Muestra las funciones `scrape_pokemon_index()` y `parse_pokemon_row()` que consumen el HTML de PokemonDB usando `BeautifulSoup4`.
+   - **Explicación al evaluador:** *«Cumplimos con la prohibición estricta de consumir PokéAPI u otras APIs públicas. Implementamos un crawler propio con parseo DOM semántico, que extrae atributos numéricos, URLs de sprites estáticos y GIFs de batalla de Showdown/Gen 5»*.
+
+2. **Demostración de la Ecuación Matemática de Puntos de Combate (CP):**
+   - Abre `scraper/models.py` y localiza el método `@field_validator('base_cp')` / `calculate_cp`.
+   - Muestra la fórmula oficial: $\text{CP} = \max\left(10, \lfloor \frac{(\text{Atk}+\text{IV})\sqrt{\text{Def}+\text{IV}}\sqrt{\text{HP}+\text{IV}}}{10} \rfloor\right)$.
+   - **Explicación al evaluador:** *«El Combat Power no es un número arbitrario ni estático; implementamos la fórmula matemática no lineal de Niantic que pondera el Ataque linealmente y la Defensa y el HP con raíces cuadradas, generando un balance competitivo real»*.
+
+3. **Demostración del Modelo Relacional en Tercera Forma Normal (3FN):**
+   - Abre el **Table Editor** en el dashboard de Supabase (o ejecuta las consultas en el SQL Editor):
+     - `SELECT count(*) FROM pokemon_base;` $\to$ **151 registros**.
+     - `SELECT count(*) FROM types;` $\to$ **18 tipos elementales** con sus códigos HEX.
+     - `SELECT count(*) FROM type_effectiveness;` $\to$ **120 combinaciones** de daño elemental.
+     - `SELECT count(*) FROM pokemon_moves;` $\to$ **607 asociaciones N:M** entre Pokémon y ataques.
+   - **Explicación al evaluador:** *«El esquema elimina cualquier redundancia transitiva o parcial. Los tipos elementales, la efectividad de daño y los movimientos residen en catálogos normalizados con claves foráneas e integridad referencial estricta»*.
+
+4. **Demostración de Seguridad por Fila (Row Level Security - RLS):**
+   - En el SQL Editor de Supabase, muestra la definición de políticas en `scraper/schema.sql`:
+     ```sql
+     CREATE POLICY "Users can only view their own inventory"
+     ON user_inventory FOR SELECT TO authenticated
+     USING (auth.uid() = user_id);
+     ```
+   - **Explicación al evaluador:** *«La seguridad no depende del frontend móvil. Aplicamos el principio de confianza cero en base de datos: Postgres evalúa el JWT criptográfico del usuario vía `auth.uid()`, impidiendo que cualquier jugador pueda espiar, robar o inyectar Pokéballs o Pokémon a otros entrenadores»*.
+
+5. **Demostración de Puntos de Interés Geolocalizados de UniSabana:**
+   - Consulta las tablas `pokestops` y `gymnasiums`:
+     - Poképaradas: Biblioteca Octavio Arizmendi, Puente de Madera, Fuente de los Sabios, Edificio E.
+     - Gimnasios: Edificio Ad Portas, Concha Acústica.
+   - **Explicación al evaluador:** *«Los hitos del campus fueron insertados con coordenadas GPS exactas dentro del perímetro de Chía, sirviendo como la fuente de verdad espacial que consume el mapa en tiempo real»*.
+
