@@ -21,7 +21,13 @@ def load_env():
 _env = load_env()
 
 SUPABASE_URL = _env.get("EXPO_PUBLIC_SUPABASE_URL") or os.environ.get("EXPO_PUBLIC_SUPABASE_URL", "")
-SUPABASE_KEY = _env.get("EXPO_PUBLIC_SUPABASE_ANON_KEY") or os.environ.get("EXPO_PUBLIC_SUPABASE_ANON_KEY", "")
+# Preferir service_role si existe para operaciones de backend/seeding; fallback a anon_key
+SUPABASE_KEY = (
+    _env.get("SUPABASE_SERVICE_ROLE_KEY") 
+    or os.environ.get("SUPABASE_SERVICE_ROLE_KEY") 
+    or _env.get("EXPO_PUBLIC_SUPABASE_ANON_KEY") 
+    or os.environ.get("EXPO_PUBLIC_SUPABASE_ANON_KEY", "")
+)
 MAPBOX_TOKEN = _env.get("RNMAPBOX_MAPS_DOWNLOAD_TOKEN", "")
 
 BUCKET_NAME = "pokemon-sprites"

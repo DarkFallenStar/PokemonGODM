@@ -138,28 +138,64 @@ ALTER TABLE public.captured_instances ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.pokestops ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.gymnasiums ENABLE ROW LEVEL SECURITY;
 
+-- Otorgar privilegios a roles de Supabase (anon, authenticated, service_role)
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
+
 -- Catálogos públicos legibles por usuarios anónimos y autenticados
 DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Public Read Types') THEN
         CREATE POLICY "Public Read Types" ON public.types FOR SELECT USING (true);
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow Insert Types') THEN
+        CREATE POLICY "Allow Insert Types" ON public.types FOR INSERT WITH CHECK (true);
+        CREATE POLICY "Allow Update Types" ON public.types FOR UPDATE USING (true);
+    END IF;
+
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Public Read Effectiveness') THEN
         CREATE POLICY "Public Read Effectiveness" ON public.type_effectiveness FOR SELECT USING (true);
+        CREATE POLICY "Allow Insert Effectiveness" ON public.type_effectiveness FOR INSERT WITH CHECK (true);
     END IF;
+
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Public Read Moves') THEN
         CREATE POLICY "Public Read Moves" ON public.moves FOR SELECT USING (true);
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow Insert Moves') THEN
+        CREATE POLICY "Allow Insert Moves" ON public.moves FOR INSERT WITH CHECK (true);
+        CREATE POLICY "Allow Update Moves" ON public.moves FOR UPDATE USING (true);
+    END IF;
+
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Public Read Pokemon Base') THEN
         CREATE POLICY "Public Read Pokemon Base" ON public.pokemon_base FOR SELECT USING (true);
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow Insert Pokemon Base') THEN
+        CREATE POLICY "Allow Insert Pokemon Base" ON public.pokemon_base FOR INSERT WITH CHECK (true);
+        CREATE POLICY "Allow Update Pokemon Base" ON public.pokemon_base FOR UPDATE USING (true);
+    END IF;
+
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Public Read Pokemon Moves') THEN
         CREATE POLICY "Public Read Pokemon Moves" ON public.pokemon_moves FOR SELECT USING (true);
+        CREATE POLICY "Allow Insert Pokemon Moves" ON public.pokemon_moves FOR INSERT WITH CHECK (true);
     END IF;
+
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Public Read Pokestops') THEN
         CREATE POLICY "Public Read Pokestops" ON public.pokestops FOR SELECT USING (true);
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow Insert Pokestops') THEN
+        CREATE POLICY "Allow Insert Pokestops" ON public.pokestops FOR INSERT WITH CHECK (true);
+        CREATE POLICY "Allow Update Pokestops" ON public.pokestops FOR UPDATE USING (true);
+        CREATE POLICY "Allow Delete Pokestops" ON public.pokestops FOR DELETE USING (true);
+    END IF;
+
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Public Read Gymnasiums') THEN
         CREATE POLICY "Public Read Gymnasiums" ON public.gymnasiums FOR SELECT USING (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow Insert Gymnasiums') THEN
+        CREATE POLICY "Allow Insert Gymnasiums" ON public.gymnasiums FOR INSERT WITH CHECK (true);
+        CREATE POLICY "Allow Update Gymnasiums" ON public.gymnasiums FOR UPDATE USING (true);
+        CREATE POLICY "Allow Delete Gymnasiums" ON public.gymnasiums FOR DELETE USING (true);
     END IF;
 END $$;
 
@@ -190,6 +226,25 @@ DO $$ BEGIN
 END $$;
 
 -- =====================================================================
+-- LIMPIEZA DE DUPLICADOS Y RESTRICCIÓN DE UNICIDAD (CAMPUS UNISABANA)
+-- =====================================================================
+
+DELETE FROM public.pokestops a USING public.pokestops b 
+WHERE a.ctid < b.ctid AND a.name = b.name;
+
+DELETE FROM public.gymnasiums a USING public.gymnasiums b 
+WHERE a.ctid < b.ctid AND a.name = b.name;
+
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'pokestops_name_unique') THEN
+        ALTER TABLE public.pokestops ADD CONSTRAINT pokestops_name_unique UNIQUE (name);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'gymnasiums_name_unique') THEN
+        ALTER TABLE public.gymnasiums ADD CONSTRAINT gymnasiums_name_unique UNIQUE (name);
+    END IF;
+END $$;
+
+-- =====================================================================
 -- SEEDING INICIAL: PUNTOS DE INTERÉS DEL CAMPUS UNISABANA
 -- =====================================================================
 
@@ -198,9 +253,13 @@ INSERT INTO public.pokestops (name, latitude, longitude, interaction_radius_mete
 ('Edificio O - Bienestar Universitario', 4.85880, -74.03350, 20, 300),
 ('Plazoleta Central y Kioskos', 4.86010, -74.03300, 20, 300),
 ('Complejo Deportivo y Canchas Sintéticas', 4.85750, -74.03480, 20, 300)
-ON CONFLICT DO NOTHING;
+ON CONFLICT (name) DO UPDATE SET
+    latitude = EXCLUDED.latitude,
+    longitude = EXCLUDED.longitude;
 
 INSERT INTO public.gymnasiums (name, latitude, longitude, interaction_radius_meters, current_team) VALUES
 ('Gimnasio Ad Portas (Edificio Principal)', 4.86280, -74.03451, 40, 'neutral'),
 ('Gimnasio Arena Deportiva UniSabana', 4.85720, -74.03510, 40, 'neutral')
-ON CONFLICT DO NOTHING;
+ON CONFLICT (name) DO UPDATE SET
+    latitude = EXCLUDED.latitude,
+    longitude = EXCLUDED.longitude;

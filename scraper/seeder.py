@@ -1,6 +1,8 @@
 from typing import List, Dict
 from .models import PokemonScrapedModel
 from .storage import get_supabase_client
+from .type_chart import TYPE_EFFECTIVENESS_MAP
+from .moves_data import GEN1_MOVES
 
 # 18 Tipos Elementales Oficiales y su paleta cromática HEX
 POKEMON_TYPES = [
@@ -22,20 +24,6 @@ POKEMON_TYPES = [
     {"id": 16, "name": "Dark", "color_hex": "#705848"},
     {"id": 17, "name": "Steel", "color_hex": "#B8B8D0"},
     {"id": 18, "name": "Fairy", "color_hex": "#EE99AC"},
-]
-
-# Catálogo Base de Movimientos Gen 1 (Rápidos y Cargados)
-SAMPLE_MOVES = [
-    {"id": 1, "name": "Tackle", "type_id": 1, "category": "fast", "power": 5, "energy_delta": 5, "duration_ms": 500},
-    {"id": 2, "name": "Vine Whip", "type_id": 4, "category": "fast", "power": 7, "energy_delta": 6, "duration_ms": 600},
-    {"id": 3, "name": "Ember", "type_id": 2, "category": "fast", "power": 10, "energy_delta": 10, "duration_ms": 1000},
-    {"id": 4, "name": "Water Gun", "type_id": 3, "category": "fast", "power": 5, "energy_delta": 5, "duration_ms": 500},
-    {"id": 5, "name": "Thunder Shock", "type_id": 5, "category": "fast", "power": 5, "energy_delta": 8, "duration_ms": 600},
-    {"id": 6, "name": "Solar Beam", "type_id": 4, "category": "charged", "power": 180, "energy_delta": -100, "duration_ms": 4900},
-    {"id": 7, "name": "Flamethrower", "type_id": 2, "category": "charged", "power": 70, "energy_delta": -50, "duration_ms": 2200},
-    {"id": 8, "name": "Hydro Pump", "type_id": 3, "category": "charged", "power": 130, "energy_delta": -100, "duration_ms": 3300},
-    {"id": 9, "name": "Thunderbolt", "type_id": 5, "category": "charged", "power": 80, "energy_delta": -50, "duration_ms": 2500},
-    {"id": 10, "name": "Hyper Beam", "type_id": 1, "category": "charged", "power": 150, "energy_delta": -100, "duration_ms": 3800},
 ]
 
 # Hitos Emblemáticos del Campus UniSabana
@@ -60,7 +48,7 @@ def seed_database(pokemon_list: List[PokemonScrapedModel]) -> bool:
     print("\n[*] Iniciando Seeding Relacional en Supabase (3FN)...")
 
     # 1. Seeding de Tipos
-    print("[1/5] Insertando catálogo de Tipos Elementales...")
+    print("[1/6] Insertando catálogo de Tipos Elementales...")
     type_name_to_id = {}
     for t in POKEMON_TYPES:
         type_name_to_id[t["name"].lower()] = t["id"]
@@ -69,17 +57,58 @@ def seed_database(pokemon_list: List[PokemonScrapedModel]) -> bool:
         except Exception as e:
             print(f"  [!] Nota al insertar tipo {t['name']}: {e}")
 
-    # 2. Seeding de Movimientos
-    print("[2/5] Insertando catálogo de Movimientos...")
-    for m in SAMPLE_MOVES:
+    # 2. Seeding de Matriz de Efectividad (type_effectiveness)
+    print("[2/6] Insertando Matriz de Efectividad de Daño (type_effectiveness)...")
+    effectiveness_rows = []
+    for atk_name, def_dict in TYPE_EFFECTIVENESS_MAP.items():
+        atk_id = type_name_to_id.get(atk_name.lower())
+        if not atk_id:
+            continue
+        for def_name, mult in def_dict.items():
+            def_id = type_name_to_id.get(def_name.lower())
+            if not def_id:
+                continue
+            effectiveness_rows.append({
+                "attacking_type_id": atk_id,
+                "defending_type_id": def_id,
+                "multiplier": mult
+            })
+
+    # Insertar en lotes
+    for i in range(0, len(effectiveness_rows), 50):
+        chunk = effectiveness_rows[i:i+50]
         try:
-            client.table("moves").upsert(m).execute()
+            client.table("type_effectiveness").upsert(chunk).execute()
+        except Exception as e:
+            print(f"  [!] Error al insertar lote de efectividad: {e}")
+    print(f"  [OK] {len(effectiveness_rows)} relaciones de daño insertadas.")
+
+    # 3. Seeding de Movimientos
+    print(f"[3/6] Insertando catálogo completo de Movimientos ({len(GEN1_MOVES)} movimientos)...")
+    for m in GEN1_MOVES:
+        move_data = {
+            "name": m["name"],
+            "type_id": m["type_id"],
+            "category": m["category"],
+            "power": m["power"],
+            "energy_delta": m["energy_delta"],
+            "duration_ms": m["duration_ms"]
+        }
+        try:
+            client.table("moves").upsert(move_data, on_conflict="name").execute()
         except Exception as e:
             print(f"  [!] Nota al insertar movimiento {m['name']}: {e}")
 
-    # 3. Seeding de Pokémon Base
-    print(f"[3/5] Insertando catálogo de los {len(pokemon_list)} Pokémon Base...")
+    # 4. Seeding de Pokémon Base
+    print(f"[4/6] Insertando catálogo de los {len(pokemon_list)} Pokémon Base...")
     batch = []
+    pokemon_moves_batch = []
+
+    # Mapeo rápido de moves por type_id para asociar
+    type_to_moves = {}
+    for m in GEN1_MOVES:
+        type_to_moves.setdefault(m["type_id"], []).append(m["id"])
+
     for p in pokemon_list:
         p_primary_id = type_name_to_id.get(p.type_primary.lower(), 1)
         p_secondary_id = type_name_to_id.get(p.type_secondary.lower()) if p.type_secondary else None
@@ -102,6 +131,17 @@ def seed_database(pokemon_list: List[PokemonScrapedModel]) -> bool:
         }
         batch.append(record)
 
+        # Asociar movimientos compatibles según tipo (N:M pokemon_moves)
+        compatible_moves = type_to_moves.get(p_primary_id, [])
+        if p_secondary_id:
+            compatible_moves = compatible_moves + type_to_moves.get(p_secondary_id, [])
+        # Siempre añadir al menos Tackle (id: 1) si no tiene
+        if 1 not in compatible_moves:
+            compatible_moves.append(1)
+
+        for m_id in compatible_moves:
+            pokemon_moves_batch.append({"pokemon_id": p.id, "move_id": m_id})
+
         if len(batch) >= 25:
             try:
                 client.table("pokemon_base").upsert(batch).execute()
@@ -115,28 +155,33 @@ def seed_database(pokemon_list: List[PokemonScrapedModel]) -> bool:
         except Exception as e:
             print(f"  [!] Error al insertar lote final: {e}")
 
-    # 4. Seeding de Poképaradas UniSabana
-    print("[4/5] Insertando Poképaradas del Campus UniSabana...")
+    # Insertar pokemon_moves
+    print(f"  [*] Asociando {len(pokemon_moves_batch)} relaciones en pokemon_moves...")
+    for i in range(0, len(pokemon_moves_batch), 100):
+        chunk = pokemon_moves_batch[i:i+100]
+        try:
+            client.table("pokemon_moves").upsert(chunk).execute()
+        except Exception as e:
+            pass
+
+    # 5. Seeding de Poképaradas UniSabana (Sin duplicar)
+    print("[5/6] Sincronizando Poképaradas del Campus UniSabana...")
+    # Intentar eliminar existentes por nombre para evitar duplicación
     for stop in CAMPUS_POKESTOPS:
         try:
-            client.table("pokestops").upsert(stop, on_conflict="name").execute()
-        except Exception:
-            # Fallback sin on_conflict
-            try:
-                client.table("pokestops").insert(stop).execute()
-            except Exception as e:
-                print(f"  [!] Nota Poképarada: {e}")
+            client.table("pokestops").delete().eq("name", stop["name"]).execute()
+            client.table("pokestops").insert(stop).execute()
+        except Exception as e:
+            print(f"  [!] Nota Poképarada: {e}")
 
-    # 5. Seeding de Gimnasios UniSabana
-    print("[5/5] Insertando Gimnasios de Combate del Campus...")
+    # 6. Seeding de Gimnasios UniSabana (Sin duplicar)
+    print("[6/6] Sincronizando Gimnasios de Combate del Campus...")
     for gym in CAMPUS_GYMS:
         try:
-            client.table("gymnasiums").upsert(gym, on_conflict="name").execute()
-        except Exception:
-            try:
-                client.table("gymnasiums").insert(gym).execute()
-            except Exception as e:
-                print(f"  [!] Nota Gimnasio: {e}")
+            client.table("gymnasiums").delete().eq("name", gym["name"]).execute()
+            client.table("gymnasiums").insert(gym).execute()
+        except Exception as e:
+            print(f"  [!] Nota Gimnasio: {e}")
 
     print("[OK] Seeding relacional en Supabase completado exitosamente!")
     return True
