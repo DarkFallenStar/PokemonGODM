@@ -1,10 +1,11 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import type { InventoryScreenProps } from '../types/navigation';
 
 export const InventoryScreen: React.FC<InventoryScreenProps> = () => {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.card}>
         <Text style={styles.icon}>🎒</Text>
         <Text style={styles.title}>Mochila y Pokédex</Text>
@@ -15,7 +16,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = () => {
           Aquí se gestionarán los 151 Pokémon extraídos mediante Web Scraping y persistidos en Supabase, además de Pokéballs y objetos de combate.
         </Text>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

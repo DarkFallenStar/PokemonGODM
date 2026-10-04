@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapboxGL from '@rnmapbox/maps';
 import { useLocationTracker } from '../hooks/useLocationTracker';
 import { useHeadingTracker } from '../hooks/useHeadingTracker';
@@ -15,6 +16,7 @@ if (mapboxToken) {
 }
 
 export const MapScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const {
     location,
     isInsideGeofence,
@@ -84,7 +86,7 @@ export const MapScreen: React.FC = () => {
 
   if (!mapboxToken) {
     return (
-      <View style={styles.missingTokenContainer}>
+      <View style={[styles.missingTokenContainer, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}>
         <Text style={styles.missingTokenTitle}>🗺️ Token de Mapbox Requerido</Text>
         <Text style={styles.missingTokenText}>
           Mapbox nativo requiere un Access Token público para inicializar los mapas vectoriales.
@@ -161,7 +163,7 @@ export const MapScreen: React.FC = () => {
       </MapboxGL.MapView>
 
       {/* Barra de Estado Superior HUD */}
-      <View style={styles.hudOverlay}>
+      <View style={[styles.hudOverlay, { top: insets.top + 8 }]}>
         <View style={styles.hudCard}>
           <Text style={styles.hudTitle}>📍 Campus UniSabana</Text>
           <Text style={styles.hudCoords}>
@@ -189,7 +191,7 @@ export const MapScreen: React.FC = () => {
 
       {/* Indicador de carga inicial */}
       {isLoadingLocation && (
-        <View style={styles.loadingBox}>
+        <View style={[styles.loadingBox, { bottom: insets.bottom + 16 }]}>
           <ActivityIndicator size="small" color="#38BDF8" />
           <Text style={styles.loadingText}>Conectando GPS...</Text>
         </View>
@@ -215,7 +217,6 @@ const styles = StyleSheet.create({
   },
   hudOverlay: {
     position: 'absolute',
-    top: 50,
     left: 16,
     right: 16,
     flexDirection: 'row',
