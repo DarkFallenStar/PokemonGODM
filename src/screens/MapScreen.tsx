@@ -9,8 +9,10 @@ import { MapAvatarMarker } from '../components/MapAvatarMarker';
 import { supabase } from '../services/supabase';
 import type { CampusPOIMarker } from '../types/map';
 
-// Inicializar Mapbox con token público o nulo para estilos libres
-MapboxGL.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN || null);
+const mapboxToken = process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
+if (mapboxToken) {
+  MapboxGL.setAccessToken(mapboxToken);
+}
 
 export const MapScreen: React.FC = () => {
   const {
@@ -79,6 +81,23 @@ export const MapScreen: React.FC = () => {
 
     loadCampusPOIs();
   }, []);
+
+  if (!mapboxToken) {
+    return (
+      <View style={styles.missingTokenContainer}>
+        <Text style={styles.missingTokenTitle}>🗺️ Token de Mapbox Requerido</Text>
+        <Text style={styles.missingTokenText}>
+          Mapbox nativo requiere un Access Token público para inicializar los mapas vectoriales.
+        </Text>
+        <View style={styles.codeBox}>
+          <Text style={styles.codeText}>EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN=pk.eyJ...</Text>
+        </View>
+        <Text style={styles.missingTokenHint}>
+          Agrega esta variable a tu archivo .env y reinicia el servidor Metro.
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -302,5 +321,47 @@ const styles = StyleSheet.create({
   loadingText: {
     color: '#94A3B8',
     fontSize: 12,
+  },
+  missingTokenContainer: {
+    flex: 1,
+    backgroundColor: '#0F172A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  missingTokenTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#38BDF8',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  missingTokenText: {
+    fontSize: 14,
+    color: '#94A3B8',
+    textAlign: 'center',
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  codeBox: {
+    backgroundColor: '#1E293B',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#334155',
+    marginBottom: 16,
+    width: '100%',
+  },
+  codeText: {
+    fontFamily: 'monospace',
+    color: '#4ADE80',
+    fontSize: 13,
+    textAlign: 'center',
+  },
+  missingTokenHint: {
+    fontSize: 12,
+    color: '#64748B',
+    textAlign: 'center',
   },
 });
