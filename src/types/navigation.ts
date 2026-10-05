@@ -11,6 +11,12 @@ export type MainTabParamList = {
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   Capture: { spawn: ActiveSpawn };
+  GymBattle: {
+    gymId: string;
+    gymName: string;
+    initialTeam: 'mystic' | 'valor' | 'instinct' | 'neutral';
+    distanceMeters: number;
+  };
 };
 
 export type RootStackScreenProps<T extends keyof RootStackParamList> =

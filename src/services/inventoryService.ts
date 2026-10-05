@@ -1,7 +1,69 @@
 import { supabase } from './supabase';
-import type { InventoryItemType, PokestopRewardItem } from '../types/interaction';
+import type { PokestopRewardItem } from '../types/interaction';
+import type {
+  InventoryItemType,
+  InventoryItemView,
+  ConsumableItemMetadata,
+  EnrichedCapturedPokemon,
+  AppraisalRating,
+} from '../types/inventory';
+import type { Move, PokemonBase } from '../types/pokemon';
 
 export const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001';
+
+export const CONSUMABLE_METADATA_MAP: Record<InventoryItemType, ConsumableItemMetadata> = {
+  pokeball: {
+    type: 'pokeball',
+    name: 'Pokéball',
+    category: 'ball',
+    description: 'Dispositivo esférico estándar para capturar criaturas salvajes.',
+    iconEmoji: '🔴',
+    badgeColor: '#EF4444',
+  },
+  greatball: {
+    type: 'greatball',
+    name: 'Superball',
+    category: 'ball',
+    description: 'Cápsula de alta precisión con tasa de éxito incrementada (+50%).',
+    iconEmoji: '🔵',
+    badgeColor: '#3B82F6',
+  },
+  ultraball: {
+    type: 'ultraball',
+    name: 'Ultraball',
+    category: 'ball',
+    description: 'Cápsula ultra resistente diseñada para criaturas esquivas (+100%).',
+    iconEmoji: '🟡',
+    badgeColor: '#EAB308',
+  },
+  potion: {
+    type: 'potion',
+    name: 'Poción',
+    category: 'medicine',
+    description: 'Medicina tipo aerosol que restaura 20 PS a un Pokémon herido.',
+    iconEmoji: '🧪',
+    badgeColor: '#A855F7',
+    healAmount: 20,
+  },
+  superpotion: {
+    type: 'superpotion',
+    name: 'Superpoción',
+    category: 'medicine',
+    description: 'Medicina avanzada que restaura 50 PS a un Pokémon herido.',
+    iconEmoji: '💊',
+    badgeColor: '#EC4899',
+    healAmount: 50,
+  },
+  revive: {
+    type: 'revive',
+    name: 'Revivir',
+    category: 'medicine',
+    description: 'Reanima a un Pokémon debilitado (0 PS) y recupera el 50% de sus PS máximos.',
+    iconEmoji: '💎',
+    badgeColor: '#F59E0B',
+    reviveHealthPercentage: 0.5,
+  },
+};
 
 const REWARD_TABLE: {
   type: InventoryItemType;
@@ -57,7 +119,7 @@ export function generatePokestopRewards(): PokestopRewardItem[] {
 }
 
 /**
- * Consulta el inventario actual del usuario en Supabase
+ * Consulta el inventario actual del usuario en Supabase (Mapa plano de cantidades)
  */
 export async function fetchUserInventory(
   userId: string = DEMO_USER_ID
@@ -87,6 +149,30 @@ export async function fetchUserInventory(
 }
 
 /**
+ * Consulta detallada de todos los consumibles para la vista de la Mochila
+ */
+export async function fetchInventoryItemsDetailed(
+  userId: string = DEMO_USER_ID
+): Promise<InventoryItemView[]> {
+  const rawInventory = await fetchUserInventory(userId);
+
+  const itemTypes: InventoryItemType[] = [
+    'pokeball',
+    'greatball',
+    'ultraball',
+    'potion',
+    'superpotion',
+    'revive',
+  ];
+
+  return itemTypes.map(type => ({
+    itemType: type,
+    quantity: rawInventory[type] || 0,
+    metadata: CONSUMABLE_METADATA_MAP[type],
+  }));
+}
+
+/**
  * Agrega los objetos entregados por la Poképarada al inventario en Supabase
  */
 export async function addItemsToInventory(
@@ -94,10 +180,8 @@ export async function addItemsToInventory(
   userId: string = DEMO_USER_ID
 ): Promise<boolean> {
   try {
-    // 1. Obtener cantidades actuales
     const current = await fetchUserInventory(userId);
 
-    // 2. Preparar los upserts
     const updates = rewards.map(r => ({
       user_id: userId,
       item_type: r.item_type,
@@ -122,8 +206,244 @@ export async function addItemsToInventory(
 }
 
 /**
- * Verifica el estado de enfriamiento (cooldown) de una Poképarada
- * Cooldown reglamentario: 300 segundos (5 minutos)
+ * Calcula la valoración de estrellas (Appraisal) a partir de los 3 IVs individuales (0-15)
+ */
+export function calculateAppraisal(ivAttack: number, ivDefense: number, ivHp: number): AppraisalRating {
+  const totalIV = Math.max(0, Math.min(45, (ivAttack || 0) + (ivDefense || 0) + (ivHp || 0)));
+  const overallPercentage = Math.round((totalIV / 45) * 100);
+
+  if (totalIV === 45) {
+    return {
+      totalIV,
+      overallPercentage: 100,
+      stars: 3,
+      isPerfect: true,
+      summaryText: '¡100% Perfecto (Hundo)! Estadísticas genéticas legendarias.',
+      badgeColor: '#EC4899', // Pink / Magenta brillante
+    };
+  }
+
+  if (overallPercentage >= 82) {
+    return {
+      totalIV,
+      overallPercentage,
+      stars: 3,
+      isPerfect: false,
+      summaryText: '¡Maravilloso! Ejemplar sobresaliente para combate.',
+      badgeColor: '#EAB308', // Dorado
+    };
+  }
+
+  if (overallPercentage >= 66) {
+    return {
+      totalIV,
+      overallPercentage,
+      stars: 2,
+      isPerfect: false,
+      summaryText: 'Excelente potencial. Por encima del promedio.',
+      badgeColor: '#94A3B8', // Plata
+    };
+  }
+
+  if (overallPercentage >= 50) {
+    return {
+      totalIV,
+      overallPercentage,
+      stars: 1,
+      isPerfect: false,
+      summaryText: 'Estadísticas aceptables para entrenamiento.',
+      badgeColor: '#D97706', // Bronce
+    };
+  }
+
+  return {
+    totalIV,
+    overallPercentage,
+    stars: 0,
+    isPerfect: false,
+    summaryText: 'Estadísticas bajas. Puede mejorar con entrenamiento.',
+    badgeColor: '#64748B', // Pizarra
+  };
+}
+
+/**
+ * Movimientos por defecto en caso de registros incompletos
+ */
+const DEFAULT_FAST_MOVE: Move = {
+  id: 1,
+  name: 'Tackle',
+  type_id: 1,
+  category: 'fast',
+  power: 5,
+  energy_delta: 5,
+  duration_ms: 500,
+};
+
+const DEFAULT_CHARGED_MOVE: Move = {
+  id: 4,
+  name: 'Body Slam',
+  type_id: 1,
+  category: 'charged',
+  power: 50,
+  energy_delta: -33,
+  duration_ms: 1900,
+};
+
+/**
+ * Consulta la colección completa de criaturas capturadas del usuario,
+ * enriquecida con estadísticas base, IVs individuales, movimientos y appraisal.
+ */
+export async function fetchCapturedPokemonCollection(
+  userId: string = DEMO_USER_ID
+): Promise<EnrichedCapturedPokemon[]> {
+  try {
+    const { data, error } = await supabase
+      .from('captured_instances')
+      .select(`
+        id,
+        user_id,
+        pokemon_id,
+        iv_attack,
+        iv_defense,
+        iv_hp,
+        cp,
+        current_hp,
+        fast_move_id,
+        charged_move_id,
+        captured_at,
+        pokemon_base:pokemon_base (*),
+        fast_move:moves!fast_move_id (*),
+        charged_move:moves!charged_move_id (*)
+      `)
+      .eq('user_id', userId)
+      .order('captured_at', { ascending: false });
+
+    if (error) {
+      console.warn('Error consultando colección de capturas:', error.message);
+      return [];
+    }
+
+    if (!data) return [];
+
+    return data.map((row: any): EnrichedCapturedPokemon => {
+      const base: PokemonBase = row.pokemon_base || {
+        id: row.pokemon_id,
+        name: `Pokémon #${row.pokemon_id}`,
+        type_primary_id: 1,
+        type_secondary_id: null,
+        base_hp: 50,
+        base_attack: 50,
+        base_defense: 50,
+        base_sp_attack: 50,
+        base_sp_defense: 50,
+        base_speed: 50,
+        base_cp: row.cp,
+        base_catch_rate: 0.2,
+        sprite_url: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${row.pokemon_id}.png`,
+      };
+
+      const ivAttack = row.iv_attack ?? 8;
+      const ivDefense = row.iv_defense ?? 8;
+      const ivHp = row.iv_hp ?? 8;
+
+      const maxHp = (base.base_hp * 2) + ivHp + 50;
+      const currentHp = row.current_hp !== null && row.current_hp !== undefined
+        ? Math.min(row.current_hp, maxHp)
+        : maxHp;
+
+      const fastMove: Move = row.fast_move || DEFAULT_FAST_MOVE;
+      const chargedMove: Move = row.charged_move || DEFAULT_CHARGED_MOVE;
+
+      return {
+        id: row.id,
+        user_id: row.user_id,
+        pokemon_id: row.pokemon_id,
+        cp: row.cp,
+        current_hp: currentHp,
+        iv_attack: ivAttack,
+        iv_defense: ivDefense,
+        iv_hp: ivHp,
+        fast_move_id: row.fast_move_id,
+        charged_move_id: row.charged_move_id,
+        captured_at: row.captured_at,
+        base,
+        fastMove,
+        chargedMove,
+        maxHp,
+        stats: {
+          attack: {
+            statName: 'Ataque',
+            baseValue: base.base_attack,
+            ivValue: ivAttack,
+            effectiveValue: base.base_attack + ivAttack,
+            maxPossibleEffective: base.base_attack + 15,
+            ivPercentage: Math.round((ivAttack / 15) * 100),
+          },
+          defense: {
+            statName: 'Defensa',
+            baseValue: base.base_defense,
+            ivValue: ivDefense,
+            effectiveValue: base.base_defense + ivDefense,
+            maxPossibleEffective: base.base_defense + 15,
+            ivPercentage: Math.round((ivDefense / 15) * 100),
+          },
+          hp: {
+            statName: 'Salud (HP)',
+            baseValue: base.base_hp,
+            ivValue: ivHp,
+            effectiveValue: maxHp,
+            maxPossibleEffective: (base.base_hp * 2) + 15 + 50,
+            ivPercentage: Math.round((ivHp / 15) * 100),
+          },
+        },
+        appraisal: calculateAppraisal(ivAttack, ivDefense, ivHp),
+      };
+    });
+  } catch (err) {
+    console.warn('Excepción consultando colección de Pokémon:', err);
+    return [];
+  }
+}
+
+/**
+ * Aplica una poción o revivir a una criatura capturada mediante la RPC de PostgreSQL
+ */
+export async function applyMedicineToPokemon(
+  instanceId: string,
+  itemType: 'potion' | 'superpotion' | 'revive',
+  userId: string = DEMO_USER_ID
+): Promise<{ success: boolean; newHp?: number; maxHp?: number; remainingQuantity?: number; error?: string }> {
+  try {
+    const { data, error } = await supabase.rpc('apply_item_to_pokemon', {
+      p_user_id: userId,
+      p_instance_id: instanceId,
+      p_item_type: itemType,
+    });
+
+    if (error) {
+      console.warn('Error en RPC apply_item_to_pokemon:', error.message);
+      return { success: false, error: error.message };
+    }
+
+    if (data && typeof data === 'object') {
+      return {
+        success: !!data.success,
+        newHp: data.new_hp,
+        maxHp: data.max_hp,
+        remainingQuantity: data.remaining_quantity,
+        error: data.error,
+      };
+    }
+
+    return { success: false, error: 'Respuesta inválida del servidor.' };
+  } catch (err: any) {
+    console.warn('Excepción aplicando medicina:', err);
+    return { success: false, error: err?.message || 'Error de conexión.' };
+  }
+}
+
+/**
+ * Cooldown de Poképaradas
  */
 export async function checkPokestopCooldown(
   pokestopId: string,
@@ -159,9 +479,6 @@ export async function checkPokestopCooldown(
   }
 }
 
-/**
- * Registra el giro de una Poképarada e inicia el temporizador de 5 minutos
- */
 export async function recordPokestopSpin(
   pokestopId: string,
   userId: string = DEMO_USER_ID

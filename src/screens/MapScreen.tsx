@@ -193,6 +193,17 @@ export const MapScreen: React.FC = () => {
     navigation.navigate('Capture', { spawn });
   };
 
+  // Manejador de desafío a gimnasio dentro del radio de 40m
+  const handleChallengeGym = useCallback((gym: CampusPOIMarker) => {
+    setSelectedGym(null);
+    navigation.navigate('GymBattle', {
+      gymId: gym.id,
+      gymName: gym.name,
+      initialTeam: 'mystic',
+      distanceMeters: selectedGymDistance,
+    });
+  }, [navigation, selectedGymDistance]);
+
   // Manejador de actualización manual del mapa (recarga POIs, cooldowns y spawns sin reiniciar)
   const handleManualRefresh = useCallback(async () => {
     if (isRefreshing) return;
@@ -478,6 +489,7 @@ export const MapScreen: React.FC = () => {
         gym={selectedGym}
         distanceMeters={selectedGymDistance}
         onClose={() => setSelectedGym(null)}
+        onChallengeGym={handleChallengeGym}
       />
 
       {/* Modal de Encuentro con Pokémon Salvaje en Radio de 30m */}

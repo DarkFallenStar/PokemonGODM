@@ -7,6 +7,7 @@ interface GymModalProps {
   gym: CampusPOIMarker | null;
   distanceMeters: number;
   onClose: () => void;
+  onChallengeGym?: (gym: CampusPOIMarker) => void;
 }
 
 const TEAM_CONFIG = {
@@ -21,6 +22,7 @@ export const GymModal: React.FC<GymModalProps> = ({
   gym,
   distanceMeters,
   onClose,
+  onChallengeGym,
 }) => {
   if (!gym) return null;
 
@@ -62,7 +64,11 @@ export const GymModal: React.FC<GymModalProps> = ({
               Debes encontrarte a menos de 40 metros del gimnasio para iniciar una batalla.
             </Text>
           ) : (
-            <TouchableOpacity style={[styles.battleButton, { backgroundColor: team.color }]} activeOpacity={0.85}>
+            <TouchableOpacity
+              style={[styles.battleButton, { backgroundColor: team.color }]}
+              activeOpacity={0.85}
+              onPress={() => onChallengeGym?.(gym)}
+            >
               <Text style={styles.battleButtonText}>⚔️ Desafiar Gimnasio</Text>
             </TouchableOpacity>
           )}
