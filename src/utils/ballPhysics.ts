@@ -1,6 +1,6 @@
 /**
  * Utilidades cinemáticas y balísticas para el lanzamiento de Pokéballs en Reanimated.
- * Implementa física parabólica 3D proyectada en perspectiva 2D en el UI Thread (Worklet).
+ * Implementa física parabólica 3D proyectada en perspectiva 2D.
  */
 
 export interface SwipeMetrics {
@@ -19,7 +19,7 @@ export interface BallTrajectoryState {
   isHit: boolean;
 }
 
-// Constantes físicas del simulador
+// Constantes físicas del simulador expuestas para utilidades
 export const GRAVITY = 9.81; // m/s^2
 export const TARGET_Z_DEPTH = 7.5; // Distancia virtual hacia el Pokémon en metros
 export const FOCAL_LENGTH = 3.5; // Distancia focal de la cámara virtual para perspectiva
@@ -70,13 +70,14 @@ export function getBallPosition3DWorklet(
   startZ: number = 0
 ) {
   'worklet';
+  const gravityConstant = 9.81;
   // Resistencia aerodinámica simplificada
   const dragFactor = Math.exp(-0.08 * t);
 
   const x = startX + v0x * t * dragFactor;
   const z = startZ + v0z * t * dragFactor;
   // Ecuación cinemática parabólica clásica: y = y0 + v0y*t - 0.5*g*t^2
-  const y = startY + v0y * t * dragFactor - 0.5 * GRAVITY * t * t;
+  const y = startY + v0y * t * dragFactor - 0.5 * gravityConstant * t * t;
 
   return { x, y, z };
 }
@@ -92,8 +93,9 @@ export function project3DtoScreenWorklet(
   screenHeight: number
 ) {
   'worklet';
+  const focalLengthConstant = 3.5;
   // Factor de escala cónica en perspectiva
-  const scale = FOCAL_LENGTH / (FOCAL_LENGTH + Math.max(0, z3d));
+  const scale = focalLengthConstant / (focalLengthConstant + Math.max(0, z3d));
 
   // Origen en la base de la pantalla (mano del entrenador)
   const screenOriginX = screenWidth / 2;
@@ -111,6 +113,8 @@ export function project3DtoScreenWorklet(
 
 /**
  * Evalúa si la bola impacta la caja de colisión (Hitbox) del Pokémon en el instante t.
+ * NOTA CRÍTICA DE REANIMATED: No utilizar variables externas como valor por defecto de parámetros,
+ * pues el runtime de Hermes en el UI thread no captura scopes externos en parámetros por defecto.
  */
 export function checkHitboxCollisionWorklet(
   ballScreenX: number,
@@ -118,18 +122,22 @@ export function checkHitboxCollisionWorklet(
   ballZ: number,
   pokemonScreenX: number,
   pokemonScreenY: number,
-  hitboxRadiusPx: number = HITBOX_RADIUS_PX
+  hitboxRadiusPx: number = 65
 ) {
   'worklet';
+  const targetDepth = 7.5;
+  const depthTolerance = 0.6;
+  const radius = hitboxRadiusPx > 0 ? hitboxRadiusPx : 65;
+
   // 1. Verificación en profundidad (eje Z): la bola debe alcanzar la distancia del Pokémon
-  const isAtTargetDepth = Math.abs(ballZ - TARGET_Z_DEPTH) <= HITBOX_DEPTH_TOLERANCE;
+  const isAtTargetDepth = Math.abs(ballZ - targetDepth) <= depthTolerance;
 
   // 2. Verificación transversal en el plano 2D de la pantalla
   const dx = ballScreenX - pokemonScreenX;
   const dy = ballScreenY - pokemonScreenY;
   const distancePx = Math.sqrt(dx * dx + dy * dy);
 
-  const isInsideHitbox = distancePx <= hitboxRadiusPx;
+  const isInsideHitbox = distancePx <= radius;
 
   return {
     isHit: isAtTargetDepth && isInsideHitbox,

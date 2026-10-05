@@ -70,16 +70,13 @@ export const PokeballThrower: React.FC<PokeballThrowerProps> = ({
     resetBall();
   };
 
-  // Simulación del vuelo cinemático en Worklet
+  // Simulación del vuelo cinemático y animación parabólica
   const runFlightSimulation = (
     v0x: number,
     v0y: number,
     v0z: number
   ) => {
-    'worklet';
     const totalFlightTime = Math.min(1.2, TARGET_Z_DEPTH / v0z);
-    const steps = 24;
-    const dt = totalFlightTime / steps;
 
     // Calcular posición final proyectada en el plano del Pokémon
     const posFinal3D = getBallPosition3DWorklet(totalFlightTime, v0x, v0y, v0z);
@@ -100,7 +97,8 @@ export const PokeballThrower: React.FC<PokeballThrowerProps> = ({
       projFinal.screenY,
       posFinal3D.z,
       pokeScreenX,
-      pokeScreenY
+      pokeScreenY,
+      65
     );
 
     // Animación de trayectoria parabólica suave
@@ -134,20 +132,21 @@ export const PokeballThrower: React.FC<PokeballThrowerProps> = ({
     // Callback de fin de vuelo al impactar o fallar
     setTimeout(() => {
       if (collision.isHit) {
-        runOnJS(handleImpact)(collision.distancePx, projFinal.screenX, projFinal.screenY);
+        handleImpact(collision.distancePx, projFinal.screenX, projFinal.screenY);
       } else {
-        runOnJS(handleMiss)();
+        handleMiss();
       }
     }, totalFlightTime * 1000);
   };
 
-  // Gesto Pan para el Swipe Gesture
+  // Gesto Pan para el Swipe Gesture (ejecutado en JS thread para interacción limpia con timers y estados)
   const panGesture = Gesture.Pan()
+    .runOnJS(true)
     .enabled(!disabled && state === 'aiming' && !isThrowing)
     .onStart(() => {
-      runOnJS(setIsThrowing)(true);
+      setIsThrowing(true);
       if (onThrowStart) {
-        runOnJS(onThrowStart)();
+        onThrowStart();
       }
     })
     .onUpdate(e => {
@@ -169,7 +168,7 @@ export const PokeballThrower: React.FC<PokeballThrowerProps> = ({
         runFlightSimulation(vel.vx, vel.vy, vel.vz);
       } else {
         // Gesto cancelado o insuficiente -> resetear
-        runOnJS(resetBall)();
+        resetBall();
       }
     });
 
