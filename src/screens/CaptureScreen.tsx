@@ -24,7 +24,7 @@ import {
   getBallInventory,
   consumeBall,
   recordSuccessfulCapture,
-  removeActiveSpawn,
+  recordSpawnFled,
 } from '../services/captureService';
 import { supabase } from '../services/supabase';
 
@@ -173,7 +173,7 @@ export const CaptureScreen: React.FC = () => {
   const handleEscape = async (hasFled: boolean) => {
     if (hasFled) {
       setState('fled');
-      await removeActiveSpawn(spawn.id);
+      await recordSpawnFled(spawn.id);
       Alert.alert(
         '¡Oh no!',
         `¡${pokemonName} se ha escapado y huyó!`,

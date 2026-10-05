@@ -92,10 +92,13 @@ BEGIN
     )
     RETURNING id INTO v_capture_id;
 
-    -- ELIMINAR DE FORMA DEFINITIVA el spawn de active_spawns para que no se acumulen
+    -- REGISTRAR INTERACCIÓN PERSONAL DEL JUGADOR
+    -- El spawn en active_spawns SE CONSERVA para otros jugadores en el campus hasta que venza su TTL
     IF p_spawn_id IS NOT NULL THEN
-        DELETE FROM public.active_spawns 
-        WHERE id = p_spawn_id;
+        INSERT INTO public.user_spawn_interactions (user_id, spawn_id, status, interacted_at)
+        VALUES (p_user_id, p_spawn_id, 'captured', now())
+        ON CONFLICT (user_id, spawn_id) 
+        DO UPDATE SET status = 'captured', interacted_at = now();
     END IF;
 
     -- Descontar 1 bola utilizada del inventario si hay disponibilidad
@@ -107,7 +110,27 @@ BEGIN
 END;
 $$;
 
--- 6. PROCEDIMIENTO PARA PURGAR SPAWNS CADUCADOS O INACTIVOS
+-- 6. REGISTRO DE HUIDA PERSONAL DE CRIATURA
+CREATE OR REPLACE FUNCTION public.record_spawn_fled(
+    p_user_id UUID,
+    p_spawn_id UUID
+)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    IF p_spawn_id IS NOT NULL THEN
+        INSERT INTO public.user_spawn_interactions (user_id, spawn_id, status, interacted_at)
+        VALUES (p_user_id, p_spawn_id, 'fled', now())
+        ON CONFLICT (user_id, spawn_id) 
+        DO UPDATE SET status = 'fled', interacted_at = now();
+    END IF;
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.record_spawn_fled TO anon, authenticated, service_role;
+
+-- 7. RECOLECTOR DE BASURA DE SPAWNS CADUCADOS (TTL DE 10-15 MINUTOS)
 CREATE OR REPLACE FUNCTION public.purge_expired_spawns()
 RETURNS INT
 LANGUAGE plpgsql
@@ -117,11 +140,14 @@ DECLARE
     v_count INT;
 BEGIN
     DELETE FROM public.active_spawns 
-    WHERE expires_at < now() OR is_active = false;
+    WHERE expires_at < now();
     GET DIAGNOSTICS v_count = ROW_COUNT;
+
+    DELETE FROM public.user_spawn_interactions
+    WHERE spawn_id NOT IN (SELECT id FROM public.active_spawns);
+
     RETURN v_count;
 END;
 $$;
-
 GRANT EXECUTE ON FUNCTION public.purge_expired_spawns TO anon, authenticated, service_role;
 

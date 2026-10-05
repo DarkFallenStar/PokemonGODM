@@ -117,11 +117,15 @@ export async function recordSuccessfulCapture(
       return { success: false };
     }
 
-    // Eliminar de forma definitiva el spawn de active_spawns
+    // Registrar interacción personal del usuario para ocultarlo de su mapa (modelo Pokémon GO)
     await supabase
-      .from('active_spawns')
-      .delete()
-      .eq('id', spawn.id);
+      .from('user_spawn_interactions')
+      .upsert({
+        user_id: userId,
+        spawn_id: spawn.id,
+        status: 'captured',
+        interacted_at: new Date().toISOString(),
+      });
 
     return { success: true, captureId: insertData?.id };
   } catch (err) {
@@ -131,17 +135,31 @@ export async function recordSuccessfulCapture(
 }
 
 /**
- * Elimina una criatura salvaje de active_spawns (por ejemplo, cuando huye del combate)
+ * Registra que una criatura salvaje huyó del usuario actual.
+ * Oculta la criatura del mapa de este usuario sin borrarla del mundo para otros entrenadores.
  */
-export async function removeActiveSpawn(spawnId: string): Promise<boolean> {
+export async function recordSpawnFled(spawnId: string): Promise<boolean> {
   try {
-    const { error } = await supabase
-      .from('active_spawns')
-      .delete()
-      .eq('id', spawnId);
-    return !error;
+    const userId = DEMO_USER_ID;
+    const { error } = await supabase.rpc('record_spawn_fled', {
+      p_user_id: userId,
+      p_spawn_id: spawnId,
+    });
+
+    if (error) {
+      await supabase
+        .from('user_spawn_interactions')
+        .upsert({
+          user_id: userId,
+          spawn_id: spawnId,
+          status: 'fled',
+          interacted_at: new Date().toISOString(),
+        });
+    }
+
+    return true;
   } catch (err) {
-    console.warn('Error eliminando spawn activo:', err);
+    console.warn('Error registrando huida de spawn:', err);
     return false;
   }
 }

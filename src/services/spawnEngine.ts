@@ -97,6 +97,8 @@ function calculateCombatPower(
   return Math.max(10, cpCalc);
 }
 
+const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001';
+
 /**
  * Genera spawns salvajes en Supabase si el número de criaturas activas es bajo
  */
@@ -104,18 +106,13 @@ export async function seedWildSpawnsIfLow(isTestZone: boolean): Promise<void> {
   try {
     const nowIso = new Date().toISOString();
 
-    // 0. Purgar criaturas caducadas o inactivas de la base de datos
+    // 0. Recolector de basura: purgar criaturas caducadas por TTL (10-15 minutos)
     await supabase.rpc('purge_expired_spawns');
-    await supabase
-      .from('active_spawns')
-      .delete()
-      .or(`expires_at.lt.${nowIso},is_active.eq.false`);
 
-    // 1. Contar spawns vigentes
+    // 1. Contar spawns vigentes no caducados en el mapa
     let query = supabase
       .from('active_spawns')
       .select('id', { count: 'exact', head: true })
-      .eq('is_active', true)
       .gt('expires_at', nowIso);
 
     if (!isTestZone) {
@@ -127,7 +124,7 @@ export async function seedWildSpawnsIfLow(isTestZone: boolean): Promise<void> {
       return;
     }
 
-    // Mantener un mínimo de 6 criaturas simultáneas
+    // Mantener un mínimo de 6 criaturas simultáneas en el campus
     const currentActive = count || 0;
     if (currentActive >= 6) {
       return;
@@ -198,16 +195,19 @@ export async function seedWildSpawnsIfLow(isTestZone: boolean): Promise<void> {
 }
 
 /**
- * Consulta las criaturas salvajes activas y calcula reactivamente si están
- * dentro del radio visual de 30 metros del entrenador.
+ * Consulta las criaturas salvajes activas en el mundo y filtra aquellas
+ * con las que el entrenador actual ya interactuó (capturó o huyeron).
+ * Evalúa proximidad a 30 metros del entrenador.
  */
 export async function fetchNearbySpawns(
   userCoords: Coordinate,
-  isTestZone: boolean
+  isTestZone: boolean,
+  userId: string = DEMO_USER_ID
 ): Promise<ActiveSpawn[]> {
   try {
     const nowIso = new Date().toISOString();
 
+    // 1. Spawns activos en el mundo no caducados
     let query = supabase
       .from('active_spawns')
       .select(`
@@ -233,21 +233,32 @@ export async function fetchNearbySpawns(
           base_hp
         )
       `)
-      .eq('is_active', true)
       .gt('expires_at', nowIso);
 
     if (!isTestZone) {
       query = query.eq('is_test_zone', false);
     }
 
-    const { data, error } = await query;
-    if (error || !data) {
+    const [spawnsRes, interactionsRes] = await Promise.all([
+      query,
+      supabase
+        .from('user_spawn_interactions')
+        .select('spawn_id')
+        .eq('user_id', userId),
+    ]);
+
+    if (spawnsRes.error || !spawnsRes.data) {
       return [];
     }
 
+    const interactedIds = new Set((interactionsRes.data || []).map(i => i.spawn_id));
     const result: ActiveSpawn[] = [];
 
-    for (const item of data) {
+    for (const item of spawnsRes.data) {
+      // Si el usuario ya atrapó esta criatura o ya le huyó, no se renderiza en su cliente
+      if (interactedIds.has(item.id)) {
+        continue;
+      }
       const spawnCoord: Coordinate = {
         latitude: item.latitude,
         longitude: item.longitude,
