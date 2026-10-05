@@ -8,6 +8,7 @@ import type {
   AppraisalRating,
 } from '../types/inventory';
 import type { Move, PokemonBase } from '../types/pokemon';
+import { getTypeThemedMoves } from './battleEngine';
 
 export const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001';
 
@@ -353,8 +354,9 @@ export async function fetchCapturedPokemonCollection(
         ? Math.min(row.current_hp, maxHp)
         : maxHp;
 
-      const fastMove: Move = row.fast_move || DEFAULT_FAST_MOVE;
-      const chargedMove: Move = row.charged_move || DEFAULT_CHARGED_MOVE;
+      const themedFallback = getTypeThemedMoves(base.type_primary_id || 1);
+      const fastMove: Move = row.fast_move || themedFallback.fastMove;
+      const chargedMove: Move = row.charged_move || themedFallback.chargedMove;
 
       return {
         id: row.id,

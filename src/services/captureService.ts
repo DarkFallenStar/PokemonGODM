@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { DEMO_USER_ID, fetchUserInventory } from './inventoryService';
+import { getTypeThemedMoves } from './battleEngine';
 import type { BallType, BallInventoryCount, CaptureResultPayload } from '../types/capture';
 import type { ActiveSpawn } from '../types/spawns';
 
@@ -95,9 +96,10 @@ export async function recordSuccessfulCapture(
       return { success: true, captureId: rpcData };
     }
 
-    // Fallback: Inserción directa en captured_instances con salud al 100%
+    // Fallback: Inserción directa en captured_instances con salud al 100% y movimientos temáticos
     const baseHp = spawn.pokemon?.base_hp || 50;
     const maxHp = (baseHp * 2) + (spawn.iv_hp ?? 10) + 50;
+    const themedMoves = getTypeThemedMoves(spawn.pokemon?.type_primary_id || 1);
 
     const { data: insertData, error: insertError } = await supabase
       .from('captured_instances')
@@ -109,6 +111,8 @@ export async function recordSuccessfulCapture(
         iv_attack: spawn.iv_attack ?? 10,
         iv_defense: spawn.iv_defense ?? 10,
         iv_hp: spawn.iv_hp ?? 10,
+        fast_move_id: themedMoves.fastMove.id,
+        charged_move_id: themedMoves.chargedMove.id,
         nickname: finalNickname,
         ball_used: ballUsed,
       })

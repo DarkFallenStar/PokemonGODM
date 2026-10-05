@@ -53,7 +53,12 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
   const [opponentPokemon, setOpponentPokemon] = useState<EnrichedCapturedPokemon | null>(null);
   const [isOpponentAI, setIsOpponentAI] = useState<boolean>(true);
   const [winner, setWinner] = useState<'player' | 'opponent' | null>(null);
-  const [floatingText, setFloatingText] = useState<{ text: string; color: string; id: number } | null>(null);
+  const [floatingText, setFloatingText] = useState<{
+    title: string;
+    subtitle?: string;
+    color: string;
+    id: number;
+  } | null>(null);
   const [playerTeam, setPlayerTeam] = useState<TrainerTeam>('mystic');
 
   // Salud y Energía
@@ -193,7 +198,15 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
         // Sincronizar barra del oponente con el valor autoritativo
         setOpponentHp(packet.newHp);
         if (packet.wasDodged) {
-          triggerFloatingText('¡Rival Esquivó! (-75%)', '#F59E0B');
+          triggerFloatingText('¡Rival Esquivó! 💨', '#F59E0B', `-${packet.damageTaken} PS (-75%)`);
+        } else if (packet.typeMultiplier === 0) {
+          triggerFloatingText('¡Sin efecto! 🚫', '#EF4444', '0 PS (Inmune)');
+        } else if (packet.typeMultiplier > 1.0) {
+          triggerFloatingText('¡Súper eficaz! 💥', '#10B981', `-${packet.damageTaken} PS`);
+        } else if (packet.typeMultiplier < 1.0) {
+          triggerFloatingText('No muy eficaz... 🛡️', '#94A3B8', `-${packet.damageTaken} PS`);
+        } else {
+          triggerFloatingText(`-${packet.damageTaken} PS`, '#38BDF8');
         }
         if (packet.isFainted) {
           handleBattleVictory();
@@ -291,10 +304,10 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
   };
 
   // Función de texto flotante para daño y estados
-  const triggerFloatingText = (text: string, color: string) => {
-    setFloatingText({ text, color, id: Date.now() });
+  const triggerFloatingText = (title: string, color: string, subtitle?: string) => {
+    setFloatingText({ title, subtitle, color, id: Date.now() });
     setTimeout(() => {
-      setFloatingText(prev => (prev?.text === text ? null : prev));
+      setFloatingText(prev => (prev?.title === title ? null : prev));
     }, 1200);
   };
 
@@ -325,9 +338,13 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
       const nextHp = Math.max(0, prev - damageResult.finalDamage);
 
       if (damageResult.wasDodged) {
-        triggerFloatingText(`¡Esquivado! -${damageResult.finalDamage} PS`, '#38BDF8');
+        triggerFloatingText('¡Ataque Esquivado! 💨', '#38BDF8', `-${damageResult.finalDamage} PS (-75%)`);
+      } else if (damageResult.isImmune) {
+        triggerFloatingText('¡Sin efecto! 🛡️', '#10B981', '0 PS (Inmune)');
       } else if (damageResult.isSuperEffective) {
-        triggerFloatingText(`¡Súper eficaz! -${damageResult.finalDamage} PS`, '#EF4444');
+        triggerFloatingText('¡Daño Súper eficaz! ⚠️', '#EF4444', `-${damageResult.finalDamage} PS`);
+      } else if (damageResult.isNotVeryEffective) {
+        triggerFloatingText('Daño poco eficaz 🛡️', '#94A3B8', `-${damageResult.finalDamage} PS`);
       } else {
         triggerFloatingText(`-${damageResult.finalDamage} PS`, '#F8FAFC');
       }
@@ -381,8 +398,14 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
 
       setOpponentHp(prev => {
         const next = Math.max(0, prev - damageResult.finalDamage);
-        if (damageResult.isSuperEffective) {
-          triggerFloatingText('¡Golpe Súper Eficaz!', '#10B981');
+        if (damageResult.isImmune) {
+          triggerFloatingText('¡Sin efecto! 🚫', '#EF4444', '0 PS (Inmune)');
+        } else if (damageResult.isSuperEffective) {
+          triggerFloatingText('¡Súper eficaz! 💥', '#10B981', `-${damageResult.finalDamage} PS`);
+        } else if (damageResult.isNotVeryEffective) {
+          triggerFloatingText('No muy eficaz... 🛡️', '#94A3B8', `-${damageResult.finalDamage} PS`);
+        } else {
+          triggerFloatingText(`-${damageResult.finalDamage} PS`, '#38BDF8');
         }
         if (next <= 0) {
           handleBattleVictory();
@@ -416,8 +439,6 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
       withSpring(0, { damping: 6 })
     );
 
-    triggerFloatingText(`¡${playerPokemon.chargedMove.name.toUpperCase()}!`, '#F59E0B');
-
     if (isOpponentAI) {
       const damageResult = calculateBattleDamage({
         rawPower: playerPokemon.chargedMove.power,
@@ -435,6 +456,16 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
 
       setOpponentHp(prev => {
         const next = Math.max(0, prev - damageResult.finalDamage);
+        const moveName = playerPokemon.chargedMove.name.toUpperCase();
+        if (damageResult.isImmune) {
+          triggerFloatingText(`¡${moveName}! ⚡`, '#EF4444', '¡Sin efecto! (Inmune)');
+        } else if (damageResult.isSuperEffective) {
+          triggerFloatingText(`¡${moveName}! ⚡`, '#F59E0B', `¡SÚPER EFICAZ! -${damageResult.finalDamage} PS`);
+        } else if (damageResult.isNotVeryEffective) {
+          triggerFloatingText(`¡${moveName}! ⚡`, '#94A3B8', `No muy eficaz... -${damageResult.finalDamage} PS`);
+        } else {
+          triggerFloatingText(`¡${moveName}! ⚡`, '#F59E0B', `-${damageResult.finalDamage} PS`);
+        }
         if (next <= 0) {
           handleBattleVictory();
         }
@@ -494,9 +525,9 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
     setPhase('FINISHED');
     if (aiAttackIntervalRef.current) clearInterval(aiAttackIntervalRef.current);
 
-    // 1. Persistir salud restante del Pokémon del jugador en la base de datos
+    // 1. Restaurar al 100% los PS del Pokémon del jugador al asumir como nuevo defensor del gimnasio
     if (playerPokemon) {
-      await updatePokemonHealth(playerPokemon.id, Math.max(1, playerHp));
+      await updatePokemonHealth(playerPokemon.id, playerMaxHp);
     }
 
     // 2. Reclamar el gimnasio en Supabase con el equipo del jugador
@@ -647,12 +678,17 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
             activeOpacity={1}
             onPress={handlePlayerFastAttack}
           >
-            {/* Texto Flotante de Daño / Esquiva */}
+            {/* Texto Flotante de Daño y Nivel de Efectividad */}
             {floatingText && (
-              <View style={styles.floatingTextWrapper}>
-                <Text style={[styles.floatingText, { color: floatingText.color }]}>
-                  {floatingText.text}
-                </Text>
+              <View style={styles.floatingTextWrapper} pointerEvents="none">
+                <View style={[styles.floatingBanner, { borderColor: floatingText.color }]}>
+                  <Text style={[styles.floatingTitle, { color: floatingText.color }]}>
+                    {floatingText.title}
+                  </Text>
+                  {floatingText.subtitle ? (
+                    <Text style={styles.floatingSubtitle}>{floatingText.subtitle}</Text>
+                  ) : null}
+                </View>
               </View>
             )}
 
@@ -752,25 +788,40 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
                 </View>
               </View>
 
-              {/* Botón Flotante de Ataque Cargado */}
+              {/* Botón Flotante de Ataque Cargado con Tipo Elemental */}
               <View style={styles.chargedButtonWrapper}>
-                <TouchableOpacity
-                  style={[
-                    styles.chargedButton,
-                    canUseCharged ? styles.chargedButtonReady : styles.chargedButtonDisabled,
-                  ]}
-                  disabled={!canUseCharged}
-                  onPress={handlePlayerChargedAttack}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.chargedButtonIcon}>⚡</Text>
-                  <Text style={styles.chargedButtonText}>
-                    {playerPokemon?.chargedMove.name}
-                  </Text>
-                  <Text style={styles.chargedCostText}>
-                    ({Math.abs(playerPokemon?.chargedMove.energy_delta || 50)} Energía)
-                  </Text>
-                </TouchableOpacity>
+                {(() => {
+                  const moveTypeId = playerPokemon?.chargedMove.type_id || 1;
+                  const typeName = TYPE_NAMES[moveTypeId] || 'Normal';
+                  const typeColor = TYPE_COLORS[moveTypeId] || '#64748B';
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        styles.chargedButton,
+                        canUseCharged
+                          ? [styles.chargedButtonReady, { borderColor: typeColor, shadowColor: typeColor }]
+                          : styles.chargedButtonDisabled,
+                      ]}
+                      disabled={!canUseCharged}
+                      onPress={handlePlayerChargedAttack}
+                      activeOpacity={0.8}
+                    >
+                      <View style={styles.chargedButtonInner}>
+                        <View style={styles.chargedButtonTopRow}>
+                          <View style={[styles.chargedTypeBadge, { backgroundColor: typeColor }]}>
+                            <Text style={styles.chargedTypeBadgeText}>{typeName.toUpperCase()}</Text>
+                          </View>
+                          <Text style={styles.chargedButtonText}>
+                            {playerPokemon?.chargedMove.name}
+                          </Text>
+                        </View>
+                        <Text style={styles.chargedCostText}>
+                          ⚡ {Math.abs(playerPokemon?.chargedMove.energy_delta || 50)} Energía • {playerEnergy}% acumulado
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })()}
               </View>
 
               {/* Guía Táctil Rápida */}
@@ -968,18 +1019,38 @@ const styles = StyleSheet.create({
   },
   floatingTextWrapper: {
     position: 'absolute',
-    top: '45%',
+    top: '42%',
     left: 0,
     right: 0,
     alignItems: 'center',
     zIndex: 999,
   },
-  floatingText: {
-    fontSize: 22,
+  floatingBanner: {
+    backgroundColor: 'rgba(15, 23, 42, 0.94)',
+    paddingVertical: 8,
+    paddingHorizontal: 18,
+    borderRadius: 20,
+    borderWidth: 2,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  floatingTitle: {
+    fontSize: 16,
     fontWeight: '900',
+    letterSpacing: 0.5,
     textShadowColor: 'rgba(0,0,0,0.8)',
     textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 4,
+    textShadowRadius: 3,
+  },
+  floatingSubtitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#F8FAFC',
+    marginTop: 2,
   },
   opponentZone: {
     alignItems: 'flex-start',
@@ -1083,39 +1154,58 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   chargedButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     borderRadius: 20,
-    borderWidth: 1.5,
+    borderWidth: 2,
+    minWidth: 240,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   chargedButtonReady: {
-    backgroundColor: '#F59E0B',
-    borderColor: '#FDE047',
+    backgroundColor: '#1E293B',
+    borderColor: '#F59E0B',
     shadowColor: '#F59E0B',
-    shadowOpacity: 0.6,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOpacity: 0.7,
+    shadowRadius: 10,
+    elevation: 6,
   },
   chargedButtonDisabled: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#0F172A',
     borderColor: '#334155',
     opacity: 0.5,
   },
-  chargedButtonIcon: {
-    fontSize: 16,
-    marginRight: 6,
+  chargedButtonInner: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  chargedButtonTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
+  },
+  chargedTypeBadge: {
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginRight: 8,
+  },
+  chargedTypeBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 0.5,
   },
   chargedButtonText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '800',
     color: '#FFFFFF',
-    marginRight: 6,
   },
   chargedCostText: {
     fontSize: 10,
-    color: '#CBD5E1',
+    color: '#94A3B8',
     fontWeight: '600',
   },
   hintBar: {

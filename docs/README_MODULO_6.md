@@ -186,13 +186,24 @@ En caso contrario:
 2. Selecciona a tu combatiente entre tus criaturas disponibles y pulsa `⚔️ Entrar a la Arena`.
 3. Inicia el conteo regresivo sincronizado: `3... 2... 1... ¡LUCHA!`.
 4. **Mecánica de Ataque Rápido (Tap continuo):**
-   - Toca rápidamente la pantalla: el Pokémon propio se impulsa hacia adelante, inflige daño al rival y carga la barra de energía inferior.
+   - Toca rápidamente la pantalla: el Pokémon propio se impulsa hacia adelante, inflige daño elemental al rival y acumula energía en la barra inferior.
+   - **Feedback Flotante en Vivo:** En el centro de la arena aparece un cartel translúcido dinámico que informa:
+     - Si es súper eficaz: `¡Súper eficaz! 💥` con el daño exacto (ej. `-18 PS`).
+     - Si es poco eficaz: `No muy eficaz... 🛡️` con el daño exacto (ej. `-6 PS`).
+     - Si es inmune: `¡Sin efecto! 🚫 (0 PS Inmune)`.
+     - Si el daño es neutral: cifra exacta de PS descontados (ej. `-12 PS`).
 5. **Mecánica de Esquiva (Swipe Gesture):**
-   - Cuando el oponente ataque, desliza el dedo hacia la izquierda o derecha: el sprite esquiva lateralmente con animación `withTiming`, activando el mensaje dorado `⚡ ¡Esquiva Activa!` y reduciendo el 75% del daño recibido.
-6. **Mecánica de Ataque Cargado:**
-   - Al llenarse la barra de energía, el botón central de ataque cargado se ilumina. Presiónalo para desatar el ataque especial con animación y texto flotante.
-7. **Resolución Atómica del Gimnasio y Evaluación del RPC `finalize_gym_battle`:**
-   - Al reducir los PS del rival a 0 PS, la aplicación despliega `🏆 ¡VICTORIA EN EL GIMNASIO!` y ejecuta el RPC `finalize_gym_battle` en PostgreSQL con bloqueo pesimista de fila, transfiriendo el liderazgo del gimnasio al equipo del jugador.
+   - Cuando el oponente ataque, desliza el dedo hacia la izquierda o derecha: el sprite esquiva lateralmente con animación `withTiming`, activando el mensaje dorado `⚡ ¡Esquiva Activa!` y mitigando el 75% del daño recibido (`¡Ataque Esquivado! 💨 -3 PS (-75%)`).
+6. **Mecánica de Ataque Cargado con Insignia Elemental:**
+   - El botón central de ataque cargado muestra:
+     - Una insignia cromática oficial con el **Tipo Elemental** del movimiento en mayúsculas (ej. `[AGUA]`, `[FUEGO]`, `[DRAGÓN]`, `[LUCHA]`).
+     - El nombre oficial del movimiento (extraído de `pokemon_moves`, como *Aqua Tail*, *Close Combat*, *Dragon Claw*, etc.).
+     - El requisito de energía en tiempo real (ej. `⚡ 50 Energía • 100% acumulado`).
+   - Al pulsarlo, el botón desata el movimiento especial, desplegando un rótulo flotante destacado con el nombre del ataque, su multiplicador de eficacia y los PS infligidos.
+7. **Resolución Atómica del Gimnasio y Curación al 100% del Nuevo Defensor:**
+   - Al reducir los PS del rival a 0 PS, la aplicación despliega `🏆 ¡VICTORIA EN EL GIMNASIO!`.
+   - **Curación Automática al 100%:** Tanto en el cliente (`updatePokemonHealth`) como dentro de la función PostgreSQL `finalize_gym_battle`, el Pokémon del jugador es **sanado al máximo de sus PS** (`current_hp = maxHp`) de manera atómica, garantizando que comience su custodia del gimnasio a plena salud sin importar cuánto daño haya recibido durante la contienda.
+   - La transacción RPC ejecuta un bloqueo pesimista `FOR UPDATE` sobre `gymnasiums`, asigna el nuevo equipo y transfiere la custodia del gimnasio al nuevo Pokémon defensor.
 
 ### Paso 7: Procedimiento Específico para Evaluar y Demostrar el RPC `finalize_gym_battle`
 Para que el evaluador verifique al 100% que la función almacenada en PostgreSQL se ejecuta correctamente y modifica la base de datos atómicamente, se disponen de tres métodos de comprobación:
@@ -202,17 +213,17 @@ Para que el evaluador verifique al 100% que la función almacenada en PostgreSQL
    - En el mapa, pulsa sobre un Gimnasio (ej. *"Gimnasio Ad Portas"*, *"Arena Deportiva"* o *"Cajicá"*).
    - Observa en el modal:
      - El equipo y color actual (por ejemplo: `Gimnasio Neutral ⚪` o `Equipo Valor 🔥`).
-     - La tarjeta del Pokémon Defensor Oficial: renderiza su **sprite oficial real** (sin emojis), nombre/apodo, CP y barra de PS (por ejemplo, Dragonite Guardián en Ad Portas, Machop 'Matcha' en Arena Deportiva, o Goldeen 'Golgy' en Cajicá).
+     - La tarjeta del Pokémon Defensor Oficial: renderiza su **sprite oficial real** (sin emojis), nombre/apodo, CP y barra de PS al 100% (por ejemplo, Dragonite Guardián en Ad Portas, Machop 'Matcha' en Arena Deportiva, o Goldeen 'Golgy' en Cajicá).
      - El nombre del Entrenador que lo custodia.
 2. **Durante y al Finalizar el Combate:**
-   - Pulsa `⚔️ Desafiar Gimnasio`: en la arena de combate, el oponente renderiza **el sprite y movimientos elementales del defensor oficial** del gimnasio (no un Snorlax genérico).
+   - Pulsa `⚔️ Desafiar Gimnasio`: en la arena de combate, el oponente renderiza **el sprite y movimientos elementales del defensor oficial** del gimnasio (no un Snorlax genérico ni ataques genéricos).
    - Reduce los PS del defensor a 0 PS.
    - En pantalla aparecerá la alerta:
      ```text
      🏆 ¡VICTORIA EN EL GIMNASIO!
      Has derrotado al defensor de Gimnasio.
      Liderazgo transferido a: [Tu Equipo]
-     🛡️ Nuevo Defensor Asignado: [Tu Pokémon Seleccionado]
+     🛡️ Nuevo Defensor Asignado: [Tu Pokémon Seleccionado] (100% PS Restaurados)
      Transacción RPC (finalize_gym_battle): Ejecutada con éxito ✅
      ```
 3. **Verificación Inmediata en el Mapa:**
