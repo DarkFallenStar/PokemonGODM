@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import MapboxGL from '@rnmapbox/maps';
 import { useLocationTracker } from '../hooks/useLocationTracker';
 import { useHeadingTracker } from '../hooks/useHeadingTracker';
@@ -25,6 +27,7 @@ import {
 } from '../services/spawnEngine';
 import type { CampusPOIMarker } from '../types/map';
 import type { ActiveSpawn } from '../types/spawns';
+import type { RootStackParamList } from '../types/navigation';
 
 const mapboxToken = process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
 if (mapboxToken) {
@@ -33,6 +36,7 @@ if (mapboxToken) {
 
 export const MapScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const testZoneActive = isTestZoneEnabled();
 
   const {
@@ -178,14 +182,10 @@ export const MapScreen: React.FC = () => {
     );
   }, [selectedGym, currentCoords]);
 
-  // Manejador de encuentro salvaje (preparación para Etapa 5)
+  // Manejador de encuentro salvaje: Transición fluida a la pantalla de Captura AR
   const handleStartCapture = (spawn: ActiveSpawn) => {
     setSelectedSpawn(null);
-    Alert.alert(
-      '¡Modo Captura!',
-      `Iniciando encuentro con ${spawn.pokemon?.name || 'Pokémon'} (CP ${spawn.cp}). En la Etapa 5 se activará la cámara AR.`,
-      [{ text: 'Entendido' }]
-    );
+    navigation.navigate('Capture', { spawn });
   };
 
   // Manejador de actualización manual del mapa (recarga POIs, cooldowns y spawns sin reiniciar)

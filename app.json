@@ -29,7 +29,13 @@
           "RNMapboxMapsImpl": "mapbox"
         }
       ],
-      "expo-image"
+      "expo-image",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permite acceder a la cámara en vivo para el visor de Realidad Aumentada y captura de criaturas salvajes."
+        }
+      ]
     ],
     "extra": {
       "eas": {

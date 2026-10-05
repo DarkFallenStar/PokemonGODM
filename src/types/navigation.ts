@@ -1,6 +1,7 @@
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
+import type { ActiveSpawn } from './spawns';
 
 export type MainTabParamList = {
   Map: undefined;
@@ -9,7 +10,7 @@ export type MainTabParamList = {
 
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
-  Capture: undefined;
+  Capture: { spawn: ActiveSpawn };
 };
 
 export type RootStackScreenProps<T extends keyof RootStackParamList> =
