@@ -143,12 +143,13 @@ Sigue esta secuencia para demostrar el 100% de los criterios de la rúbrica ante
 ## 4. Instrucciones de Compilación y Advertencia Nativa
 
 > [!IMPORTANT]
-> **RECOMPILACIÓN NATIVA (DEVELOPMENT BUILD):**
-> Si ya cuentas con el APK de desarrollo compilado con Mapbox, `expo-location` y `expo-sensors`, **NO requieres recompilar con EAS**, ya que este módulo opera con componentes de interfaz pura y llamadas de red estándar a Supabase.
-> Si estás comenzando desde cero en un nuevo dispositivo físico, debes compilar el binario nativo:
+> **RECOMPILACIÓN NATIVA REQUERIDA (EAS BUILD):**
+> Se ha incorporado el módulo nativo `expo-image` para la decodificación por hardware de **GIFs animados** a 60 FPS.
+> Para que el motor gráfico nativo de Android procese las animaciones de los Pokémon salvajes en movimiento continuo, debes generar el Development Build con EAS:
 > ```bash
 > npx eas-cli build -p android --profile development
 > ```
+> Una vez instalado el APK actualizado en tu dispositivo móvil, los Pokémon tanto en el mapa como en la pantalla de encuentro salvaje se moverán con su animación oficial de combate en bucle continuo.
 
 ---
 
