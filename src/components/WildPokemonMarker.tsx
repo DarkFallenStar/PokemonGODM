@@ -17,7 +17,12 @@ export const WildPokemonMarker: React.FC<WildPokemonMarkerProps> = ({
     return null;
   }
 
-  const spriteUrl = spawn.pokemon?.sprite_url || spawn.pokemon?.animation_url;
+  const pokemonId = spawn.pokemon_id || spawn.pokemon?.id;
+  const spriteUrl =
+    spawn.pokemon?.sprite_url ||
+    (pokemonId
+      ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`
+      : null);
 
   return (
     <MapboxGL.MarkerView
