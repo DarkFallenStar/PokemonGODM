@@ -434,7 +434,7 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
   };
 
   // Acción: Esquiva del Jugador (Swipe Horizontal)
-  const handleDodge = (direction: 'left' | 'right') => {
+  const handleDodge = useCallback((direction: 'left' | 'right') => {
     if (phase !== 'ACTIVE_COMBAT') return;
 
     // Desplazar sprite
@@ -457,13 +457,13 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
     if (!isOpponentAI) {
       realtimeRef.current?.sendDodge(direction);
     }
-  };
+  }, [phase, isOpponentAI, playerX]);
 
-  // Gesto Pan para detectar swipe lateral
+  // Gesto Pan para detectar swipe lateral ejecutado en el hilo de JS
   const panGesture = Gesture.Pan()
+    .runOnJS(true)
     .activeOffsetX([-20, 20])
     .onEnd(event => {
-      'worklet';
       if (Math.abs(event.translationX) > 25) {
         const dir = event.translationX > 0 ? 'right' : 'left';
         handleDodge(dir);
