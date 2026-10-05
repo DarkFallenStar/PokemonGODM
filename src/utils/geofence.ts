@@ -3,7 +3,7 @@ import type { Coordinate } from '../types/map';
 // Coordenadas perimetrales de alta precisión del Campus Universidad de La Sabana (Chía, Cundinamarca)
 export const UNISABANA_POLYGON: Coordinate[] = [
   { latitude: 4.86430, longitude: -74.03520 }, // 1. Puente del Común (Norte)
-  { latitude: 4.86310, longitude: -74.03600 }, // 2. Edificio Ad Portas (Noroeste)
+  { latitude: 4.86302, longitude: -74.03469 }, // 2. Edificio Ad Portas (Noroeste)
   { latitude: 4.86050, longitude: -74.03550 }, // 3. Costado Occidental / Parqueaderos
   { latitude: 4.85680, longitude: -74.03620 }, // 4. Canchas Deportivas / Pistas (Suroeste)
   { latitude: 4.85620, longitude: -74.03380 }, // 5. Edificio O / Zona Río (Sur)

@@ -53,7 +53,13 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
   const [opponentPokemon, setOpponentPokemon] = useState<EnrichedCapturedPokemon | null>(null);
   const [isOpponentAI, setIsOpponentAI] = useState<boolean>(true);
   const [winner, setWinner] = useState<'player' | 'opponent' | null>(null);
-  const [floatingText, setFloatingText] = useState<{
+  const [opponentFloatingText, setOpponentFloatingText] = useState<{
+    title: string;
+    subtitle?: string;
+    color: string;
+    id: number;
+  } | null>(null);
+  const [playerFloatingText, setPlayerFloatingText] = useState<{
     title: string;
     subtitle?: string;
     color: string;
@@ -198,15 +204,15 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
         // Sincronizar barra del oponente con el valor autoritativo
         setOpponentHp(packet.newHp);
         if (packet.wasDodged) {
-          triggerFloatingText('¡Rival Esquivó! 💨', '#F59E0B', `-${packet.damageTaken} PS (-75%)`);
+          triggerOpponentFloatingText('¡Rival Esquivó! 💨', '#F59E0B', `-${packet.damageTaken} PS (-75%)`);
         } else if (packet.typeMultiplier === 0) {
-          triggerFloatingText('¡Sin efecto! 🚫', '#EF4444', '0 PS (Inmune)');
+          triggerOpponentFloatingText('¡Sin efecto! 🚫', '#EF4444', '0 PS (Inmune)');
         } else if (packet.typeMultiplier > 1.0) {
-          triggerFloatingText('¡Súper eficaz! 💥', '#10B981', `-${packet.damageTaken} PS`);
+          triggerOpponentFloatingText('¡Súper eficaz! 💥', '#10B981', `-${packet.damageTaken} PS`);
         } else if (packet.typeMultiplier < 1.0) {
-          triggerFloatingText('No muy eficaz... 🛡️', '#94A3B8', `-${packet.damageTaken} PS`);
+          triggerOpponentFloatingText('No muy eficaz... 🛡️', '#94A3B8', `-${packet.damageTaken} PS`);
         } else {
-          triggerFloatingText(`-${packet.damageTaken} PS`, '#38BDF8');
+          triggerOpponentFloatingText(`-${packet.damageTaken} PS`, '#38BDF8');
         }
         if (packet.isFainted) {
           handleBattleVictory();
@@ -303,11 +309,19 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
     }, 1800);
   };
 
-  // Función de texto flotante para daño y estados
-  const triggerFloatingText = (title: string, color: string, subtitle?: string) => {
-    setFloatingText({ title, subtitle, color, id: Date.now() });
+  // Notificación flotante sobre el oponente (daño infligido por el jugador)
+  const triggerOpponentFloatingText = (title: string, color: string, subtitle?: string) => {
+    setOpponentFloatingText({ title, subtitle, color, id: Date.now() });
     setTimeout(() => {
-      setFloatingText(prev => (prev?.title === title ? null : prev));
+      setOpponentFloatingText(prev => (prev?.title === title ? null : prev));
+    }, 1200);
+  };
+
+  // Notificación flotante sobre el jugador (daño recibido o esquiva propia)
+  const triggerPlayerFloatingText = (title: string, color: string, subtitle?: string) => {
+    setPlayerFloatingText({ title, subtitle, color, id: Date.now() });
+    setTimeout(() => {
+      setPlayerFloatingText(prev => (prev?.title === title ? null : prev));
     }, 1200);
   };
 
@@ -338,15 +352,15 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
       const nextHp = Math.max(0, prev - damageResult.finalDamage);
 
       if (damageResult.wasDodged) {
-        triggerFloatingText('¡Ataque Esquivado! 💨', '#38BDF8', `-${damageResult.finalDamage} PS (-75%)`);
+        triggerPlayerFloatingText('¡Ataque Esquivado! 💨', '#38BDF8', `-${damageResult.finalDamage} PS (-75%)`);
       } else if (damageResult.isImmune) {
-        triggerFloatingText('¡Sin efecto! 🛡️', '#10B981', '0 PS (Inmune)');
+        triggerPlayerFloatingText('¡Sin efecto! 🛡️', '#10B981', '0 PS (Inmune)');
       } else if (damageResult.isSuperEffective) {
-        triggerFloatingText('¡Daño Súper eficaz! ⚠️', '#EF4444', `-${damageResult.finalDamage} PS`);
+        triggerPlayerFloatingText('¡Daño Súper eficaz! ⚠️', '#EF4444', `-${damageResult.finalDamage} PS`);
       } else if (damageResult.isNotVeryEffective) {
-        triggerFloatingText('Daño poco eficaz 🛡️', '#94A3B8', `-${damageResult.finalDamage} PS`);
+        triggerPlayerFloatingText('Daño poco eficaz 🛡️', '#94A3B8', `-${damageResult.finalDamage} PS`);
       } else {
-        triggerFloatingText(`-${damageResult.finalDamage} PS`, '#F8FAFC');
+        triggerPlayerFloatingText(`-${damageResult.finalDamage} PS`, '#F8FAFC');
       }
 
       // Si estamos en P2P, reportar nueva salud autoritativa al rival
@@ -399,13 +413,13 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
       setOpponentHp(prev => {
         const next = Math.max(0, prev - damageResult.finalDamage);
         if (damageResult.isImmune) {
-          triggerFloatingText('¡Sin efecto! 🚫', '#EF4444', '0 PS (Inmune)');
+          triggerOpponentFloatingText('¡Sin efecto! 🚫', '#EF4444', '0 PS (Inmune)');
         } else if (damageResult.isSuperEffective) {
-          triggerFloatingText('¡Súper eficaz! 💥', '#10B981', `-${damageResult.finalDamage} PS`);
+          triggerOpponentFloatingText('¡Súper eficaz! 💥', '#10B981', `-${damageResult.finalDamage} PS`);
         } else if (damageResult.isNotVeryEffective) {
-          triggerFloatingText('No muy eficaz... 🛡️', '#94A3B8', `-${damageResult.finalDamage} PS`);
+          triggerOpponentFloatingText('No muy eficaz... 🛡️', '#94A3B8', `-${damageResult.finalDamage} PS`);
         } else {
-          triggerFloatingText(`-${damageResult.finalDamage} PS`, '#38BDF8');
+          triggerOpponentFloatingText(`-${damageResult.finalDamage} PS`, '#38BDF8');
         }
         if (next <= 0) {
           handleBattleVictory();
@@ -458,13 +472,13 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
         const next = Math.max(0, prev - damageResult.finalDamage);
         const moveName = playerPokemon.chargedMove.name.toUpperCase();
         if (damageResult.isImmune) {
-          triggerFloatingText(`¡${moveName}! ⚡`, '#EF4444', '¡Sin efecto! (Inmune)');
+          triggerOpponentFloatingText(`¡${moveName}! ⚡`, '#EF4444', '¡Sin efecto! (Inmune)');
         } else if (damageResult.isSuperEffective) {
-          triggerFloatingText(`¡${moveName}! ⚡`, '#F59E0B', `¡SÚPER EFICAZ! -${damageResult.finalDamage} PS`);
+          triggerOpponentFloatingText(`¡${moveName}! ⚡`, '#F59E0B', `¡SÚPER EFICAZ! -${damageResult.finalDamage} PS`);
         } else if (damageResult.isNotVeryEffective) {
-          triggerFloatingText(`¡${moveName}! ⚡`, '#94A3B8', `No muy eficaz... -${damageResult.finalDamage} PS`);
+          triggerOpponentFloatingText(`¡${moveName}! ⚡`, '#94A3B8', `No muy eficaz... -${damageResult.finalDamage} PS`);
         } else {
-          triggerFloatingText(`¡${moveName}! ⚡`, '#F59E0B', `-${damageResult.finalDamage} PS`);
+          triggerOpponentFloatingText(`¡${moveName}! ⚡`, '#F59E0B', `-${damageResult.finalDamage} PS`);
         }
         if (next <= 0) {
           handleBattleVictory();
@@ -500,7 +514,7 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
       isDodgingRef.current = false;
     }, 500);
 
-    triggerFloatingText('⚡ ¡Esquiva Activa!', '#38BDF8');
+    triggerPlayerFloatingText('⚡ ¡Esquiva Activa!', '#38BDF8');
 
     // Notificar al rival por WebSocket
     if (!isOpponentAI) {
@@ -525,12 +539,12 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
     setPhase('FINISHED');
     if (aiAttackIntervalRef.current) clearInterval(aiAttackIntervalRef.current);
 
-    // 1. Restaurar al 100% los PS del Pokémon del jugador al asumir como nuevo defensor del gimnasio
+    // 1. Guardar la salud REAL remanente del Pokémon del jugador en su Pokédex (no se cura mágicamente)
     if (playerPokemon) {
-      await updatePokemonHealth(playerPokemon.id, playerMaxHp);
+      await updatePokemonHealth(playerPokemon.id, playerHp);
     }
 
-    // 2. Reclamar el gimnasio en Supabase con el equipo del jugador
+    // 2. Reclamar el gimnasio en Supabase con el equipo del jugador (crea un guardián clon al 100% de PS)
     const res = await claimGymnasiumVictory(gymId, DEMO_USER_ID, playerTeam, playerPokemon?.id);
     const teamInfo = TEAMS[playerTeam];
 
@@ -538,7 +552,7 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
 
     Alert.alert(
       '🏆 ¡VICTORIA EN EL GIMNASIO!',
-      `Has derrotado al defensor de ${gymName}.\n\n${res.message || 'El gimnasio ahora ondea la bandera de tu equipo.'}\n\nLiderazgo transferido a: ${teamInfo.badge} ${teamInfo.name}\n🛡️ Nuevo Defensor Asignado: ${newDefenderName}\nTransacción RPC (finalize_gym_battle): ${res.success ? 'Ejecutada con éxito ✅' : 'Error: ' + res.error}`,
+      `Has derrotado al defensor de ${gymName}.\n\n${res.message || 'El gimnasio ahora ondea la bandera de tu equipo.'}\n\nLiderazgo transferido a: ${teamInfo.badge} ${teamInfo.name}\n🛡️ Nuevo Defensor Asignado: ${newDefenderName} (Guardián Clon al 100% PS)\n❤️ Tu Pokémon en la Pokédex conserva ${playerHp}/${playerMaxHp} PS.\nTransacción RPC (finalize_gym_battle): ${res.success ? 'Ejecutada con éxito ✅' : 'Error: ' + res.error}`,
       [{ text: '¡Excelente!', onPress: () => navigation.goBack() }]
     );
   };
@@ -678,15 +692,29 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
             activeOpacity={1}
             onPress={handlePlayerFastAttack}
           >
-            {/* Texto Flotante de Daño y Nivel de Efectividad */}
-            {floatingText && (
-              <View style={styles.floatingTextWrapper} pointerEvents="none">
-                <View style={[styles.floatingBanner, { borderColor: floatingText.color }]}>
-                  <Text style={[styles.floatingTitle, { color: floatingText.color }]}>
-                    {floatingText.title}
+            {/* Rótulo Flotante del Oponente (Daño recibido por el Rival) */}
+            {opponentFloatingText && (
+              <View style={styles.opponentFloatingTextWrapper} pointerEvents="none">
+                <View style={[styles.floatingBanner, { borderColor: opponentFloatingText.color }]}>
+                  <Text style={[styles.floatingTitle, { color: opponentFloatingText.color }]}>
+                    {opponentFloatingText.title}
                   </Text>
-                  {floatingText.subtitle ? (
-                    <Text style={styles.floatingSubtitle}>{floatingText.subtitle}</Text>
+                  {opponentFloatingText.subtitle ? (
+                    <Text style={styles.floatingSubtitle}>{opponentFloatingText.subtitle}</Text>
+                  ) : null}
+                </View>
+              </View>
+            )}
+
+            {/* Rótulo Flotante del Jugador (Daño recibido por el Jugador / Esquivas) */}
+            {playerFloatingText && (
+              <View style={styles.playerFloatingTextWrapper} pointerEvents="none">
+                <View style={[styles.floatingBanner, { borderColor: playerFloatingText.color }]}>
+                  <Text style={[styles.floatingTitle, { color: playerFloatingText.color }]}>
+                    {playerFloatingText.title}
+                  </Text>
+                  {playerFloatingText.subtitle ? (
+                    <Text style={styles.floatingSubtitle}>{playerFloatingText.subtitle}</Text>
                   ) : null}
                 </View>
               </View>
@@ -1017,9 +1045,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  floatingTextWrapper: {
+  opponentFloatingTextWrapper: {
     position: 'absolute',
-    top: '42%',
+    top: '20%',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  playerFloatingTextWrapper: {
+    position: 'absolute',
+    bottom: '26%',
     left: 0,
     right: 0,
     alignItems: 'center',

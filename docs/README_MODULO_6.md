@@ -185,24 +185,26 @@ En caso contrario:
    - Navega a la pantalla completa de combate `GymBattleScreen`.
 2. Selecciona a tu combatiente entre tus criaturas disponibles y pulsa `⚔️ Entrar a la Arena`.
 3. Inicia el conteo regresivo sincronizado: `3... 2... 1... ¡LUCHA!`.
-4. **Mecánica de Ataque Rápido (Tap continuo):**
+4. **Mecánica de Ataque Rápido (Tap continuo) y Rótulos Separados:**
    - Toca rápidamente la pantalla: el Pokémon propio se impulsa hacia adelante, inflige daño elemental al rival y acumula energía en la barra inferior.
-   - **Feedback Flotante en Vivo:** En el centro de la arena aparece un cartel translúcido dinámico que informa:
-     - Si es súper eficaz: `¡Súper eficaz! 💥` con el daño exacto (ej. `-18 PS`).
-     - Si es poco eficaz: `No muy eficaz... 🛡️` con el daño exacto (ej. `-6 PS`).
-     - Si es inmune: `¡Sin efecto! 🚫 (0 PS Inmune)`.
-     - Si el daño es neutral: cifra exacta de PS descontados (ej. `-12 PS`).
+   - **Feedback Flotante en 2 Rótulos Separados (Zona Oponente vs. Zona Jugador):**
+     - **Rótulo Superior (Sobre el Oponente):** Muestra el daño infligido al rival con su nivel de eficacia (`¡Súper eficaz! 💥`, `No muy eficaz... 🛡️`, `¡Sin efecto! 🚫`, cifra exacta de daño ej. `-18 PS`, o si el rival esquiva `¡Rival Esquivó! 💨 -8 PS (-75%)`).
+     - **Rótulo Inferior (Sobre el Jugador):** Muestra el daño recibido por el jugador (`¡Daño Súper eficaz! ⚠️`, `Daño poco eficaz 🛡️`, daño directo ej. `-14 PS`) o retroalimentación táctica propia (`⚡ ¡Esquiva Activa!`, `¡Ataque Esquivado! 💨 -3 PS (-75%)`).
 5. **Mecánica de Esquiva (Swipe Gesture):**
-   - Cuando el oponente ataque, desliza el dedo hacia la izquierda o derecha: el sprite esquiva lateralmente con animación `withTiming`, activando el mensaje dorado `⚡ ¡Esquiva Activa!` y mitigando el 75% del daño recibido (`¡Ataque Esquivado! 💨 -3 PS (-75%)`).
+   - Cuando el oponente ataque, desliza el dedo hacia la izquierda o derecha: el sprite esquiva lateralmente con animación `withTiming`, activando el mensaje dorado `⚡ ¡Esquiva Activa!` en el rótulo del jugador y mitigando el 75% del daño recibido (`¡Ataque Esquivado! 💨 -3 PS (-75%)`).
 6. **Mecánica de Ataque Cargado con Insignia Elemental:**
    - El botón central de ataque cargado muestra:
      - Una insignia cromática oficial con el **Tipo Elemental** del movimiento en mayúsculas (ej. `[AGUA]`, `[FUEGO]`, `[DRAGÓN]`, `[LUCHA]`).
      - El nombre oficial del movimiento (extraído de `pokemon_moves`, como *Aqua Tail*, *Close Combat*, *Dragon Claw*, etc.).
      - El requisito de energía en tiempo real (ej. `⚡ 50 Energía • 100% acumulado`).
-   - Al pulsarlo, el botón desata el movimiento especial, desplegando un rótulo flotante destacado con el nombre del ataque, su multiplicador de eficacia y los PS infligidos.
-7. **Resolución Atómica del Gimnasio y Curación al 100% del Nuevo Defensor:**
+   - Al pulsarlo, el botón desata el movimiento especial, desplegando en el rótulo superior del rival el nombre del ataque, su multiplicador de eficacia y los PS infligidos.
+7. **Resolución Atómica del Gimnasio y Desacoplamiento por Guardián Defensor Clon:**
    - Al reducir los PS del rival a 0 PS, la aplicación despliega `🏆 ¡VICTORIA EN EL GIMNASIO!`.
-   - **Curación Automática al 100%:** Tanto en el cliente (`updatePokemonHealth`) como dentro de la función PostgreSQL `finalize_gym_battle`, el Pokémon del jugador es **sanado al máximo de sus PS** (`current_hp = maxHp`) de manera atómica, garantizando que comience su custodia del gimnasio a plena salud sin importar cuánto daño haya recibido durante la contienda.
+   - **Preservación de Salud Real del Combatiente:** El Pokémon del jugador en su Pokédex conserva su salud real post-combate (`playerHp`), permaneciendo herido para que el jugador pueda interactuar con la Mochila y utilizar Pociones o Revivir.
+   - **Clonación del Defensor al 100% de PS:** En PostgreSQL, la función `finalize_gym_battle` crea un clon independiente del Pokémon del jugador bajo el ID de sistema (`00000000-0000-0000-0000-000000000099`) con el 100% de sus PS calculados (`((pb.base_hp * 2) + ci.iv_hp + 50)`). Esto garantiza:
+     1. El gimnasio arranca defendido por un guardián a plena salud con el sprite, nombre, CP e IVs idénticos.
+     2. El guardián no duplica filas en la Pokédex personal del entrenador.
+     3. El jugador puede curar, transferir o entrenar su Pokémon original sin afectar la integridad del gimnasio.
    - La transacción RPC ejecuta un bloqueo pesimista `FOR UPDATE` sobre `gymnasiums`, asigna el nuevo equipo y transfiere la custodia del gimnasio al nuevo Pokémon defensor.
 
 ### Paso 7: Procedimiento Específico para Evaluar y Demostrar el RPC `finalize_gym_battle`
