@@ -23,10 +23,8 @@ export const SpawnEncounterModal: React.FC<SpawnEncounterModalProps> = ({
   onClose,
   onStartCapture,
 }) => {
-  if (!spawn) return null;
-
-  const pokemon = spawn.pokemon;
-  const pokemonId = spawn.pokemon_id || pokemon?.id;
+  const pokemon = spawn?.pokemon;
+  const pokemonId = spawn?.pokemon_id || pokemon?.id;
 
   // Cascada de URLs garantizadas con soporte nativo de PNG en Android
   const primaryUrl =
@@ -58,6 +56,11 @@ export const SpawnEncounterModal: React.FC<SpawnEncounterModalProps> = ({
       setIsLoading(false);
     }
   };
+
+  // REGLA DE REACT 19 / FABRIC: El retorno condicional debe ir SIEMPRE después de todos los Hooks
+  if (!visible || !spawn) {
+    return null;
+  }
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
