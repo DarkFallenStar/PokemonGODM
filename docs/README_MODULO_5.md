@@ -26,17 +26,24 @@ graph LR
     Offset --> Screen[Matriz de Traslación Inversa del Sprite en Pantalla]
 ```
 
-#### Ecuaciones de Fusión Sensorial (Filtro Complementario):
-1. **Giróscopo (Alta Frecuencia):** Mide velocidades angulares instantáneas $\vec{\omega} = (\omega_x, \omega_y, \omega_z)$ en radianes por segundo con intervalo $\Delta t \approx 16\text{ ms}$:
-   $$\Delta\theta_{\text{pitch}} = \omega_x \cdot \Delta t, \quad \Delta\theta_{\text{roll}} = \omega_y \cdot \Delta t$$
-2. **Acelerómetro (Baja Frecuencia):** Obtiene los ángulos estáticos absolutos con base en el vector de gravedad normalizado:
-   $$\text{Pitch}_{\text{acc}} = \text{atan2}(a_y, \sqrt{a_x^2 + a_z^2}), \quad \text{Roll}_{\text{acc}} = \text{atan2}(-a_x, a_z)$$
-3. **Fusión Complementaria ($\alpha = 0.96$):**
-   $$\theta_{\text{pitch}}(t) = 0.96 \cdot (\theta_{\text{pitch}}(t - \Delta t) + \omega_x \cdot \Delta t) + 0.04 \cdot \text{Pitch}_{\text{acc}}$$
-   $$\theta_{\text{roll}}(t) = 0.96 \cdot (\theta_{\text{roll}}(t - \Delta t) + \omega_y \cdot \Delta t) + 0.04 \cdot \text{Roll}_{\text{acc}}$$
-4. **Mapeo a Píxeles de Pantalla:** Con un campo de visión virtual ($\text{FOV} \approx 60^\circ$ o $1.1\text{ rad}$):
-   $$X_{\text{offset}} = -\theta_{\text{roll}} \cdot \frac{W_{\text{pantalla}}}{\text{FOV}}, \quad Y_{\text{offset}} = \theta_{\text{pitch}} \cdot \frac{W_{\text{pantalla}}}{\text{FOV}}$$
-   *Resultado:* Al rotar el teléfono hacia la izquierda, el sprite se desplaza hacia la derecha en la misma proporción angular, conservando su anclaje en el espacio.
+#### Ecuaciones de Fusión Sensorial (Filtro Complementario en Modo Retrato):
+1. **Giróscopo (Alta Frecuencia ~40 Hz):** Mide velocidades angulares instantáneas $\vec{\omega} = (\omega_x, \omega_y, \omega_z)$ en radianes por segundo con intervalo $\Delta t \approx 25\text{ ms}$:
+   $$\Delta\theta_{\text{pitch}} = \omega_x \cdot \Delta t, \quad \Delta\theta_{\text{yaw}} = \omega_y \cdot \Delta t$$
+2. **Acelerómetro (Baja Frecuencia - Corrección de Gravedad):** En orientación vertical (Portrait), el vector normal a la pantalla es el eje $Z$, y el eje longitudinal es $Y$. El ángulo de elevación respecto a la gravedad se obtiene como:
+   $$\text{Pitch}_{\text{acc}} = \text{atan2}(a_z, \sqrt{a_x^2 + a_y^2})$$
+   Para evitar sesgos por la postura ergonómica del jugador, se ancla una referencia basal $\text{Pitch}_{\text{base}}$ al abrir la pantalla o pulsar `🎯 Centrar`:
+   $$\text{Pitch}_{\text{rel}} = \text{Pitch}_{\text{acc}} - \text{Pitch}_{\text{base}}$$
+3. **Fusión Complementaria ($\alpha = 0.94$):**
+   $$\theta_{\text{pitch}}(t) = 0.94 \cdot (\theta_{\text{pitch}}(t - \Delta t) + \omega_x \cdot \Delta t) + 0.06 \cdot \text{Pitch}_{\text{rel}}$$
+   $$\theta_{\text{yaw}}(t) = 0.998 \cdot (\theta_{\text{yaw}}(t - \Delta t) + \omega_y \cdot \Delta t)$$
+4. **Mapeo a Píxeles de Pantalla ($\text{FOV} \approx 60^\circ$ o $1.05\text{ rad}$):**
+   $$X_{\text{offset}} = \theta_{\text{yaw}} \cdot \frac{W_{\text{pantalla}}}{\text{FOV}}, \quad Y_{\text{offset}} = \theta_{\text{pitch}} \cdot \frac{W_{\text{pantalla}}}{\text{FOV}}$$
+   *Comportamiento Espacial Verificable:*
+   - **Giro a la Izquierda ($\omega_y > 0$):** La cámara rota a la izquierda; el Pokémon se traslada a la **derecha** ($+X$), manteniéndose anclado al mundo real.
+   - **Giro a la Derecha ($\omega_y < 0$):** La cámara rota a la derecha; el Pokémon se traslada a la **izquierda** ($-X$).
+   - **Inclinación hacia Arriba ($\omega_x > 0$):** La cámara apunta al cielo; el Pokémon se desplaza hacia **abajo** ($+Y$) en la pantalla.
+   - **Inclinación hacia Abajo ($\omega_x < 0$):** La cámara apunta al suelo; el Pokémon se desplaza hacia **arriba** ($-Y$) en la pantalla.
+   - **Botón `🎯 Centrar`:** Restablece instantáneamente el origen de coordenadas al punto de mira actual.
 
 ---
 
