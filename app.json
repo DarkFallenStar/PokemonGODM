@@ -28,7 +28,8 @@
         {
           "RNMapboxMapsImpl": "mapbox"
         }
-      ]
+      ],
+      "expo-image"
     ],
     "extra": {
       "eas": {

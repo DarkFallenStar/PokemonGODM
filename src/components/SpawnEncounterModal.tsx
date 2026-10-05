@@ -5,9 +5,9 @@ import {
   Text,
   Modal,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
 } from 'react-native';
+import { Image } from 'expo-image';
 import type { ActiveSpawn } from '../types/spawns';
 
 interface SpawnEncounterModalProps {
@@ -26,16 +26,16 @@ export const SpawnEncounterModal: React.FC<SpawnEncounterModalProps> = ({
   const pokemon = spawn?.pokemon;
   const pokemonId = spawn?.pokemon_id || pokemon?.id;
 
-  // Cascada de URLs garantizadas con soporte nativo de PNG en Android
-  const primaryUrl =
+  // Con expo-image, priorizamos el GIF animado oficial de combate (Showdown Gen 5)
+  const animatedUrl = pokemon?.animation_url;
+  const staticUrl =
     pokemon?.sprite_url ||
     (pokemonId
       ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`
       : null);
 
-  const fallbackUrl = pokemonId
-    ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`
-    : null;
+  const primaryUrl = animatedUrl || staticUrl;
+  const fallbackUrl = staticUrl;
 
   const [currentUrl, setCurrentUrl] = useState<string | null>(primaryUrl);
   const [hasError, setHasError] = useState<boolean>(false);
@@ -68,13 +68,16 @@ export const SpawnEncounterModal: React.FC<SpawnEncounterModalProps> = ({
         <View style={styles.card}>
           <Text style={styles.encounterTitle}>¡Un Pokémon Salvaje ha aparecido!</Text>
 
-          {/* Contenedor del Sprite con Fallback Seguro */}
+          {/* Contenedor del Sprite con Soporte de GIFs Animados por Hardware */}
           <View style={styles.imageContainer}>
             {currentUrl && !hasError ? (
               <Image
                 source={{ uri: currentUrl }}
                 style={styles.pokemonImage}
-                resizeMode="contain"
+                contentFit="contain"
+                autoplay={true}
+                priority="high"
+                cachePolicy="memory-disk"
                 onLoadStart={() => setIsLoading(true)}
                 onLoadEnd={() => setIsLoading(false)}
                 onError={handleImageError}

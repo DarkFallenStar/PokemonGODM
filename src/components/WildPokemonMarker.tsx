@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { Image } from 'expo-image';
 import MapboxGL from '@rnmapbox/maps';
 import type { ActiveSpawn } from '../types/spawns';
 
@@ -19,6 +20,7 @@ export const WildPokemonMarker: React.FC<WildPokemonMarkerProps> = ({
 
   const pokemonId = spawn.pokemon_id || spawn.pokemon?.id;
   const spriteUrl =
+    spawn.pokemon?.animation_url ||
     spawn.pokemon?.sprite_url ||
     (pokemonId
       ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`
@@ -39,12 +41,15 @@ export const WildPokemonMarker: React.FC<WildPokemonMarkerProps> = ({
         {/* Anillo de pulso de encuentro salvaje */}
         <View style={styles.pulseRing} />
 
-        {/* Sprite oficial de la criatura o fallback */}
+        {/* Sprite oficial de la criatura (GIF animado o fallback) */}
         {spriteUrl ? (
           <Image
             source={{ uri: spriteUrl }}
             style={styles.spriteImage}
-            resizeMode="contain"
+            contentFit="contain"
+            autoplay={true}
+            priority="high"
+            cachePolicy="memory-disk"
           />
         ) : (
           <Text style={styles.fallbackEmoji}>🐾</Text>
