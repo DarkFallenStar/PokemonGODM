@@ -162,34 +162,161 @@ export function calculateBattleDamage(params: DamageCalculationParams): DamageRe
   };
 }
 
+import type { GymDefenderInfo } from '../types/map';
+
 /**
- * Genera un combatiente bot defensor para el gimnasio en caso de entrenamiento en solitario
+ * Movimientos temáticos rápidos y cargados según el tipo elemental principal
+ */
+export function getTypeThemedMoves(typeId: number): { fastMove: Move; chargedMove: Move } {
+  switch (typeId) {
+    case 2: // Fuego
+      return {
+        fastMove: { id: 201, name: 'Ember', type_id: 2, category: 'fast', power: 7, energy_delta: 4, duration_ms: 500 },
+        chargedMove: { id: 202, name: 'Flamethrower', type_id: 2, category: 'charged', power: 55, energy_delta: -33, duration_ms: 1800 },
+      };
+    case 3: // Agua
+      return {
+        fastMove: { id: 301, name: 'Water Gun', type_id: 3, category: 'fast', power: 6, energy_delta: 4, duration_ms: 500 },
+        chargedMove: { id: 302, name: 'Aqua Tail', type_id: 3, category: 'charged', power: 45, energy_delta: -33, duration_ms: 1600 },
+      };
+    case 4: // Planta
+      return {
+        fastMove: { id: 401, name: 'Vine Whip', type_id: 4, category: 'fast', power: 7, energy_delta: 4, duration_ms: 500 },
+        chargedMove: { id: 402, name: 'Solar Beam', type_id: 4, category: 'charged', power: 65, energy_delta: -50, duration_ms: 2200 },
+      };
+    case 5: // Eléctrico
+      return {
+        fastMove: { id: 501, name: 'Thunder Shock', type_id: 5, category: 'fast', power: 5, energy_delta: 5, duration_ms: 450 },
+        chargedMove: { id: 502, name: 'Thunderbolt', type_id: 5, category: 'charged', power: 55, energy_delta: -33, duration_ms: 1800 },
+      };
+    case 7: // Lucha
+      return {
+        fastMove: { id: 701, name: 'Karate Chop', type_id: 7, category: 'fast', power: 6, energy_delta: 4, duration_ms: 500 },
+        chargedMove: { id: 702, name: 'Cross Chop', type_id: 7, category: 'charged', power: 50, energy_delta: -33, duration_ms: 1700 },
+      };
+    case 15: // Dragón
+      return {
+        fastMove: { id: 40, name: 'Dragon Breath', type_id: 15, category: 'fast', power: 6, energy_delta: 4, duration_ms: 500 },
+        chargedMove: { id: 41, name: 'Dragon Claw', type_id: 15, category: 'charged', power: 50, energy_delta: -33, duration_ms: 1700 },
+      };
+    default: // Normal / Otros
+      return {
+        fastMove: { id: 1, name: 'Tackle', type_id: 1, category: 'fast', power: 5, energy_delta: 5, duration_ms: 500 },
+        chargedMove: { id: 4, name: 'Body Slam', type_id: 1, category: 'charged', power: 50, energy_delta: -33, duration_ms: 1900 },
+      };
+  }
+}
+
+/**
+ * Genera un combatiente bot defensor para el gimnasio utilizando el defensor real de la base de datos
  */
 export function createGymAIDefender(
   gymName: string,
-  gymTeam: 'mystic' | 'valor' | 'instinct' | 'neutral'
+  gymTeam: 'mystic' | 'valor' | 'instinct' | 'neutral',
+  defenderInfo?: GymDefenderInfo | null
 ): EnrichedCapturedPokemon {
-  // Snorlax o Dragonite guardián del campus
-  const isDragonite = gymName.includes('Portas') || gymName.includes('Biblioteca');
-  const pokemonId = isDragonite ? 149 : 143; // Dragonite o Snorlax
-  const name = isDragonite ? 'Dragonite Guardián' : 'Snorlax Defensor';
-  const cp = isDragonite ? 2980 : 2750;
-  const baseHp = isDragonite ? 91 : 160;
-  const baseAttack = isDragonite ? 134 : 110;
-  const baseDefense = isDragonite ? 95 : 65;
+  if (defenderInfo) {
+    const primaryType = defenderInfo.types[0] || 1;
+    const secondaryType = defenderInfo.types[1] || null;
+    const { fastMove, chargedMove } = getTypeThemedMoves(primaryType);
+
+    const baseHp = defenderInfo.base_hp || 80;
+    const baseAttack = defenderInfo.base_attack || 80;
+    const baseDefense = defenderInfo.base_defense || 80;
+    const ivHp = defenderInfo.iv_hp ?? 12;
+    const ivAttack = defenderInfo.iv_attack ?? 12;
+    const ivDefense = defenderInfo.iv_defense ?? 12;
+    const maxHp = defenderInfo.max_hp || (baseHp * 2 + ivHp + 50);
+    const displayName = defenderInfo.nickname
+      ? `${defenderInfo.nickname} (${defenderInfo.name})`
+      : defenderInfo.name;
+
+    return {
+      id: defenderInfo.instance_id || `defender-${defenderInfo.pokemon_id}`,
+      user_id: '00000000-0000-0000-0000-000000000099',
+      pokemon_id: defenderInfo.pokemon_id,
+      cp: defenderInfo.cp,
+      current_hp: Math.max(1, defenderInfo.current_hp || maxHp),
+      iv_attack: ivAttack,
+      iv_defense: ivDefense,
+      iv_hp: ivHp,
+      fast_move_id: fastMove.id,
+      charged_move_id: chargedMove.id,
+      captured_at: new Date().toISOString(),
+      maxHp,
+      base: {
+        id: defenderInfo.pokemon_id,
+        name: defenderInfo.name,
+        type_primary_id: primaryType,
+        type_secondary_id: secondaryType,
+        base_hp: baseHp,
+        base_attack: baseAttack,
+        base_defense: baseDefense,
+        base_sp_attack: 80,
+        base_sp_defense: 80,
+        base_speed: 80,
+        base_cp: defenderInfo.cp,
+        base_catch_rate: 0.1,
+        sprite_url: defenderInfo.sprite_url,
+        animation_url: defenderInfo.animation_url || defenderInfo.sprite_url,
+      },
+      fastMove,
+      chargedMove,
+      stats: {
+        attack: {
+          statName: 'Ataque',
+          baseValue: baseAttack,
+          ivValue: ivAttack,
+          effectiveValue: baseAttack + ivAttack,
+          maxPossibleEffective: baseAttack + 15,
+          ivPercentage: Math.round((ivAttack / 15) * 100),
+        },
+        defense: {
+          statName: 'Defensa',
+          baseValue: baseDefense,
+          ivValue: ivDefense,
+          effectiveValue: baseDefense + ivDefense,
+          maxPossibleEffective: baseDefense + 15,
+          ivPercentage: Math.round((ivDefense / 15) * 100),
+        },
+        hp: {
+          statName: 'PS',
+          baseValue: baseHp,
+          ivValue: ivHp,
+          effectiveValue: maxHp,
+          maxPossibleEffective: baseHp * 2 + 15 + 50,
+          ivPercentage: Math.round((ivHp / 15) * 100),
+        },
+      },
+      appraisal: {
+        totalIV: ivAttack + ivDefense + ivHp,
+        overallPercentage: Math.round(((ivAttack + ivDefense + ivHp) / 45) * 100),
+        stars: 3,
+        isPerfect: false,
+        summaryText: `Defensor oficial de ${gymName}.`,
+        badgeColor: '#EAB308',
+      },
+    };
+  }
+
+  // Fallback inteligente según hito si no hay registro de defensor en DB
+  const isAdPortas = gymName.includes('Portas') || gymName.includes('Biblioteca');
+  const isArena = gymName.includes('Arena') || gymName.includes('Canchas');
+  const pokemonId = isAdPortas ? 149 : isArena ? 68 : 143; // Dragonite, Machamp o Snorlax
+  const pName = isAdPortas ? 'Dragonite' : isArena ? 'Machamp' : 'Snorlax';
+  const name = `${pName} Defensor`;
+  const cp = isAdPortas ? 3120 : isArena ? 2850 : 2750;
+  const baseHp = isAdPortas ? 91 : isArena ? 90 : 160;
+  const baseAttack = isAdPortas ? 134 : isArena ? 130 : 110;
+  const baseDefense = isAdPortas ? 95 : isArena ? 80 : 65;
   const ivHp = 14;
   const ivAttack = 13;
   const ivDefense = 15;
+  const maxHp = baseHp * 2 + ivHp + 50;
 
-  const maxHp = (baseHp * 2) + ivHp + 50;
-
-  const fastMove: Move = isDragonite
-    ? { id: 40, name: 'Dragon Breath', type_id: 15, category: 'fast', power: 6, energy_delta: 4, duration_ms: 500 }
-    : { id: 1, name: 'Tackle', type_id: 1, category: 'fast', power: 5, energy_delta: 5, duration_ms: 500 };
-
-  const chargedMove: Move = isDragonite
-    ? { id: 41, name: 'Dragon Claw', type_id: 15, category: 'charged', power: 50, energy_delta: -33, duration_ms: 1700 }
-    : { id: 4, name: 'Body Slam', type_id: 1, category: 'charged', power: 50, energy_delta: -33, duration_ms: 1900 };
+  const primaryType = isAdPortas ? 15 : isArena ? 7 : 1;
+  const secondaryType = isAdPortas ? 10 : null;
+  const { fastMove, chargedMove } = getTypeThemedMoves(primaryType);
 
   return {
     id: `ai-defender-${pokemonId}`,
@@ -206,9 +333,9 @@ export function createGymAIDefender(
     maxHp,
     base: {
       id: pokemonId,
-      name,
-      type_primary_id: isDragonite ? 15 : 1,
-      type_secondary_id: isDragonite ? 10 : null,
+      name: pName,
+      type_primary_id: primaryType,
+      type_secondary_id: secondaryType,
       base_hp: baseHp,
       base_attack: baseAttack,
       base_defense: baseDefense,
@@ -217,8 +344,8 @@ export function createGymAIDefender(
       base_speed: 80,
       base_cp: cp,
       base_catch_rate: 0.1,
-      sprite_url: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`,
-      animation_url: `https://img.pokemondb.net/sprites/black-white/anim/normal/${isDragonite ? 'dragonite' : 'snorlax'}.gif`,
+      sprite_url: `https://img.pokemondb.net/sprites/home/normal/${pName.toLowerCase()}.png`,
+      animation_url: `https://img.pokemondb.net/sprites/black-white/anim/normal/${pName.toLowerCase()}.gif`,
     },
     fastMove,
     chargedMove,
@@ -244,7 +371,7 @@ export function createGymAIDefender(
         baseValue: baseHp,
         ivValue: ivHp,
         effectiveValue: maxHp,
-        maxPossibleEffective: (baseHp * 2) + 15 + 50,
+        maxPossibleEffective: baseHp * 2 + 15 + 50,
         ivPercentage: Math.round((ivHp / 15) * 100),
       },
     },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, Modal, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, Modal, TouchableOpacity, Image } from 'react-native';
 import type { CampusPOIMarker } from '../types/map';
 
 interface GymModalProps {
@@ -30,6 +30,7 @@ export const GymModal: React.FC<GymModalProps> = ({
   // Equipo dinámico consultado de Supabase (mystic, valor, instinct o neutral)
   const teamKey = gym.current_team || 'neutral';
   const team = TEAM_CONFIG[teamKey] || TEAM_CONFIG.neutral;
+  const defender = gym.defender;
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -50,13 +51,36 @@ export const GymModal: React.FC<GymModalProps> = ({
             </Text>
           </View>
 
-          {/* Tarjeta del Pokémon Defensor */}
+          {/* Tarjeta del Pokémon Defensor Real con Sprite (no emojis) */}
           <View style={styles.defenderCard}>
             <Text style={styles.defenderLabel}>Pokémon Defensor del Gimnasio</Text>
-            <Text style={styles.defenderEmoji}>🐲</Text>
-            <Text style={styles.defenderName}>Dragonite</Text>
-            <Text style={styles.defenderStats}>CP 3120 | PS 180/180</Text>
-            <Text style={styles.trainerName}>Entrenador: Campeón UniSabana</Text>
+            {defender ? (
+              <>
+                <Image
+                  source={{ uri: defender.animation_url || defender.sprite_url }}
+                  style={styles.defenderSprite}
+                  resizeMode="contain"
+                />
+                <Text style={styles.defenderName}>
+                  {defender.nickname ? defender.nickname : defender.name}
+                </Text>
+                {defender.nickname && defender.nickname !== defender.name && (
+                  <Text style={styles.defenderSpecies}>({defender.name})</Text>
+                )}
+                <Text style={styles.defenderStats}>
+                  CP {defender.cp} | PS {defender.current_hp}/{defender.max_hp}
+                </Text>
+                <Text style={styles.trainerName}>
+                  {defender.trainer_name ? `Entrenador: ${defender.trainer_name}` : 'Líder del Gimnasio'}
+                </Text>
+              </>
+            ) : (
+              <View style={styles.emptyDefenderBox}>
+                <Text style={styles.emptyDefenderEmoji}>🏟️</Text>
+                <Text style={styles.emptyDefenderText}>Sin Defensor Asignado</Text>
+                <Text style={styles.trainerName}>Gimnasio esperando nuevo líder</Text>
+              </View>
+            )}
           </View>
 
           {/* Instrucciones de Combate */}
@@ -161,14 +185,23 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     marginBottom: 6,
   },
-  defenderEmoji: {
-    fontSize: 44,
+  defenderSprite: {
+    width: 90,
+    height: 90,
     marginVertical: 4,
   },
   defenderName: {
     color: '#F8FAFC',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '800',
+    textAlign: 'center',
+  },
+  defenderSpecies: {
+    color: '#94A3B8',
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: -2,
+    marginBottom: 2,
   },
   defenderStats: {
     color: '#38BDF8',
@@ -180,6 +213,19 @@ const styles = StyleSheet.create({
     color: '#64748B',
     fontSize: 11,
     marginTop: 4,
+  },
+  emptyDefenderBox: {
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  emptyDefenderEmoji: {
+    fontSize: 40,
+    marginBottom: 6,
+  },
+  emptyDefenderText: {
+    color: '#94A3B8',
+    fontSize: 14,
+    fontWeight: '700',
   },
   warningMessage: {
     color: '#FCA5A5',

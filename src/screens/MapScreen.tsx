@@ -71,7 +71,13 @@ export const MapScreen: React.FC = () => {
   const loadCampusPOIs = useCallback(async () => {
     try {
       let stopsQuery = supabase.from('pokestops').select('id, name, latitude, longitude, is_test_zone');
-      let gymsQuery = supabase.from('gymnasiums').select('id, name, latitude, longitude, is_test_zone, current_team');
+      let gymsQuery = supabase.from('gymnasiums').select(`
+        id, name, latitude, longitude, is_test_zone, current_team, defending_instance_id,
+        defender:captured_instances(
+          id, nickname, cp, current_hp, iv_hp, iv_attack, iv_defense, fast_move_id, charged_move_id, user_id,
+          base:pokemon_base(id, name, sprite_url, animation_url, base_hp, base_attack, base_defense, type_primary_id, type_secondary_id)
+        )
+      `);
 
       // Si el modo de pruebas está apagado, filtrar estrictamente solo los POIs de UniSabana
       if (!testZoneActive) {
@@ -95,7 +101,35 @@ export const MapScreen: React.FC = () => {
       }
 
       if (gymsRes.data) {
-        for (const g of gymsRes.data) {
+        for (const g of gymsRes.data as any[]) {
+          let defenderInfo: any = null;
+          if (g.defender) {
+            const d = g.defender;
+            const b = d.base;
+            const maxHp = (b?.base_hp ? b.base_hp * 2 : 100) + (d.iv_hp || 10) + 50;
+            defenderInfo = {
+              instance_id: d.id,
+              nickname: d.nickname || null,
+              name: b?.name || 'Pokémon',
+              pokemon_id: b?.id || 1,
+              cp: d.cp,
+              current_hp: d.current_hp ?? maxHp,
+              max_hp: maxHp,
+              sprite_url: b?.sprite_url || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${b?.id || 1}.png`,
+              animation_url: b?.animation_url || null,
+              trainer_name: d.user_id === '00000000-0000-0000-0000-000000000099' ? 'Líder del Gimnasio' : 'Entrenador UniSabana',
+              types: [b?.type_primary_id, b?.type_secondary_id].filter(Boolean),
+              base_attack: b?.base_attack,
+              base_defense: b?.base_defense,
+              base_hp: b?.base_hp,
+              iv_attack: d.iv_attack,
+              iv_defense: d.iv_defense,
+              iv_hp: d.iv_hp,
+              fast_move_id: d.fast_move_id,
+              charged_move_id: d.charged_move_id,
+            };
+          }
+
           loadedPOIs.push({
             id: g.id,
             name: g.name,
@@ -103,11 +137,18 @@ export const MapScreen: React.FC = () => {
             latitude: g.latitude,
             longitude: g.longitude,
             current_team: g.current_team,
+            defending_instance_id: g.defending_instance_id,
+            defender: defenderInfo,
           });
         }
       }
 
       setPois(loadedPOIs);
+      setSelectedGym(prev => {
+        if (!prev) return null;
+        const updated = loadedPOIs.find(p => p.id === prev.id);
+        return updated || prev;
+      });
     } catch (e) {
       console.warn('Error cargando POIs de Supabase:', e);
     }
@@ -129,6 +170,13 @@ export const MapScreen: React.FC = () => {
   useEffect(() => {
     loadCampusPOIs();
   }, [loadCampusPOIs]);
+
+  // Recargar POIs cada vez que el mapa vuelve a estar en foco
+  useFocusEffect(
+    useCallback(() => {
+      loadCampusPOIs();
+    }, [loadCampusPOIs])
+  );
 
   // Refrescar cooldowns cuando cambien los POIs
   useEffect(() => {
@@ -205,6 +253,7 @@ export const MapScreen: React.FC = () => {
       gymName: gym.name,
       initialTeam: (gym.current_team as any) || 'neutral',
       distanceMeters: selectedGymDistance,
+      defender: gym.defender,
     });
   }, [navigation, selectedGymDistance]);
 

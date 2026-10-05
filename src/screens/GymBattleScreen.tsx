@@ -44,7 +44,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 type GymBattleScreenProps = NativeStackScreenProps<RootStackParamList, 'GymBattle'>;
 
 export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigation }) => {
-  const { gymId, gymName, initialTeam, distanceMeters } = route.params;
+  const { gymId, gymName, initialTeam, distanceMeters, defender } = route.params;
 
   // Estados de Combate
   const [phase, setPhase] = useState<BattlePhase>('MATCHMAKING');
@@ -111,14 +111,14 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
     }
   }, [distanceMeters, navigation]);
 
-  // Inicializar oponente AI por defecto
+  // Inicializar oponente AI con el defensor real asignado al gimnasio
   const setupAIOpponent = useCallback(() => {
-    const aiDefender = createGymAIDefender(gymName, initialTeam);
+    const aiDefender = createGymAIDefender(gymName, initialTeam, defender);
     setOpponentPokemon(aiDefender);
     setOpponentHp(aiDefender.current_hp);
     setOpponentMaxHp(aiDefender.maxHp);
     setIsOpponentAI(true);
-  }, [gymName, initialTeam]);
+  }, [gymName, initialTeam, defender]);
 
   // Manejo de Conexión Realtime WebSocket
   useEffect(() => {
@@ -503,9 +503,11 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
     const res = await claimGymnasiumVictory(gymId, DEMO_USER_ID, playerTeam, playerPokemon?.id);
     const teamInfo = TEAMS[playerTeam];
 
+    const newDefenderName = playerPokemon?.nickname || playerPokemon?.base.name || 'Tu Pokémon';
+
     Alert.alert(
       '🏆 ¡VICTORIA EN EL GIMNASIO!',
-      `Has derrotado al defensor de ${gymName}.\n\n${res.message || 'El gimnasio ahora ondea la bandera de tu equipo.'}\n\nLiderazgo transferido a: ${teamInfo.badge} ${teamInfo.name}\nTransacción RPC (finalize_gym_battle): ${res.success ? 'Ejecutada con éxito ✅' : 'Error: ' + res.error}`,
+      `Has derrotado al defensor de ${gymName}.\n\n${res.message || 'El gimnasio ahora ondea la bandera de tu equipo.'}\n\nLiderazgo transferido a: ${teamInfo.badge} ${teamInfo.name}\n🛡️ Nuevo Defensor Asignado: ${newDefenderName}\nTransacción RPC (finalize_gym_battle): ${res.success ? 'Ejecutada con éxito ✅' : 'Error: ' + res.error}`,
       [{ text: '¡Excelente!', onPress: () => navigation.goBack() }]
     );
   };

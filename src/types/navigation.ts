@@ -2,6 +2,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 import type { ActiveSpawn } from './spawns';
+import type { GymDefenderInfo } from './map';
 
 export type MainTabParamList = {
   Map: undefined;
@@ -16,6 +17,7 @@ export type RootStackParamList = {
     gymName: string;
     initialTeam: 'mystic' | 'valor' | 'instinct' | 'neutral';
     distanceMeters: number;
+    defender?: GymDefenderInfo | null;
   };
 };
 

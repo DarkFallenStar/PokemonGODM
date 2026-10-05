@@ -199,21 +199,27 @@ Para que el evaluador verifique al 100% que la función almacenada en PostgreSQL
 
 #### Método A: Verificación en Vivo desde la Aplicación Móvil
 1. **Antes del Combate:**
-   - En el mapa, pulsa sobre un Gimnasio (ej. *"Gimnasio Ad Portas"* o *"Gimnasio Arena Deportiva"*).
-   - Observa en el modal su equipo y color actual (por ejemplo: `Gimnasio Neutral ⚪` o `Equipo Valor 🔥`).
+   - En el mapa, pulsa sobre un Gimnasio (ej. *"Gimnasio Ad Portas"*, *"Arena Deportiva"* o *"Cajicá"*).
+   - Observa en el modal:
+     - El equipo y color actual (por ejemplo: `Gimnasio Neutral ⚪` o `Equipo Valor 🔥`).
+     - La tarjeta del Pokémon Defensor Oficial: renderiza su **sprite oficial real** (sin emojis), nombre/apodo, CP y barra de PS (por ejemplo, Dragonite Guardián en Ad Portas, Machop 'Matcha' en Arena Deportiva, o Goldeen 'Golgy' en Cajicá).
+     - El nombre del Entrenador que lo custodia.
 2. **Durante y al Finalizar el Combate:**
+   - Pulsa `⚔️ Desafiar Gimnasio`: en la arena de combate, el oponente renderiza **el sprite y movimientos elementales del defensor oficial** del gimnasio (no un Snorlax genérico).
    - Reduce los PS del defensor a 0 PS.
    - En pantalla aparecerá la alerta:
      ```text
      🏆 ¡VICTORIA EN EL GIMNASIO!
-     Has derrotado al defensor de Gimnasio Ad Portas.
-     Liderazgo transferido a: Equipo Místico (Sabiduría)
+     Has derrotado al defensor de Gimnasio.
+     Liderazgo transferido a: [Tu Equipo]
+     🛡️ Nuevo Defensor Asignado: [Tu Pokémon Seleccionado]
      Transacción RPC (finalize_gym_battle): Ejecutada con éxito ✅
      ```
 3. **Verificación Inmediata en el Mapa:**
    - Pulsa `¡Excelente!`. La aplicación regresará al mapa interactivo.
-   - Observa cómo el marcador del gimnasio en el mapa se actualiza automáticamente con el nuevo color y emblema (`🦅` azul para Místico).
-   - Vuelve a pulsar el gimnasio: el modal confirma que el nuevo equipo defensor es `Equipo Sabiduría (Místico)`.
+   - Gracias al hook `useFocusEffect`, el mapa recarga inmediatamente los POIs desde Supabase:
+     - El marcador del gimnasio en el mapa se actualiza automáticamente con el color y emblema de tu equipo.
+     - Vuelve a pulsar el gimnasio: el modal confirma que el nuevo equipo es tu facción y que **tu propio Pokémon ahora aparece como el defensor oficial** en la cima del gimnasio con su sprite, mote, CP y PS.
 
 #### Método B: Verificación Automatizada mediante Script CLI
 Ejecuta en la terminal el script automatizado de evaluación de base de datos:
