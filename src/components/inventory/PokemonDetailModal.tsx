@@ -6,6 +6,7 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { Image } from 'expo-image';
 import type { EnrichedCapturedPokemon } from '../../types/inventory';
@@ -15,17 +16,38 @@ interface PokemonDetailModalProps {
   visible: boolean;
   pokemon: EnrichedCapturedPokemon | null;
   onClose: () => void;
+  onTransfer?: (instanceId: string) => void;
 }
 
 export const PokemonDetailModal: React.FC<PokemonDetailModalProps> = ({
   visible,
   pokemon,
   onClose,
+  onTransfer,
 }) => {
   if (!pokemon) return null;
 
   const { base, appraisal, stats, fastMove, chargedMove } = pokemon;
   const primaryTypeColor = TYPE_COLORS[base.type_primary_id] || '#64748B';
+
+  const handleConfirmTransfer = () => {
+    const displayName = pokemon.nickname || base.name;
+    Alert.alert(
+      '¿Transferir Pokémon al Profesor?',
+      `¿Estás seguro de transferir a ${displayName} al Profesor Oak?\n\nEsta acción liberará al Pokémon de tu Pokédex de forma permanente y no se puede deshacer.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Sí, Transferir',
+          style: 'destructive',
+          onPress: () => {
+            onClose();
+            onTransfer?.(pokemon.id);
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -37,7 +59,12 @@ export const PokemonDetailModal: React.FC<PokemonDetailModalProps> = ({
               <Text style={styles.pokedexNumber}>
                 #{String(pokemon.pokemon_id).padStart(3, '0')}
               </Text>
-              <Text style={styles.pokemonName}>{base.name}</Text>
+              <Text style={styles.pokemonName}>
+                {pokemon.nickname || base.name}
+              </Text>
+              {pokemon.nickname && pokemon.nickname !== base.name && (
+                <Text style={styles.speciesSubtitle}>Especie: {base.name}</Text>
+              )}
             </View>
             <View style={styles.cpBadge}>
               <Text style={styles.cpLabel}>CP</Text>
@@ -280,10 +307,21 @@ export const PokemonDetailModal: React.FC<PokemonDetailModalProps> = ({
             </View>
           </ScrollView>
 
-          {/* Botón de Cierre */}
-          <TouchableOpacity style={styles.closeButton} onPress={onClose} activeOpacity={0.8}>
-            <Text style={styles.closeButtonText}>Cerrar Ficha</Text>
-          </TouchableOpacity>
+          {/* Botones de Acción */}
+          <View style={styles.actionsRow}>
+            {onTransfer && (
+              <TouchableOpacity
+                style={styles.transferButton}
+                onPress={handleConfirmTransfer}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.transferButtonText}>🗑️ Transferir</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={styles.closeButton} onPress={onClose} activeOpacity={0.8}>
+              <Text style={styles.closeButtonText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>
@@ -317,6 +355,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: '#94A3B8',
+  },
+  speciesSubtitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#38BDF8',
+    marginTop: 2,
   },
   pokemonName: {
     fontSize: 24,
@@ -577,12 +621,33 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#94A3B8',
   },
+  actionsRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 10,
+  },
+  transferButton: {
+    flex: 1,
+    backgroundColor: '#1E293B',
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#EF4444',
+  },
+  transferButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#EF4444',
+  },
   closeButton: {
+    flex: 1,
     backgroundColor: '#334155',
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: 'center',
-    marginTop: 6,
+    justifyContent: 'center',
   },
   closeButtonText: {
     fontSize: 14,

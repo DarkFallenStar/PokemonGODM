@@ -568,6 +568,16 @@ Para resolver la carrera de esquiva y la desincronización de salud:
 - **When** el combate concluye
 - **Then** se ejecuta `finalize_gym_battle` en Supabase con bloqueo a nivel de fila, actualizando el equipo del gimnasio al equipo del Entrenador 1 sin condiciones de carrera.
 
+### Escenario 9: Elección y Persistencia de Equipo de Entrenador
+- **Given** que el usuario abre el modal `TeamSelectionModal` desde el encabezado de la Pokédex
+- **When** selecciona unirse a "Equipo Valor" o "Equipo Instinto"
+- **Then** el perfil se actualiza en la tabla `user_profiles` de PostgreSQL y las siguientes conquistas de gimnasios transferirán el liderazgo al equipo seleccionado.
+
+### Escenario 10: Transferencia Atómica y Eliminación de Criaturas al Profesor
+- **Given** que el usuario abre la ficha de un Pokémon y pulsa "Transferir"
+- **When** confirma la acción irrevocable en el diálogo modal
+- **Then** se invoca `transfer_pokemon_instance` en PostgreSQL, validando que no esté defendiendo un gimnasio, eliminándolo de `captured_instances` y removiéndolo en tiempo real de la Pokédex local.
+
 ---
 
 ## 8. Componentes Afectados y Plan de Implementación

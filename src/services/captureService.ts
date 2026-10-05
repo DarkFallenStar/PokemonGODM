@@ -95,14 +95,17 @@ export async function recordSuccessfulCapture(
       return { success: true, captureId: rpcData };
     }
 
-    // Fallback: Inserción directa en captured_instances
+    // Fallback: Inserción directa en captured_instances con salud al 100%
+    const baseHp = spawn.pokemon?.base_hp || 50;
+    const maxHp = (baseHp * 2) + (spawn.iv_hp ?? 10) + 50;
+
     const { data: insertData, error: insertError } = await supabase
       .from('captured_instances')
       .insert({
         user_id: userId,
         pokemon_id: pokemonId,
         cp: spawn.cp,
-        current_hp: Math.max(10, Math.floor(spawn.cp / 10)),
+        current_hp: maxHp, // Salud completa al capturar
         iv_attack: spawn.iv_attack ?? 10,
         iv_defense: spawn.iv_defense ?? 10,
         iv_hp: spawn.iv_hp ?? 10,

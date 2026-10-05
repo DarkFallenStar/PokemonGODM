@@ -25,6 +25,7 @@ import type { EnrichedCapturedPokemon } from '../types/inventory';
 import type { BattlePhase, BattleRole } from '../types/battle';
 import {
   fetchCapturedPokemonCollection,
+  updatePokemonHealth,
   DEMO_USER_ID,
 } from '../services/inventoryService';
 import {
@@ -34,6 +35,8 @@ import {
   TYPE_NAMES,
   TYPE_COLORS,
 } from '../services/battleEngine';
+import { fetchTrainerProfile } from '../services/playerProfileService';
+import { TEAMS, type TrainerTeam } from '../types/battle';
 import { BattleRealtimeManager } from '../services/battleRealtime';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -51,6 +54,7 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
   const [isOpponentAI, setIsOpponentAI] = useState<boolean>(true);
   const [winner, setWinner] = useState<'player' | 'opponent' | null>(null);
   const [floatingText, setFloatingText] = useState<{ text: string; color: string; id: number } | null>(null);
+  const [playerTeam, setPlayerTeam] = useState<TrainerTeam>('mystic');
 
   // Salud y Energía
   const [playerHp, setPlayerHp] = useState<number>(100);
@@ -77,15 +81,21 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
 
   const countdownNumber = useSharedValue<number>(3);
 
-  // Cargar criaturas del jugador al iniciar
+  // Cargar criaturas del jugador y perfil de entrenador al iniciar
   useEffect(() => {
     (async () => {
-      const coll = await fetchCapturedPokemonCollection(DEMO_USER_ID);
-      // Filtrar criaturas con salud > 0
+      const [coll, profile] = await Promise.all([
+        fetchCapturedPokemonCollection(DEMO_USER_ID),
+        fetchTrainerProfile(DEMO_USER_ID),
+      ]);
+      setPlayerTeam(profile.team);
+      setCollection(coll);
+      // Auto-seleccionar primer Pokémon con salud
       const alive = coll.filter(p => p.current_hp > 0);
-      setCollection(alive);
       if (alive.length > 0) {
         setPlayerPokemon(alive[0]);
+      } else if (coll.length > 0) {
+        setPlayerPokemon(coll[0]);
       }
     })();
   }, []);
@@ -201,13 +211,13 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
     manager.connect({
       userId: DEMO_USER_ID,
       username: 'Entrenador UniSabana',
-      team: initialTeam,
+      team: playerTeam,
       role: 'challenger',
       status: 'ready',
       combatant: {
         instanceId: playerPokemon.id,
         pokemonId: playerPokemon.pokemon_id,
-        name: playerPokemon.base.name,
+        name: playerPokemon.nickname || playerPokemon.base.name,
         cp: playerPokemon.cp,
         currentHp: playerPokemon.current_hp,
         maxHp: playerPokemon.maxHp,
@@ -226,6 +236,14 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
   // Iniciar conteo regresivo de combate
   const startCombat = useCallback(() => {
     if (!playerPokemon || !opponentPokemon) return;
+
+    if (playerPokemon.current_hp <= 0) {
+      Alert.alert(
+        'Pokémon Debilitado',
+        `Tu ${playerPokemon.nickname || playerPokemon.base.name} tiene 0 PS y no puede combatir. Usa un Revivir en tu Mochila o selecciona otra criatura.`
+      );
+      return;
+    }
 
     setPlayerHp(playerPokemon.current_hp);
     setPlayerMaxHp(playerPokemon.maxHp);
@@ -476,25 +494,36 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
     setPhase('FINISHED');
     if (aiAttackIntervalRef.current) clearInterval(aiAttackIntervalRef.current);
 
-    // Reclamar el gimnasio en Supabase de forma atómica mediante RPC finalize_gym_battle
-    const res = await claimGymnasiumVictory(gymId, DEMO_USER_ID, 'mystic', playerPokemon?.id);
+    // 1. Persistir salud restante del Pokémon del jugador en la base de datos
+    if (playerPokemon) {
+      await updatePokemonHealth(playerPokemon.id, Math.max(1, playerHp));
+    }
+
+    // 2. Reclamar el gimnasio en Supabase con el equipo del jugador
+    const res = await claimGymnasiumVictory(gymId, DEMO_USER_ID, playerTeam, playerPokemon?.id);
+    const teamInfo = TEAMS[playerTeam];
 
     Alert.alert(
       '🏆 ¡VICTORIA EN EL GIMNASIO!',
-      `Has derrotado al defensor de ${gymName}.\n\n${res.message || 'El gimnasio ahora ondea la bandera de tu equipo.'}\n\nLiderazgo transferido a: Equipo Místico (Sabiduría)\nTransacción RPC (finalize_gym_battle): ${res.success ? 'Ejecutada con éxito ✅' : 'Error: ' + res.error}`,
+      `Has derrotado al defensor de ${gymName}.\n\n${res.message || 'El gimnasio ahora ondea la bandera de tu equipo.'}\n\nLiderazgo transferido a: ${teamInfo.badge} ${teamInfo.name}\nTransacción RPC (finalize_gym_battle): ${res.success ? 'Ejecutada con éxito ✅' : 'Error: ' + res.error}`,
       [{ text: '¡Excelente!', onPress: () => navigation.goBack() }]
     );
   };
 
   // Finalización del Combate: Derrota
-  const handleBattleDefeat = () => {
+  const handleBattleDefeat = async () => {
     setWinner('opponent');
     setPhase('FINISHED');
     if (aiAttackIntervalRef.current) clearInterval(aiAttackIntervalRef.current);
 
+    // Persistir salud a 0 PS (debilitado) en la base de datos
+    if (playerPokemon) {
+      await updatePokemonHealth(playerPokemon.id, 0);
+    }
+
     Alert.alert(
       '💀 Pokémon Debilitado',
-      `Tu ${playerPokemon?.base.name || 'Pokémon'} ha caído en combate. Usa un Revivir en la Mochila para reanimarlo.`,
+      `Tu ${playerPokemon?.nickname || playerPokemon?.base.name || 'Pokémon'} ha caído en combate (0 PS).\nUsa un Revivir en la Mochila para reanimarlo.`,
       [{ text: 'Volver al Mapa', onPress: () => navigation.goBack() }]
     );
   };
@@ -539,15 +568,37 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
             Elige un Pokémon con PS disponibles para entrar a la arena del gimnasio:
           </Text>
 
+          {/* Indicador del Equipo del Jugador */}
+          <View style={[styles.teamIndicatorPill, { borderColor: TEAMS[playerTeam].color }]}>
+            <Text style={styles.teamIndicatorEmoji}>{TEAMS[playerTeam].badge}</Text>
+            <Text style={[styles.teamIndicatorText, { color: TEAMS[playerTeam].accentColor }]}>
+              Representando al {TEAMS[playerTeam].name}
+            </Text>
+          </View>
+
           {/* Lista de Selección Rápida */}
           <View style={styles.combatantList}>
             {collection.map(p => {
               const isSelected = playerPokemon?.id === p.id;
+              const isFainted = p.current_hp <= 0;
               return (
                 <TouchableOpacity
                   key={p.id}
-                  style={[styles.combatantCard, isSelected && styles.selectedCombatantCard]}
-                  onPress={() => setPlayerPokemon(p)}
+                  style={[
+                    styles.combatantCard,
+                    isSelected && styles.selectedCombatantCard,
+                    isFainted && styles.faintedCombatantCard,
+                  ]}
+                  onPress={() => {
+                    if (isFainted) {
+                      Alert.alert(
+                        'Pokémon Debilitado',
+                        `${p.nickname || p.base.name} tiene 0 PS y no puede combatir. Usa un Revivir en la Mochila.`
+                      );
+                      return;
+                    }
+                    setPlayerPokemon(p);
+                  }}
                   activeOpacity={0.8}
                 >
                   <Image
@@ -559,9 +610,13 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
                     style={styles.combatantSprite}
                     contentFit="contain"
                   />
-                  <Text style={styles.combatantName}>{p.base.name}</Text>
+                  <Text style={styles.combatantName} numberOfLines={1}>
+                    {p.nickname || p.base.name}
+                  </Text>
                   <Text style={styles.combatantCp}>CP {p.cp}</Text>
-                  <Text style={styles.combatantHp}>{p.current_hp}/{p.maxHp} PS</Text>
+                  <Text style={[styles.combatantHp, isFainted && styles.combatantHpFainted]}>
+                    {isFainted ? '💀 0 PS' : `${p.current_hp}/${p.maxHp} PS`}
+                  </Text>
                 </TouchableOpacity>
               );
             })}
@@ -839,6 +894,33 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#10B981',
     marginTop: 2,
+  },
+  combatantHpFainted: {
+    color: '#EF4444',
+    fontWeight: '800',
+  },
+  faintedCombatantCard: {
+    opacity: 0.55,
+    borderColor: '#7F1D1D',
+  },
+  teamIndicatorPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#1E293B',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  teamIndicatorEmoji: {
+    fontSize: 16,
+  },
+  teamIndicatorText: {
+    fontSize: 12,
+    fontWeight: '700',
   },
   startBattleButton: {
     backgroundColor: '#2563EB',

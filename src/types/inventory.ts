@@ -52,3 +52,10 @@ export interface EnrichedCapturedPokemon extends CapturedInstance {
   maxHp: number;
   appraisal: AppraisalRating;
 }
+
+export interface TrainerProfile {
+  userId: string;
+  team: 'mystic' | 'valor' | 'instinct';
+  trainerName: string;
+  updatedAt: string;
+}

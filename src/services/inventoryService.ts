@@ -308,6 +308,8 @@ export async function fetchCapturedPokemonCollection(
         iv_hp,
         cp,
         current_hp,
+        nickname,
+        ball_used,
         fast_move_id,
         charged_move_id,
         captured_at,
@@ -363,6 +365,8 @@ export async function fetchCapturedPokemonCollection(
         iv_attack: ivAttack,
         iv_defense: ivDefense,
         iv_hp: ivHp,
+        nickname: row.nickname || null,
+        ball_used: row.ball_used || null,
         fast_move_id: row.fast_move_id,
         charged_move_id: row.charged_move_id,
         captured_at: row.captured_at,
@@ -497,5 +501,82 @@ export async function recordPokestopSpin(
   } catch (err) {
     console.warn('Error registrando cooldown de Poképarada:', err);
     return false;
+  }
+}
+
+/**
+ * Actualiza la salud (PS) actual de una criatura tras combate o daño.
+ */
+export async function updatePokemonHealth(
+  instanceId: string,
+  newHp: number
+): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('captured_instances')
+      .update({ current_hp: Math.max(0, Math.floor(newHp)) })
+      .eq('id', instanceId);
+
+    if (error) {
+      console.warn('Error actualizando PS de criatura:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('Excepción en updatePokemonHealth:', err);
+    return false;
+  }
+}
+
+/**
+ * Transfiere (elimina) un Pokémon de la colección hacia el Profesor Oak de forma atómica.
+ * Valida que la criatura no se encuentre actualmente asignada como defensor en un gimnasio.
+ */
+export async function transferPokemonInstance(
+  instanceId: string,
+  userId: string = DEMO_USER_ID
+): Promise<{ success: boolean; message?: string; error?: string }> {
+  try {
+    // 1. Intentar mediante la función almacenada transaccional en PostgreSQL
+    const { data, error } = await supabase.rpc('transfer_pokemon_instance', {
+      p_user_id: userId,
+      p_instance_id: instanceId,
+    });
+
+    if (!error && data && typeof data === 'object') {
+      return {
+        success: !!data.success,
+        message: data.message || 'Pokémon transferido al Profesor.',
+        error: data.error,
+      };
+    }
+
+    // 2. Fallback: verificación defensiva y eliminación directa
+    const { data: gymDef } = await supabase
+      .from('gymnasiums')
+      .select('name')
+      .eq('defending_instance_id', instanceId)
+      .maybeSingle();
+
+    if (gymDef) {
+      return {
+        success: false,
+        error: `No puedes transferir a este Pokémon porque está defendiendo el ${gymDef.name}.`,
+      };
+    }
+
+    const { error: deleteError } = await supabase
+      .from('captured_instances')
+      .delete()
+      .eq('id', instanceId)
+      .eq('user_id', userId);
+
+    if (deleteError) {
+      return { success: false, error: deleteError.message };
+    }
+
+    return { success: true, message: 'Pokémon transferido al Profesor con éxito.' };
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Error de red al transferir Pokémon.' };
   }
 }

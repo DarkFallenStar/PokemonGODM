@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
@@ -22,11 +23,18 @@ import type {
 import {
   fetchCapturedPokemonCollection,
   fetchInventoryItemsDetailed,
+  transferPokemonInstance,
   DEMO_USER_ID,
 } from '../services/inventoryService';
+import {
+  fetchTrainerProfile,
+  updateTrainerTeam,
+} from '../services/playerProfileService';
+import { TEAMS, type TrainerTeam } from '../types/battle';
 import { TYPE_NAMES, TYPE_COLORS } from '../services/battleEngine';
 import { PokemonDetailModal } from '../components/inventory/PokemonDetailModal';
 import { ConsumableUseModal } from '../components/inventory/ConsumableUseModal';
+import { TeamSelectionModal } from '../components/inventory/TeamSelectionModal';
 
 type InventoryTab = 'pokedex' | 'backpack';
 type SortOption = 'cp_desc' | 'cp_asc' | 'recent' | 'iv_desc' | 'number';
@@ -39,6 +47,7 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = () => {
   // Datos
   const [collection, setCollection] = useState<EnrichedCapturedPokemon[]>([]);
   const [backpackItems, setBackpackItems] = useState<InventoryItemView[]>([]);
+  const [trainerTeam, setTrainerTeam] = useState<TrainerTeam>('mystic');
 
   // Filtros de Pokédex
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -49,16 +58,19 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = () => {
   const [selectedPokemon, setSelectedPokemon] = useState<EnrichedCapturedPokemon[] | null>(null);
   const [inspectPokemon, setInspectPokemon] = useState<EnrichedCapturedPokemon | null>(null);
   const [medicineItem, setMedicineItem] = useState<ConsumableItemMetadata | null>(null);
+  const [showTeamModal, setShowTeamModal] = useState<boolean>(false);
 
   // Cargar datos
   const loadData = useCallback(async () => {
     try {
-      const [collData, itemsData] = await Promise.all([
+      const [collData, itemsData, profile] = await Promise.all([
         fetchCapturedPokemonCollection(DEMO_USER_ID),
         fetchInventoryItemsDetailed(DEMO_USER_ID),
+        fetchTrainerProfile(DEMO_USER_ID),
       ]);
       setCollection(collData);
       setBackpackItems(itemsData);
+      setTrainerTeam(profile.team);
     } catch (e) {
       console.warn('Error cargando inventario y colección:', e);
     } finally {
@@ -78,16 +90,43 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = () => {
     loadData();
   }, [loadData]);
 
+  // Manejador de cambio de equipo
+  const handleSelectTeam = async (newTeam: TrainerTeam) => {
+    setTrainerTeam(newTeam);
+    await updateTrainerTeam(newTeam, DEMO_USER_ID);
+    Alert.alert(
+      '¡Equipo Actualizado!',
+      `Te has unido al ${TEAMS[newTeam].name}.\nTus victorias en los gimnasios del campus transferirán el liderazgo a la bandera de tu equipo.`
+    );
+  };
+
+  // Manejador de transferencia (eliminación atómica)
+  const handleTransferPokemon = useCallback(async (instanceId: string) => {
+    try {
+      const res = await transferPokemonInstance(instanceId, DEMO_USER_ID);
+      if (!res.success) {
+        Alert.alert('No se pudo transferir', res.error || 'Ocurrió un error al transferir la criatura.');
+        return;
+      }
+      setCollection(prev => prev.filter(p => p.id !== instanceId));
+      setInspectPokemon(null);
+      Alert.alert('¡Transferencia Exitosa!', res.message || 'El Pokémon fue entregado al Profesor Oak.');
+    } catch (e: any) {
+      Alert.alert('Error', e?.message || 'Error de conexión.');
+    }
+  }, []);
+
   // Filtrado y ordenamiento de criaturas
   const filteredCollection = useMemo(() => {
     let result = [...collection];
 
-    // Filtro por texto (Nombre o Número)
+    // Filtro por texto (Nombre, Apodo o Número)
     if (searchQuery.trim().length > 0) {
       const query = searchQuery.toLowerCase().trim();
       result = result.filter(
         p =>
           p.base.name.toLowerCase().includes(query) ||
+          (p.nickname && p.nickname.toLowerCase().includes(query)) ||
           String(p.pokemon_id).includes(query)
       );
     }
@@ -130,26 +169,40 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      {/* Barra Superior con Controles de Pestañas */}
+      {/* Barra Superior con Controles de Pestañas y Badge de Equipo */}
       <View style={styles.topBar}>
-        <View style={styles.segmentedControl}>
-          <TouchableOpacity
-            style={[styles.tabButton, activeTab === 'pokedex' && styles.activeTabButton]}
-            onPress={() => setActiveTab('pokedex')}
-            activeOpacity={0.8}
-          >
-            <Text style={[styles.tabText, activeTab === 'pokedex' && styles.activeTabText]}>
-              📖 Pokédex ({collection.length})
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.topHeaderRow}>
+          <View style={styles.segmentedControl}>
+            <TouchableOpacity
+              style={[styles.tabButton, activeTab === 'pokedex' && styles.activeTabButton]}
+              onPress={() => setActiveTab('pokedex')}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.tabText, activeTab === 'pokedex' && styles.activeTabText]}>
+                📖 Pokédex ({collection.length})
+              </Text>
+            </TouchableOpacity>
 
+            <TouchableOpacity
+              style={[styles.tabButton, activeTab === 'backpack' && styles.activeTabButton]}
+              onPress={() => setActiveTab('backpack')}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.tabText, activeTab === 'backpack' && styles.activeTabText]}>
+                🎒 Mochila
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Insignia Interactiva de Equipo de Entrenador */}
           <TouchableOpacity
-            style={[styles.tabButton, activeTab === 'backpack' && styles.activeTabButton]}
-            onPress={() => setActiveTab('backpack')}
+            style={[styles.teamBadgeBtn, { borderColor: TEAMS[trainerTeam].color }]}
+            onPress={() => setShowTeamModal(true)}
             activeOpacity={0.8}
           >
-            <Text style={[styles.tabText, activeTab === 'backpack' && styles.activeTabText]}>
-              🎒 Mochila
+            <Text style={styles.teamBadgeEmoji}>{TEAMS[trainerTeam].badge}</Text>
+            <Text style={[styles.teamBadgeText, { color: TEAMS[trainerTeam].accentColor }]}>
+              {trainerTeam.toUpperCase()}
             </Text>
           </TouchableOpacity>
         </View>
@@ -302,25 +355,37 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = () => {
                     contentFit="contain"
                   />
 
-                  {/* Nombre y Número */}
+                  {/* Nombre y Número / Apodo */}
                   <Text style={styles.cardName} numberOfLines={1}>
-                    {p.base.name}
+                    {p.nickname || p.base.name}
                   </Text>
-                  <Text style={styles.cardNumber}>#{String(p.pokemon_id).padStart(3, '0')}</Text>
+                  {p.nickname && p.nickname !== p.base.name ? (
+                    <Text style={styles.cardSpeciesSubtitle} numberOfLines={1}>
+                      {p.base.name}
+                    </Text>
+                  ) : (
+                    <Text style={styles.cardNumber}>#{String(p.pokemon_id).padStart(3, '0')}</Text>
+                  )}
 
-                  {/* Barra de Salud */}
-                  <View style={styles.cardHealthTrack}>
-                    <View
-                      style={[
-                        styles.cardHealthFill,
-                        {
-                          width: `${hpPercent}%`,
-                          backgroundColor:
-                            hpPercent > 50 ? '#10B981' : hpPercent > 20 ? '#F59E0B' : '#EF4444',
-                        },
-                      ]}
-                    />
-                  </View>
+                  {/* Barra de Salud o Estado Debilitado */}
+                  {isFainted ? (
+                    <View style={styles.faintedBadge}>
+                      <Text style={styles.faintedBadgeText}>💀 0 PS</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.cardHealthTrack}>
+                      <View
+                        style={[
+                          styles.cardHealthFill,
+                          {
+                            width: `${hpPercent}%`,
+                            backgroundColor:
+                              hpPercent > 50 ? '#10B981' : hpPercent > 20 ? '#F59E0B' : '#EF4444',
+                          },
+                        ]}
+                      />
+                    </View>
+                  )}
 
                   {/* Distintivo de IV Appraisal */}
                   <View style={styles.cardAppraisalRow}>
@@ -390,11 +455,12 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = () => {
         </View>
       )}
 
-      {/* Modal de Detalle de Pokémon: Base vs IVs */}
+      {/* Modal de Detalle de Pokémon: Base vs IVs y Transferencia */}
       <PokemonDetailModal
         visible={!!inspectPokemon}
         pokemon={inspectPokemon}
         onClose={() => setInspectPokemon(null)}
+        onTransfer={handleTransferPokemon}
       />
 
       {/* Modal para Aplicar Poción o Revivir */}
@@ -407,6 +473,14 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = () => {
           loadData();
           setMedicineItem(null);
         }}
+      />
+
+      {/* Modal para Elegir Equipo de Entrenador */}
+      <TeamSelectionModal
+        visible={showTeamModal}
+        currentTeam={trainerTeam}
+        onClose={() => setShowTeamModal(false)}
+        onSelectTeam={handleSelectTeam}
       />
     </SafeAreaView>
   );
@@ -424,11 +498,57 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#1E293B',
   },
+  topHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
   segmentedControl: {
+    flex: 1,
     flexDirection: 'row',
     backgroundColor: '#1E293B',
     borderRadius: 14,
     padding: 4,
+  },
+  teamBadgeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#1E293B',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1.5,
+  },
+  teamBadgeEmoji: {
+    fontSize: 16,
+  },
+  teamBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  cardSpeciesSubtitle: {
+    fontSize: 10,
+    color: '#38BDF8',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  faintedBadge: {
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#EF4444',
+    alignItems: 'center',
+    marginTop: 2,
+    marginBottom: 4,
+  },
+  faintedBadgeText: {
+    color: '#EF4444',
+    fontSize: 10,
+    fontWeight: '800',
   },
   tabButton: {
     flex: 1,

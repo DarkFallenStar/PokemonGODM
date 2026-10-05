@@ -58,6 +58,8 @@ export interface CapturedInstance {
   current_hp: number;
   fast_move_id?: number | null;
   charged_move_id?: number | null;
+  nickname?: string | null;
+  ball_used?: string | null;
   captured_at: string;
   pokemon_base?: PokemonBase;
 }

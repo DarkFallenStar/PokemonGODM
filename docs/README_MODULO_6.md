@@ -126,11 +126,14 @@ En caso contrario:
 
 ## 2. Guía Paso a Paso para Probar y Sustentar en Vivo
 
-### Paso 1: Exploración de la Mochila de Consumibles y Pokédex
+### Paso 1: Exploración de la Mochila, Pokédex y Selección de Equipo de Entrenador
 1. Abre la aplicación en el dispositivo físico o emulador.
 2. Toca la pestaña **`🎒 Mochila`** en la barra inferior de navegación:
    - **Resultado Verificable:** La pantalla presenta dos pestañas segmentadas: `[ 📖 Pokédex ]` y `[ 🎒 Mochila ]`.
-3. Selecciona la pestaña **`🎒 Mochila`**:
+3. Observa en la esquina superior derecha la insignia interactiva de equipo (ej. `[ 🦅 MYSTIC ]`, `[ 🔥 VALOR ]`, `[ ⚡ INSTINCT ]`):
+   - Toca la insignia para abrir el modal `TeamSelectionModal`.
+   - Selecciona cualquiera de los tres equipos oficiales: se actualiza en Supabase (`user_profiles`) de forma atómica y determina qué bandera ondeará en los gimnasios conquistados.
+4. Selecciona la pestaña **`🎒 Mochila`**:
    - **Resultado Verificable:** Se despliegan las 6 categorías de consumibles (Pokéball, Superball, Ultraball, Poción, Superpoción y Revivir) con sus existencias reales sincronizadas desde Supabase (`user_inventory`).
 
 ### Paso 2: Filtrado Dinámico y Ordenamiento de la Pokédex
@@ -143,9 +146,10 @@ En caso contrario:
 4. Alterna los botones de ordenamiento: `Mayor CP`, `Mejor IV%`, `Recientes`, `N.º Pokédex`:
    - **Resultado Verificable:** La grilla se reordena de forma inmediata y suave.
 
-### Paso 3: Inspección de Estadísticas Base vs. IVs Individuales Obtenidos
-1. Toca cualquier tarjeta de Pokémon en la grilla (ej. Charizard o Pikachu):
+### Paso 3: Inspección de Estadísticas Base vs. IVs, Apodos y Transferencia al Profesor Oak
+1. Toca cualquier tarjeta de Pokémon en la grilla (ej. Charizard, Pikachu o un Pokémon con apodo personalizado):
    - **Resultado Verificable:** Se abre el modal de detalle a pantalla completa con:
+     - Nombre personalizado / Apodo en el encabezado superior y nombre de especie subordinado.
      - Sprite animado de Generación 5 de PokemonDB (`expo-image`).
      - Badges cromáticos oficiales del tipo elemental.
      - Barra de salud interactiva (`PS / Max PS`).
@@ -153,8 +157,14 @@ En caso contrario:
      - Gráfico comparativo de tres barras:
        - **⚔️ Ataque:** Segmento base en gris pizarra + Bono IV (0 a 15) en ámbar brillante.
        - **🛡️ Defensa:** Segmento base + Bono IV.
-       - **❤️ Salud:** Segmento base + Bono IV.
+       - **❤️ PS:** Segmento base + Bono IV.
      - Ficha técnica de **Movimientos**: Ataque Rápido y Ataque Cargado con tipo, potencia y energía.
+2. **Transferencia al Profesor Oak (Eliminación Atómica):**
+   - Pulsa el botón rojo **`🗑️ Transferir`**:
+   - Aparece el diálogo de confirmación irrevocable: *«¿Estás seguro de transferir a [Nombre] al Profesor Oak?»*.
+   - Al pulsar *«Sí, Transferir»*, se ejecuta la función `transfer_pokemon_instance` en PostgreSQL:
+     - Si la criatura está defendiendo un gimnasio, el sistema bloquea la operación informando el nombre del gimnasio.
+     - Si no está defendiendo, la elimina de `captured_instances`, se descuenta de la Pokédex en memoria y se muestra confirmación.
 
 ### Paso 4: Curación y Medicina en Tiempo Real (Poción y Revivir)
 1. Ve a la pestaña **`🎒 Mochila`** y localiza la tarjeta de **Poción** o **Superpoción**.
@@ -302,3 +312,12 @@ npx expo start --dev-client
 >    - Se limpian los temporizadores activos en background (`clearInterval` del bot defensor y `clearTimeout` de la ventana de esquiva).
 >    - Se vacía el `Set` de deduplicación de paquetes en memoria.
 > Esto garantiza que no queden listeners zombi en el hilo de JavaScript ni conexiones colgadas en el gateway de Supabase consumiendo ancho de banda o memoria."*
+
+---
+
+### Pregunta 6: ¿Cómo se garantiza la congruencia de estado en los Puntos de Salud (PS), la persistencia de apodos y la integridad referencial al transferir criaturas al Profesor?
+**Respuesta Modelo:**
+> *"La congruencia global del ciclo de vida de una criatura se garantiza mediante tres directrices arquitectónicas:
+> 1. **Salud al 100% en la Captura:** Al superar los 4 chequeos estocásticos de la Pokéball, el procedimiento almacenado `execute_pokemon_capture` calcula la salud máxima de la criatura (`(Base PS * 2) + IV PS + 50`) y la inicializa con el 100% de sus PS, impidiendo que aparezca debilitada al ingresar a la colección.
+> 2. **Persistencia Post-Combate:** Al finalizar un enfrentamiento en un gimnasio, el motor actualiza inmediatamente `captured_instances.current_hp` en PostgreSQL (con los PS remanentes si triunfa, o con 0 PS si cae debilitado). Si una criatura tiene 0 PS, la pantalla de combate bloquea su selección hasta que el jugador aplique un Revivir en la Mochila, logrando sincronización absoluta entre combate y medicina.
+> 3. **Integridad en Transferencias:** El RPC `transfer_pokemon_instance` verifica de forma atómica si el espécimen está asignado como defensor en `gymnasiums.defending_instance_id`. Si es defensor, la transacción rechaza la eliminación protegiendo la consistencia relacional del gimnasio; en caso contrario, ejecuta el `DELETE` en `captured_instances` garantizando consistencia ACID."*

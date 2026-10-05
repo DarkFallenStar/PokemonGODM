@@ -11,6 +11,49 @@ export type BattlePhase =
 // Rol del jugador en la arena
 export type BattleRole = 'challenger' | 'defender';
 
+// Equipos Oficiales de Entrenadores
+export type TrainerTeam = 'mystic' | 'valor' | 'instinct';
+
+export interface TeamMetadata {
+  id: TrainerTeam;
+  name: string;
+  leader: string;
+  badge: string;
+  color: string;
+  accentColor: string;
+  motto: string;
+}
+
+export const TEAMS: Record<TrainerTeam, TeamMetadata> = {
+  mystic: {
+    id: 'mystic',
+    name: 'Equipo Sabiduría (Místico)',
+    leader: 'Blanche',
+    badge: '🦅',
+    color: '#2563EB',
+    accentColor: '#93C5FD',
+    motto: 'La sabiduría y el análisis guían la victoria.',
+  },
+  valor: {
+    id: 'valor',
+    name: 'Equipo Valor',
+    leader: 'Candela',
+    badge: '🔥',
+    color: '#DC2626',
+    accentColor: '#FCA5A5',
+    motto: 'La fuerza y la pasión encienden nuestro espíritu.',
+  },
+  instinct: {
+    id: 'instinct',
+    name: 'Equipo Instinto',
+    leader: 'Spark',
+    badge: '⚡',
+    color: '#CA8A04',
+    accentColor: '#FDE047',
+    motto: 'Confía en tu instinto e intuición para triunfar.',
+  },
+};
+
 // Mensaje de Presencia en el Gimnasio
 export interface BattlePresencePayload {
   userId: string;
