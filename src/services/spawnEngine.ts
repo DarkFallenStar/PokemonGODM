@@ -274,3 +274,112 @@ export async function fetchNearbySpawns(
     return [];
   }
 }
+
+/**
+ * Genera una criatura salvaje inmediatamente cerca del jugador (entre 8 y 16 metros)
+ * para pruebas y debug en vivo sin requerir desplazamiento físico.
+ */
+export async function spawnPokemonNearPlayer(
+  userCoords: Coordinate,
+  isTestZone: boolean
+): Promise<ActiveSpawn | null> {
+  try {
+    const pokemonId = pickRandomPokemonId();
+
+    const { data: baseList } = await supabase
+      .from('pokemon_base')
+      .select('id, name, sprite_url, animation_url, base_attack, base_defense, base_hp')
+      .eq('id', pokemonId)
+      .limit(1);
+
+    const baseStats =
+      baseList && baseList[0]
+        ? baseList[0]
+        : {
+            id: pokemonId,
+            name: 'Pikachu',
+            sprite_url: null,
+            animation_url: null,
+            base_attack: 112,
+            base_defense: 96,
+            base_hp: 111,
+          };
+
+    const ivAtk = Math.floor(Math.random() * 16);
+    const ivDef = Math.floor(Math.random() * 16);
+    const ivHp = Math.floor(Math.random() * 16);
+    const cp = calculateCombatPower(
+      baseStats.base_attack,
+      baseStats.base_defense,
+      baseStats.base_hp,
+      ivAtk,
+      ivDef,
+      ivHp
+    );
+
+    // Desplazamiento garantizado entre 8 y 16 metros (dentro del radio visual de 30m)
+    const distanceMeters = 8 + Math.random() * 8;
+    const angleRad = Math.random() * 2 * Math.PI;
+
+    const deltaLat = (distanceMeters * Math.cos(angleRad)) / 111139;
+    const deltaLon =
+      (distanceMeters * Math.sin(angleRad)) /
+      (111139 * Math.cos((userCoords.latitude * Math.PI) / 180));
+
+    const spawnLat = userCoords.latitude + deltaLat;
+    const spawnLon = userCoords.longitude + deltaLon;
+
+    const nowIso = new Date().toISOString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutos
+
+    const newSpawnPayload = {
+      pokemon_id: pokemonId,
+      latitude: spawnLat,
+      longitude: spawnLon,
+      is_test_zone: isTestZone,
+      spawned_at: nowIso,
+      expires_at: expiresAt,
+      iv_attack: ivAtk,
+      iv_defense: ivDef,
+      iv_hp: ivHp,
+      cp,
+      is_active: true,
+    };
+
+    const { data: inserted, error } = await supabase
+      .from('active_spawns')
+      .insert([newSpawnPayload])
+      .select()
+      .single();
+
+    if (error || !inserted) {
+      console.warn('Error insertando spawn de debug en Supabase:', error);
+      return null;
+    }
+
+    const distActual = Math.round(
+      calculateHaversineDistanceWorklet(userCoords, { latitude: spawnLat, longitude: spawnLon })
+    );
+
+    return {
+      id: inserted.id,
+      pokemon_id: inserted.pokemon_id,
+      latitude: inserted.latitude,
+      longitude: inserted.longitude,
+      is_test_zone: inserted.is_test_zone,
+      spawned_at: inserted.spawned_at,
+      expires_at: inserted.expires_at,
+      iv_attack: inserted.iv_attack,
+      iv_defense: inserted.iv_defense,
+      iv_hp: inserted.iv_hp,
+      cp: inserted.cp,
+      is_active: inserted.is_active,
+      pokemon: baseStats as any,
+      distance_meters: distActual,
+      is_in_range: true, // Garantizado <= 30m
+    };
+  } catch (err) {
+    console.warn('Error en spawnPokemonNearPlayer:', err);
+    return null;
+  }
+}

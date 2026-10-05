@@ -133,8 +133,8 @@ Sigue esta secuencia para demostrar el 100% de los criterios de la rúbrica ante
 1. Observa cómo el motor de spawns genera criaturas salvajes en la base de datos dentro del polígono autorizado.
 2. Al estar a más de 30 metros de una criatura:
    - **Resultado:** El Pokémon NO es visible en el mapa.
-3. Al desplazarte a $\le 30$ metros de la criatura:
-   - **Resultado:** Aparece de inmediato en el mapa un marcador animado (`WildPokemonMarker`) con el sprite GIF de la criatura y un anillo pulsante con su CP flotante.
+3. Al desplazarte a $\le 30$ metros de la criatura (o presionar el botón de depuración **`🐾 Spawn Cerca`** en el HUD superior derecho):
+   - **Resultado:** Se genera y aparece de inmediato a tu lado (a 8-16m) un marcador animado (`WildPokemonMarker`) con el sprite GIF de la criatura y un anillo pulsante con su CP flotante.
 4. Toca sobre la criatura salvaje:
    - Se abre el modal `SpawnEncounterModal` mostrando la tarjeta de combate con el sprite animado, tipo elemental, IVs y CP, junto al botón *"¡Iniciar Captura!"* (puerta de enlace hacia el Módulo 5).
 

@@ -23,7 +23,7 @@ interface PokestopModalProps {
   pokestop: CampusPOIMarker | null;
   distanceMeters: number;
   onClose: () => void;
-  onSpunSuccess?: () => void;
+  onSpunSuccess?: (pokestopId: string) => void;
 }
 
 export const PokestopModal: React.FC<PokestopModalProps> = ({
@@ -111,8 +111,8 @@ export const PokestopModal: React.FC<PokestopModalProps> = ({
       setCooldownSeconds(300); // 5 minutos
       setIsSpinning(false);
 
-      if (onSpunSuccess) {
-        onSpunSuccess();
+      if (onSpunSuccess && pokestop) {
+        onSpunSuccess(pokestop.id);
       }
     });
   };

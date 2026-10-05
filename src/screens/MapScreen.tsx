@@ -18,7 +18,11 @@ import { WildPokemonMarker } from '../components/WildPokemonMarker';
 import { SpawnEncounterModal } from '../components/SpawnEncounterModal';
 import { supabase } from '../services/supabase';
 import { checkPokestopCooldown } from '../services/inventoryService';
-import { seedWildSpawnsIfLow, fetchNearbySpawns } from '../services/spawnEngine';
+import {
+  seedWildSpawnsIfLow,
+  fetchNearbySpawns,
+  spawnPokemonNearPlayer,
+} from '../services/spawnEngine';
 import type { CampusPOIMarker } from '../types/map';
 import type { ActiveSpawn } from '../types/spawns';
 
@@ -207,6 +211,40 @@ export const MapScreen: React.FC = () => {
     }
   }, [loadCampusPOIs, refreshCooldowns, testZoneActive, currentCoords, isRefreshing]);
 
+  // Manejador de cooldown optimista cuando se gira una Poképarada
+  const handlePokestopSpun = useCallback((stopId: string) => {
+    // 1. Cambio visual optimista e instantáneo a Púrpura en memoria
+    setCooldownMap(prev => ({ ...prev, [stopId]: true }));
+    // 2. Sincronizar en segundo plano con Supabase
+    refreshCooldowns();
+  }, [refreshCooldowns]);
+
+  // Manejador de Debug: Crear criatura salvaje cerca del jugador (entre 8 y 16m)
+  const [isSpawningDebug, setIsSpawningDebug] = useState<boolean>(false);
+
+  const handleDebugSpawn = useCallback(async () => {
+    if (isSpawningDebug) return;
+    setIsSpawningDebug(true);
+    try {
+      const newSpawn = await spawnPokemonNearPlayer(currentCoords, testZoneActive);
+      if (newSpawn) {
+        // Inyectar inmediatamente en el mapa
+        setActiveSpawns(prev => [newSpawn, ...prev.filter(s => s.id !== newSpawn.id)]);
+        Alert.alert(
+          '¡Criatura Aparecida!',
+          `Apareció un ${newSpawn.pokemon?.name || 'Pokémon'} salvaje (CP ${newSpawn.cp}) a ${newSpawn.distance_meters}m de ti.\n\nToca su sprite en el mapa para iniciar captura.`,
+          [{ text: '¡Entendido!' }]
+        );
+      } else {
+        Alert.alert('Aviso', 'No se pudo generar la criatura. Verifica tu conexión.');
+      }
+    } catch (e) {
+      console.warn('Error en handleDebugSpawn:', e);
+    } finally {
+      setIsSpawningDebug(false);
+    }
+  }, [currentCoords, testZoneActive, isSpawningDebug]);
+
   if (!mapboxToken) {
     return (
       <View style={[styles.missingTokenContainer, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}>
@@ -265,25 +303,29 @@ export const MapScreen: React.FC = () => {
           />
         </MapboxGL.ShapeSource>
 
-        {/* Marcadores de Hitos: Poképaradas y Gimnasios */}
+        {/* Marcadores de Hitos: Poképaradas y Gimnasios (MarkerView interactivo reactivo a cooldown) */}
         {pois.map(poi => {
           const isStop = poi.type === 'pokestop';
           const inCooldown = isStop && !!cooldownMap[poi.id];
+          const markerKey = `poi-${poi.id}-${inCooldown ? 'purple' : 'blue'}`;
 
           return (
-            <MapboxGL.PointAnnotation
-              key={poi.id}
-              id={`poi-${poi.id}`}
+            <MapboxGL.MarkerView
+              key={markerKey}
+              id={markerKey}
               coordinate={[poi.longitude, poi.latitude]}
-              onSelected={() => {
-                if (isStop) {
-                  setSelectedPokestop(poi);
-                } else {
-                  setSelectedGym(poi);
-                }
-              }}
+              anchor={{ x: 0.5, y: 0.5 }}
+              allowOverlap={true}
             >
-              <View
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => {
+                  if (isStop) {
+                    setSelectedPokestop(poi);
+                  } else {
+                    setSelectedGym(poi);
+                  }
+                }}
                 style={[
                   styles.poiBadge,
                   !isStop
@@ -296,9 +338,8 @@ export const MapScreen: React.FC = () => {
                 <Text style={styles.poiEmoji}>
                   {!isStop ? '🏟️' : inCooldown ? '🟣' : '🔵'}
                 </Text>
-              </View>
-              <MapboxGL.Callout title={poi.name} />
-            </MapboxGL.PointAnnotation>
+              </TouchableOpacity>
+            </MapboxGL.MarkerView>
           );
         })}
 
@@ -382,6 +423,23 @@ export const MapScreen: React.FC = () => {
               </Text>
             )}
           </TouchableOpacity>
+
+          {/* Botón de Debug: Crear Criatura Salvaje Cerca */}
+          <TouchableOpacity
+            style={[
+              styles.debugSpawnButton,
+              isSpawningDebug && styles.debugSpawnButtonActive,
+            ]}
+            onPress={handleDebugSpawn}
+            activeOpacity={0.8}
+            disabled={isSpawningDebug}
+          >
+            {isSpawningDebug ? (
+              <ActivityIndicator size="small" color="#F59E0B" />
+            ) : (
+              <Text style={styles.debugSpawnButtonText}>🐾 Spawn Cerca</Text>
+            )}
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -406,7 +464,7 @@ export const MapScreen: React.FC = () => {
         pokestop={selectedPokestop}
         distanceMeters={selectedPokestopDistance}
         onClose={() => setSelectedPokestop(null)}
-        onSpunSuccess={refreshCooldowns}
+        onSpunSuccess={handlePokestopSpun}
       />
 
       {/* Modal Interactivo de Gimnasio con Radio de 40m */}
@@ -549,6 +607,31 @@ const styles = StyleSheet.create({
   },
   refreshButtonTextSuccess: {
     color: '#4ADE80',
+  },
+  debugSpawnButton: {
+    backgroundColor: 'rgba(30, 41, 59, 0.92)',
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 12,
+    borderWidth: 1.2,
+    borderColor: '#F59E0B',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 32,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 3,
+  },
+  debugSpawnButtonActive: {
+    backgroundColor: '#78350F',
+    borderColor: '#FBBF24',
+  },
+  debugSpawnButtonText: {
+    color: '#F59E0B',
+    fontSize: 11,
+    fontWeight: '700',
   },
   poiBadge: {
     width: 34,
