@@ -9,6 +9,7 @@ import {
   HOME_CAJICA_CENTER,
   isPointInPolygonWorklet,
 } from '../utils/geofence';
+import { getPokemonDbAnimatedSprite, getPokemonDbStaticSprite } from '../utils/pokemonAssets';
 
 // Especies según rareza de Generación 1
 const RARITY_POKEMON_IDS = {
@@ -298,8 +299,8 @@ export async function spawnPokemonNearPlayer(
         : {
             id: pokemonId,
             name: 'Pikachu',
-            sprite_url: null,
-            animation_url: null,
+            sprite_url: getPokemonDbStaticSprite('pikachu', 25),
+            animation_url: getPokemonDbAnimatedSprite('pikachu', 25),
             base_attack: 112,
             base_defense: 96,
             base_hp: 111,

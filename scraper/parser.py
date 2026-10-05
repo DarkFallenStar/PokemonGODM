@@ -89,11 +89,11 @@ def scrape_gen1_pokemon(limit: int = 151) -> List[PokemonScrapedModel]:
 
         slug = slugify(name)
 
-        # Enlaces de Sprites Estáticos y Animaciones
-        # Fuente 1: PokemonDB sprites directos
-        # Fuente 2: Pokemon Showdown Animated GIFs (estándar de la industria)
+        # Enlaces de Sprites Estáticos y Animaciones Oficiales (Web Scraper de PokemonDB)
+        # - Animaciones Gen 5 (Black/White): https://img.pokemondb.net/sprites/black-white/anim/normal/{slug}.gif
+        # - Estáticos HOME: https://img.pokemondb.net/sprites/home/normal/{slug}.png
         static_url = f"https://img.pokemondb.net/sprites/home/normal/{slug}.png"
-        animated_url = f"https://play.pokemonshowdown.com/sprites/ani/{slug}.gif"
+        animated_url = f"https://img.pokemondb.net/sprites/black-white/anim/normal/{slug}.gif"
 
         poke = PokemonScrapedModel(
             id=poke_id,

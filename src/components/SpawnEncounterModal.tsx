@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import type { ActiveSpawn } from '../types/spawns';
-import { getPokemonAnimatedUrl, getPokemonStaticUrl } from '../utils/pokemonAssets';
+import { getPokemonSpriteSources } from '../utils/pokemonAssets';
 
 interface SpawnEncounterModalProps {
   visible: boolean;
@@ -27,24 +27,25 @@ export const SpawnEncounterModal: React.FC<SpawnEncounterModalProps> = ({
   const pokemon = spawn?.pokemon;
   const pokemonId = spawn?.pokemon_id || pokemon?.id;
 
-  // GIF animado oficial de combate extraído en Supabase (Showdown)
-  const animatedUrl = getPokemonAnimatedUrl(pokemon);
-  const staticUrl = getPokemonStaticUrl(pokemon);
+  // Resolución estricta de Assets de PokemonDB (Animaciones Gen 5 y Sprites Oficiales)
+  const { primaryUrl, fallbackUrl } = getPokemonSpriteSources(
+    pokemon || (pokemonId ? { id: pokemonId } : null)
+  );
 
-  const [currentUrl, setCurrentUrl] = useState<string>(animatedUrl);
+  const [currentUrl, setCurrentUrl] = useState<string | null>(primaryUrl);
   const [hasError, setHasError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Reiniciar estado reactivo cuando cambie el spawn
   useEffect(() => {
-    setCurrentUrl(animatedUrl);
+    setCurrentUrl(primaryUrl);
     setHasError(false);
     setIsLoading(true);
-  }, [spawn?.id, animatedUrl]);
+  }, [spawn?.id, primaryUrl]);
 
   const handleImageError = () => {
-    if (currentUrl === animatedUrl && staticUrl) {
-      setCurrentUrl(staticUrl);
+    if (currentUrl === primaryUrl && fallbackUrl) {
+      setCurrentUrl(fallbackUrl);
     } else {
       setHasError(true);
       setIsLoading(false);

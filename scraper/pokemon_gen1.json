@@ -13,9 +13,9 @@
     "base_cp": 230,
     "base_catch_rate": 0.2,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/bulbasaur.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/bulbasaur.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/bulbasaur.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/bulbasaur.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/bulbasaur.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/bulbasaur.gif",
     "moves": []
   },
   {
@@ -32,9 +32,9 @@
     "base_cp": 381,
     "base_catch_rate": 0.2,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/ivysaur.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/ivysaur.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/ivysaur.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/ivysaur.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/ivysaur.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/ivysaur.gif",
     "moves": []
   },
   {
@@ -51,9 +51,9 @@
     "base_cp": 668,
     "base_catch_rate": 0.2,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/venusaur.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/venusaur.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/venusaur.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/venusaur.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/venusaur.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/venusaur.gif",
     "moves": []
   },
   {
@@ -70,9 +70,9 @@
     "base_cp": 212,
     "base_catch_rate": 0.2,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/charmander.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/charmander.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/charmander.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/charmander.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/charmander.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/charmander.gif",
     "moves": []
   },
   {
@@ -89,9 +89,9 @@
     "base_cp": 371,
     "base_catch_rate": 0.2,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/charmeleon.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/charmeleon.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/charmeleon.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/charmeleon.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/charmeleon.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/charmeleon.gif",
     "moves": []
   },
   {
@@ -108,9 +108,9 @@
     "base_cp": 655,
     "base_catch_rate": 0.2,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/charizard.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/charizard.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/charizard.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/charizard.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/charizard.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/charizard.gif",
     "moves": []
   },
   {
@@ -127,9 +127,9 @@
     "base_cp": 256,
     "base_catch_rate": 0.2,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/squirtle.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/squirtle.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/squirtle.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/squirtle.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/squirtle.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/squirtle.gif",
     "moves": []
   },
   {
@@ -146,9 +146,9 @@
     "base_cp": 432,
     "base_catch_rate": 0.2,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/wartortle.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/wartortle.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/wartortle.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/wartortle.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/wartortle.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/wartortle.gif",
     "moves": []
   },
   {
@@ -165,9 +165,9 @@
     "base_cp": 737,
     "base_catch_rate": 0.2,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/blastoise.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/blastoise.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/blastoise.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/blastoise.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/blastoise.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/blastoise.gif",
     "moves": []
   },
   {
@@ -184,9 +184,9 @@
     "base_cp": 119,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/caterpie.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/caterpie.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/caterpie.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/caterpie.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/caterpie.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/caterpie.gif",
     "moves": []
   },
   {
@@ -203,9 +203,9 @@
     "base_cp": 104,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/metapod.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/metapod.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/metapod.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/metapod.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/metapod.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/metapod.gif",
     "moves": []
   },
   {
@@ -222,9 +222,9 @@
     "base_cp": 246,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/butterfree.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/butterfree.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/butterfree.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/butterfree.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/butterfree.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/butterfree.gif",
     "moves": []
   },
   {
@@ -241,9 +241,9 @@
     "base_cp": 121,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/weedle.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/weedle.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/weedle.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/weedle.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/weedle.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/weedle.gif",
     "moves": []
   },
   {
@@ -260,9 +260,9 @@
     "base_cp": 118,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/kakuna.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/kakuna.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/kakuna.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/kakuna.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/kakuna.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/kakuna.gif",
     "moves": []
   },
   {
@@ -279,9 +279,9 @@
     "base_cp": 458,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/beedrill.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/beedrill.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/beedrill.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/beedrill.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/beedrill.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/beedrill.gif",
     "moves": []
   },
   {
@@ -298,9 +298,9 @@
     "base_cp": 180,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/pidgey.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/pidgey.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/pidgey.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/pidgey.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/pidgey.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/pidgey.gif",
     "moves": []
   },
   {
@@ -317,9 +317,9 @@
     "base_cp": 353,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/pidgeotto.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/pidgeotto.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/pidgeotto.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/pidgeotto.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/pidgeotto.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/pidgeotto.gif",
     "moves": []
   },
   {
@@ -336,9 +336,9 @@
     "base_cp": 631,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/pidgeot.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/pidgeot.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/pidgeot.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/pidgeot.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/pidgeot.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/pidgeot.gif",
     "moves": []
   },
   {
@@ -355,9 +355,9 @@
     "base_cp": 181,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/rattata.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/rattata.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/rattata.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/rattata.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/rattata.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/rattata.gif",
     "moves": []
   },
   {
@@ -374,9 +374,9 @@
     "base_cp": 465,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/raticate.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/raticate.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/raticate.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/raticate.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/raticate.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/raticate.gif",
     "moves": []
   },
   {
@@ -393,9 +393,9 @@
     "base_cp": 207,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/spearow.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/spearow.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/spearow.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/spearow.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/spearow.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/spearow.gif",
     "moves": []
   },
   {
@@ -412,9 +412,9 @@
     "base_cp": 584,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/fearow.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/fearow.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/fearow.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/fearow.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/fearow.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/fearow.gif",
     "moves": []
   },
   {
@@ -431,9 +431,9 @@
     "base_cp": 235,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/ekans.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/ekans.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/ekans.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/ekans.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/ekans.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/ekans.gif",
     "moves": []
   },
   {
@@ -450,9 +450,9 @@
     "base_cp": 611,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/arbok.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/arbok.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/arbok.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/arbok.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/arbok.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/arbok.gif",
     "moves": []
   },
   {
@@ -469,9 +469,9 @@
     "base_cp": 205,
     "base_catch_rate": 0.2,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/pikachu.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/pikachu.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/pikachu.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/pikachu.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/pikachu.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/pikachu.gif",
     "moves": []
   },
   {
@@ -488,9 +488,9 @@
     "base_cp": 517,
     "base_catch_rate": 0.2,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/raichu.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/raichu.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/raichu.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/raichu.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/raichu.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/raichu.gif",
     "moves": []
   },
   {
@@ -507,9 +507,9 @@
     "base_cp": 488,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/sandshrew.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/sandshrew.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/sandshrew.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/sandshrew.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/sandshrew.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/sandshrew.gif",
     "moves": []
   },
   {
@@ -526,9 +526,9 @@
     "base_cp": 908,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/sandslash.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/sandslash.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/sandslash.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/sandslash.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/sandslash.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/sandslash.gif",
     "moves": []
   },
   {
@@ -545,9 +545,9 @@
     "base_cp": 251,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/nidoran-f.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/nidoran-f.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/nidoran-f.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/nidoran-f.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/nidoran-f.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/nidoran-f.gif",
     "moves": []
   },
   {
@@ -564,9 +564,9 @@
     "base_cp": 424,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/nidorina.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/nidorina.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/nidorina.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/nidorina.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/nidorina.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/nidorina.gif",
     "moves": []
   },
   {
@@ -583,9 +583,9 @@
     "base_cp": 814,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/nidoqueen.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/nidoqueen.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/nidoqueen.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/nidoqueen.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/nidoqueen.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/nidoqueen.gif",
     "moves": []
   },
   {
@@ -602,9 +602,9 @@
     "base_cp": 244,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/nidoran-m.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/nidoran-m.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/nidoran-m.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/nidoran-m.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/nidoran-m.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/nidoran-m.gif",
     "moves": []
   },
   {
@@ -621,9 +621,9 @@
     "base_cp": 424,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/nidorino.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/nidorino.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/nidorino.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/nidorino.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/nidorino.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/nidorino.gif",
     "moves": []
   },
   {
@@ -640,9 +640,9 @@
     "base_cp": 805,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/nidoking.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/nidoking.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/nidoking.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/nidoking.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/nidoking.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/nidoking.gif",
     "moves": []
   },
   {
@@ -659,9 +659,9 @@
     "base_cp": 260,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/clefairy.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/clefairy.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/clefairy.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/clefairy.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/clefairy.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/clefairy.gif",
     "moves": []
   },
   {
@@ -678,9 +678,9 @@
     "base_cp": 582,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/clefable.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/clefable.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/clefable.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/clefable.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/clefable.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/clefable.gif",
     "moves": []
   },
   {
@@ -697,9 +697,9 @@
     "base_cp": 159,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/vulpix.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/vulpix.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/vulpix.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/vulpix.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/vulpix.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/vulpix.gif",
     "moves": []
   },
   {
@@ -716,9 +716,9 @@
     "base_cp": 562,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/ninetales.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/ninetales.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/ninetales.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/ninetales.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/ninetales.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/ninetales.gif",
     "moves": []
   },
   {
@@ -735,9 +735,9 @@
     "base_cp": 215,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/jigglypuff.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/jigglypuff.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/jigglypuff.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/jigglypuff.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/jigglypuff.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/jigglypuff.gif",
     "moves": []
   },
   {
@@ -754,9 +754,9 @@
     "base_cp": 555,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/wigglytuff.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/wigglytuff.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/wigglytuff.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/wigglytuff.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/wigglytuff.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/wigglytuff.gif",
     "moves": []
   },
   {
@@ -773,9 +773,9 @@
     "base_cp": 168,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/zubat.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/zubat.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/zubat.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/zubat.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/zubat.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/zubat.gif",
     "moves": []
   },
   {
@@ -792,9 +792,9 @@
     "base_cp": 579,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/golbat.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/golbat.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/golbat.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/golbat.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/golbat.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/golbat.gif",
     "moves": []
   },
   {
@@ -811,9 +811,9 @@
     "base_cp": 248,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/oddish.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/oddish.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/oddish.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/oddish.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/oddish.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/oddish.gif",
     "moves": []
   },
   {
@@ -830,9 +830,9 @@
     "base_cp": 421,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/gloom.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/gloom.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/gloom.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/gloom.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/gloom.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/gloom.gif",
     "moves": []
   },
   {
@@ -849,9 +849,9 @@
     "base_cp": 638,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/vileplume.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/vileplume.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/vileplume.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/vileplume.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/vileplume.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/vileplume.gif",
     "moves": []
   },
   {
@@ -868,9 +868,9 @@
     "base_cp": 307,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/paras.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/paras.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/paras.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/paras.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/paras.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/paras.gif",
     "moves": []
   },
   {
@@ -887,9 +887,9 @@
     "base_cp": 658,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/parasect.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/parasect.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/parasect.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/parasect.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/parasect.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/parasect.gif",
     "moves": []
   },
   {
@@ -906,9 +906,9 @@
     "base_cp": 301,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/venonat.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/venonat.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/venonat.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/venonat.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/venonat.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/venonat.gif",
     "moves": []
   },
   {
@@ -925,9 +925,9 @@
     "base_cp": 421,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/venomoth.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/venomoth.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/venomoth.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/venomoth.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/venomoth.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/venomoth.gif",
     "moves": []
   },
   {
@@ -944,9 +944,9 @@
     "base_cp": 86,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/diglett.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/diglett.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/diglett.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/diglett.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/diglett.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/diglett.gif",
     "moves": []
   },
   {
@@ -963,9 +963,9 @@
     "base_cp": 418,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/dugtrio.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/dugtrio.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/dugtrio.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/dugtrio.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/dugtrio.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/dugtrio.gif",
     "moves": []
   },
   {
@@ -982,9 +982,9 @@
     "base_cp": 168,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/meowth.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/meowth.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/meowth.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/meowth.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/meowth.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/meowth.gif",
     "moves": []
   },
   {
@@ -1001,9 +1001,9 @@
     "base_cp": 437,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/persian.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/persian.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/persian.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/persian.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/persian.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/persian.gif",
     "moves": []
   },
   {
@@ -1020,9 +1020,9 @@
     "base_cp": 254,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/psyduck.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/psyduck.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/psyduck.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/psyduck.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/psyduck.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/psyduck.gif",
     "moves": []
   },
   {
@@ -1039,9 +1039,9 @@
     "base_cp": 647,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/golduck.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/golduck.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/golduck.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/golduck.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/golduck.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/golduck.gif",
     "moves": []
   },
   {
@@ -1058,9 +1058,9 @@
     "base_cp": 299,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/mankey.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/mankey.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/mankey.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/mankey.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/mankey.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/mankey.gif",
     "moves": []
   },
   {
@@ -1077,9 +1077,9 @@
     "base_cp": 655,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/primeape.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/primeape.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/primeape.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/primeape.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/primeape.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/primeape.gif",
     "moves": []
   },
   {
@@ -1096,9 +1096,9 @@
     "base_cp": 348,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/growlithe.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/growlithe.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/growlithe.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/growlithe.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/growlithe.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/growlithe.gif",
     "moves": []
   },
   {
@@ -1115,9 +1115,9 @@
     "base_cp": 933,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/arcanine.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/arcanine.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/arcanine.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/arcanine.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/arcanine.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/arcanine.gif",
     "moves": []
   },
   {
@@ -1134,9 +1134,9 @@
     "base_cp": 200,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/poliwag.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/poliwag.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/poliwag.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/poliwag.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/poliwag.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/poliwag.gif",
     "moves": []
   },
   {
@@ -1153,9 +1153,9 @@
     "base_cp": 422,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/poliwhirl.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/poliwhirl.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/poliwhirl.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/poliwhirl.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/poliwhirl.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/poliwhirl.gif",
     "moves": []
   },
   {
@@ -1172,9 +1172,9 @@
     "base_cp": 878,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/poliwrath.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/poliwrath.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/poliwrath.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/poliwrath.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/poliwrath.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/poliwrath.gif",
     "moves": []
   },
   {
@@ -1191,9 +1191,9 @@
     "base_cp": 38,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/abra.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/abra.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/abra.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/abra.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/abra.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/abra.gif",
     "moves": []
   },
   {
@@ -1210,9 +1210,9 @@
     "base_cp": 121,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/kadabra.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/kadabra.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/kadabra.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/kadabra.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/kadabra.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/kadabra.gif",
     "moves": []
   },
   {
@@ -1229,9 +1229,9 @@
     "base_cp": 248,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/alakazam.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/alakazam.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/alakazam.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/alakazam.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/alakazam.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/alakazam.gif",
     "moves": []
   },
   {
@@ -1248,9 +1248,9 @@
     "base_cp": 473,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/machop.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/machop.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/machop.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/machop.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/machop.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/machop.gif",
     "moves": []
   },
   {
@@ -1267,9 +1267,9 @@
     "base_cp": 748,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/machoke.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/machoke.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/machoke.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/machoke.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/machoke.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/machoke.gif",
     "moves": []
   },
   {
@@ -1286,9 +1286,9 @@
     "base_cp": 1103,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/machamp.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/machamp.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/machamp.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/machamp.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/machamp.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/machamp.gif",
     "moves": []
   },
   {
@@ -1305,9 +1305,9 @@
     "base_cp": 313,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/bellsprout.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/bellsprout.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/bellsprout.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/bellsprout.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/bellsprout.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/bellsprout.gif",
     "moves": []
   },
   {
@@ -1324,9 +1324,9 @@
     "base_cp": 513,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/weepinbell.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/weepinbell.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/weepinbell.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/weepinbell.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/weepinbell.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/weepinbell.gif",
     "moves": []
   },
   {
@@ -1343,9 +1343,9 @@
     "base_cp": 757,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/victreebel.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/victreebel.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/victreebel.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/victreebel.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/victreebel.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/victreebel.gif",
     "moves": []
   },
   {
@@ -1362,9 +1362,9 @@
     "base_cp": 149,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/tentacool.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/tentacool.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/tentacool.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/tentacool.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/tentacool.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/tentacool.gif",
     "moves": []
   },
   {
@@ -1381,9 +1381,9 @@
     "base_cp": 504,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/tentacruel.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/tentacruel.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/tentacruel.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/tentacruel.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/tentacruel.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/tentacruel.gif",
     "moves": []
   },
   {
@@ -1400,9 +1400,9 @@
     "base_cp": 505,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/geodude.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/geodude.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/geodude.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/geodude.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/geodude.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/geodude.gif",
     "moves": []
   },
   {
@@ -1419,9 +1419,9 @@
     "base_cp": 755,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/graveler.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/graveler.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/graveler.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/graveler.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/graveler.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/graveler.gif",
     "moves": []
   },
   {
@@ -1438,9 +1438,9 @@
     "base_cp": 1223,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/golem.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/golem.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/golem.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/golem.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/golem.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/golem.gif",
     "moves": []
   },
   {
@@ -1457,9 +1457,9 @@
     "base_cp": 445,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/ponyta.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/ponyta.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/ponyta.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/ponyta.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/ponyta.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/ponyta.gif",
     "moves": []
   },
   {
@@ -1476,9 +1476,9 @@
     "base_cp": 674,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/rapidash.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/rapidash.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/rapidash.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/rapidash.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/rapidash.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/rapidash.gif",
     "moves": []
   },
   {
@@ -1495,9 +1495,9 @@
     "base_cp": 497,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/slowpoke.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/slowpoke.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/slowpoke.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/slowpoke.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/slowpoke.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/slowpoke.gif",
     "moves": []
   },
   {
@@ -1514,9 +1514,9 @@
     "base_cp": 766,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/slowbro.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/slowbro.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/slowbro.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/slowbro.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/slowbro.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/slowbro.gif",
     "moves": []
   },
   {
@@ -1533,9 +1533,9 @@
     "base_cp": 146,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/magnemite.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/magnemite.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/magnemite.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/magnemite.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/magnemite.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/magnemite.gif",
     "moves": []
   },
   {
@@ -1552,9 +1552,9 @@
     "base_cp": 413,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/magneton.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/magneton.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/magneton.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/magneton.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/magneton.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/magneton.gif",
     "moves": []
   },
   {
@@ -1571,9 +1571,9 @@
     "base_cp": 481,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/farfetchd.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/farfetchd.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/farfetchd.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/farfetchd.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/farfetchd.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/farfetchd.gif",
     "moves": []
   },
   {
@@ -1590,9 +1590,9 @@
     "base_cp": 337,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/doduo.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/doduo.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/doduo.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/doduo.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/doduo.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/doduo.gif",
     "moves": []
   },
   {
@@ -1609,9 +1609,9 @@
     "base_cp": 712,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/dodrio.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/dodrio.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/dodrio.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/dodrio.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/dodrio.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/dodrio.gif",
     "moves": []
   },
   {
@@ -1628,9 +1628,9 @@
     "base_cp": 269,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/seel.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/seel.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/seel.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/seel.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/seel.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/seel.gif",
     "moves": []
   },
   {
@@ -1647,9 +1647,9 @@
     "base_cp": 593,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/dewgong.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/dewgong.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/dewgong.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/dewgong.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/dewgong.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/dewgong.gif",
     "moves": []
   },
   {
@@ -1666,9 +1666,9 @@
     "base_cp": 505,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/grimer.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/grimer.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/grimer.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/grimer.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/grimer.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/grimer.gif",
     "moves": []
   },
   {
@@ -1685,9 +1685,9 @@
     "base_cp": 931,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/muk.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/muk.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/muk.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/muk.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/muk.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/muk.gif",
     "moves": []
   },
   {
@@ -1704,9 +1704,9 @@
     "base_cp": 356,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/shellder.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/shellder.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/shellder.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/shellder.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/shellder.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/shellder.gif",
     "moves": []
   },
   {
@@ -1723,9 +1723,9 @@
     "base_cp": 901,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/cloyster.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/cloyster.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/cloyster.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/cloyster.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/cloyster.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/cloyster.gif",
     "moves": []
   },
   {
@@ -1742,9 +1742,9 @@
     "base_cp": 105,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/gastly.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/gastly.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/gastly.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/gastly.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/gastly.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/gastly.gif",
     "moves": []
   },
   {
@@ -1761,9 +1761,9 @@
     "base_cp": 225,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/haunter.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/haunter.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/haunter.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/haunter.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/haunter.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/haunter.gif",
     "moves": []
   },
   {
@@ -1780,9 +1780,9 @@
     "base_cp": 390,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/gengar.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/gengar.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/gengar.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/gengar.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/gengar.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/gengar.gif",
     "moves": []
   },
   {
@@ -1799,9 +1799,9 @@
     "base_cp": 336,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/onix.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/onix.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/onix.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/onix.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/onix.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/onix.gif",
     "moves": []
   },
   {
@@ -1818,9 +1818,9 @@
     "base_cp": 249,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/drowzee.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/drowzee.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/drowzee.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/drowzee.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/drowzee.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/drowzee.gif",
     "moves": []
   },
   {
@@ -1837,9 +1837,9 @@
     "base_cp": 563,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/hypno.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/hypno.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/hypno.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/hypno.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/hypno.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/hypno.gif",
     "moves": []
   },
   {
@@ -1856,9 +1856,9 @@
     "base_cp": 545,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/krabby.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/krabby.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/krabby.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/krabby.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/krabby.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/krabby.gif",
     "moves": []
   },
   {
@@ -1875,9 +1875,9 @@
     "base_cp": 1033,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/kingler.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/kingler.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/kingler.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/kingler.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/kingler.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/kingler.gif",
     "moves": []
   },
   {
@@ -1894,9 +1894,9 @@
     "base_cp": 134,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/voltorb.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/voltorb.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/voltorb.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/voltorb.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/voltorb.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/voltorb.gif",
     "moves": []
   },
   {
@@ -1913,9 +1913,9 @@
     "base_cp": 324,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/electrode.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/electrode.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/electrode.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/electrode.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/electrode.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/electrode.gif",
     "moves": []
   },
   {
@@ -1932,9 +1932,9 @@
     "base_cp": 277,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/exeggcute.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/exeggcute.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/exeggcute.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/exeggcute.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/exeggcute.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/exeggcute.gif",
     "moves": []
   },
   {
@@ -1951,9 +1951,9 @@
     "base_cp": 853,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/exeggutor.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/exeggutor.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/exeggutor.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/exeggutor.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/exeggutor.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/exeggutor.gif",
     "moves": []
   },
   {
@@ -1970,9 +1970,9 @@
     "base_cp": 344,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/cubone.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/cubone.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/cubone.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/cubone.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/cubone.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/cubone.gif",
     "moves": []
   },
   {
@@ -1989,9 +1989,9 @@
     "base_cp": 649,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/marowak.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/marowak.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/marowak.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/marowak.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/marowak.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/marowak.gif",
     "moves": []
   },
   {
@@ -2008,9 +2008,9 @@
     "base_cp": 617,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/hitmonlee.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/hitmonlee.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/hitmonlee.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/hitmonlee.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/hitmonlee.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/hitmonlee.gif",
     "moves": []
   },
   {
@@ -2027,9 +2027,9 @@
     "base_cp": 659,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/hitmonchan.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/hitmonchan.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/hitmonchan.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/hitmonchan.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/hitmonchan.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/hitmonchan.gif",
     "moves": []
   },
   {
@@ -2046,9 +2046,9 @@
     "base_cp": 451,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/lickitung.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/lickitung.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/lickitung.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/lickitung.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/lickitung.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/lickitung.gif",
     "moves": []
   },
   {
@@ -2065,9 +2065,9 @@
     "base_cp": 400,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/koffing.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/koffing.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/koffing.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/koffing.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/koffing.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/koffing.gif",
     "moves": []
   },
   {
@@ -2084,9 +2084,9 @@
     "base_cp": 794,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/weezing.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/weezing.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/weezing.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/weezing.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/weezing.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/weezing.gif",
     "moves": []
   },
   {
@@ -2103,9 +2103,9 @@
     "base_cp": 741,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/rhyhorn.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/rhyhorn.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/rhyhorn.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/rhyhorn.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/rhyhorn.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/rhyhorn.gif",
     "moves": []
   },
   {
@@ -2122,9 +2122,9 @@
     "base_cp": 1459,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/rhydon.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/rhydon.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/rhydon.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/rhydon.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/rhydon.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/rhydon.gif",
     "moves": []
   },
   {
@@ -2141,9 +2141,9 @@
     "base_cp": 17,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/chansey.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/chansey.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/chansey.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/chansey.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/chansey.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/chansey.gif",
     "moves": []
   },
   {
@@ -2160,9 +2160,9 @@
     "base_cp": 475,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/tangela.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/tangela.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/tangela.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/tangela.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/tangela.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/tangela.gif",
     "moves": []
   },
   {
@@ -2179,9 +2179,9 @@
     "base_cp": 870,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/kangaskhan.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/kangaskhan.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/kangaskhan.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/kangaskhan.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/kangaskhan.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/kangaskhan.gif",
     "moves": []
   },
   {
@@ -2198,9 +2198,9 @@
     "base_cp": 183,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/horsea.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/horsea.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/horsea.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/horsea.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/horsea.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/horsea.gif",
     "moves": []
   },
   {
@@ -2217,9 +2217,9 @@
     "base_cp": 469,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/seadra.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/seadra.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/seadra.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/seadra.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/seadra.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/seadra.gif",
     "moves": []
   },
   {
@@ -2236,9 +2236,9 @@
     "base_cp": 348,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/goldeen.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/goldeen.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/goldeen.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/goldeen.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/goldeen.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/goldeen.gif",
     "moves": []
   },
   {
@@ -2255,9 +2255,9 @@
     "base_cp": 663,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/seaking.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/seaking.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/seaking.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/seaking.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/seaking.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/seaking.gif",
     "moves": []
   },
   {
@@ -2274,9 +2274,9 @@
     "base_cp": 182,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/staryu.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/staryu.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/staryu.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/staryu.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/staryu.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/staryu.gif",
     "moves": []
   },
   {
@@ -2293,9 +2293,9 @@
     "base_cp": 535,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/starmie.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/starmie.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/starmie.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/starmie.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/starmie.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/starmie.gif",
     "moves": []
   },
   {
@@ -2312,9 +2312,9 @@
     "base_cp": 229,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/mr-mime.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/mr-mime.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/mr-mime.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/mr-mime.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/mr-mime.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/mr-mime.gif",
     "moves": []
   },
   {
@@ -2331,9 +2331,9 @@
     "base_cp": 823,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/scyther.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/scyther.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/scyther.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/scyther.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/scyther.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/scyther.gif",
     "moves": []
   },
   {
@@ -2350,9 +2350,9 @@
     "base_cp": 238,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/jynx.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/jynx.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/jynx.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/jynx.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/jynx.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/jynx.gif",
     "moves": []
   },
   {
@@ -2369,9 +2369,9 @@
     "base_cp": 505,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/electabuzz.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/electabuzz.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/electabuzz.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/electabuzz.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/electabuzz.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/electabuzz.gif",
     "moves": []
   },
   {
@@ -2388,9 +2388,9 @@
     "base_cp": 578,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/magmar.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/magmar.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/magmar.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/magmar.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/magmar.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/magmar.gif",
     "moves": []
   },
   {
@@ -2407,9 +2407,9 @@
     "base_cp": 1007,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/pinsir.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/pinsir.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/pinsir.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/pinsir.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/pinsir.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/pinsir.gif",
     "moves": []
   },
   {
@@ -2426,9 +2426,9 @@
     "base_cp": 844,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/tauros.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/tauros.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/tauros.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/tauros.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/tauros.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/tauros.gif",
     "moves": []
   },
   {
@@ -2445,9 +2445,9 @@
     "base_cp": 33,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/magikarp.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/magikarp.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/magikarp.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/magikarp.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/magikarp.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/magikarp.gif",
     "moves": []
   },
   {
@@ -2464,9 +2464,9 @@
     "base_cp": 1082,
     "base_catch_rate": 0.15,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/gyarados.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/gyarados.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/gyarados.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/gyarados.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/gyarados.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/gyarados.gif",
     "moves": []
   },
   {
@@ -2483,9 +2483,9 @@
     "base_cp": 866,
     "base_catch_rate": 0.15,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/lapras.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/lapras.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/lapras.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/lapras.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/lapras.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/lapras.gif",
     "moves": []
   },
   {
@@ -2502,9 +2502,9 @@
     "base_cp": 230,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/ditto.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/ditto.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/ditto.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/ditto.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/ditto.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/ditto.gif",
     "moves": []
   },
   {
@@ -2521,9 +2521,9 @@
     "base_cp": 288,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/eevee.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/eevee.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/eevee.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/eevee.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/eevee.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/eevee.gif",
     "moves": []
   },
   {
@@ -2540,9 +2540,9 @@
     "base_cp": 574,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/vaporeon.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/vaporeon.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/vaporeon.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/vaporeon.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/vaporeon.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/vaporeon.gif",
     "moves": []
   },
   {
@@ -2559,9 +2559,9 @@
     "base_cp": 405,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/jolteon.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/jolteon.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/jolteon.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/jolteon.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/jolteon.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/jolteon.gif",
     "moves": []
   },
   {
@@ -2578,9 +2578,9 @@
     "base_cp": 811,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/flareon.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/flareon.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/flareon.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/flareon.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/flareon.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/flareon.gif",
     "moves": []
   },
   {
@@ -2597,9 +2597,9 @@
     "base_cp": 404,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/porygon.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/porygon.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/porygon.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/porygon.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/porygon.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/porygon.gif",
     "moves": []
   },
   {
@@ -2616,9 +2616,9 @@
     "base_cp": 236,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/omanyte.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/omanyte.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/omanyte.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/omanyte.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/omanyte.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/omanyte.gif",
     "moves": []
   },
   {
@@ -2635,9 +2635,9 @@
     "base_cp": 561,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/omastar.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/omastar.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/omastar.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/omastar.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/omastar.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/omastar.gif",
     "moves": []
   },
   {
@@ -2654,9 +2654,9 @@
     "base_cp": 415,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/kabuto.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/kabuto.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/kabuto.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/kabuto.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/kabuto.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/kabuto.gif",
     "moves": []
   },
   {
@@ -2673,9 +2673,9 @@
     "base_cp": 912,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/kabutops.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/kabutops.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/kabutops.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/kabutops.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/kabutops.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/kabutops.gif",
     "moves": []
   },
   {
@@ -2692,9 +2692,9 @@
     "base_cp": 757,
     "base_catch_rate": 0.4,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/aerodactyl.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/aerodactyl.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/aerodactyl.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/aerodactyl.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/aerodactyl.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/aerodactyl.gif",
     "moves": []
   },
   {
@@ -2711,9 +2711,9 @@
     "base_cp": 1121,
     "base_catch_rate": 0.15,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/snorlax.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/snorlax.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/snorlax.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/snorlax.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/snorlax.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/snorlax.gif",
     "moves": []
   },
   {
@@ -2730,9 +2730,9 @@
     "base_cp": 806,
     "base_catch_rate": 0.03,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/articuno.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/articuno.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/articuno.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/articuno.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/articuno.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/articuno.gif",
     "moves": []
   },
   {
@@ -2749,9 +2749,9 @@
     "base_cp": 787,
     "base_catch_rate": 0.03,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/zapdos.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/zapdos.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/zapdos.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/zapdos.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/zapdos.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/zapdos.gif",
     "moves": []
   },
   {
@@ -2768,9 +2768,9 @@
     "base_cp": 900,
     "base_catch_rate": 0.03,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/moltres.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/moltres.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/moltres.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/moltres.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/moltres.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/moltres.gif",
     "moves": []
   },
   {
@@ -2787,9 +2787,9 @@
     "base_cp": 274,
     "base_catch_rate": 0.15,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/dratini.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/dratini.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/dratini.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/dratini.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/dratini.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/dratini.gif",
     "moves": []
   },
   {
@@ -2806,9 +2806,9 @@
     "base_cp": 528,
     "base_catch_rate": 0.15,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/dragonair.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/dragonair.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/dragonair.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/dragonair.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/dragonair.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/dragonair.gif",
     "moves": []
   },
   {
@@ -2825,9 +2825,9 @@
     "base_cp": 1245,
     "base_catch_rate": 0.15,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/dragonite.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/dragonite.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/dragonite.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/dragonite.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/dragonite.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/dragonite.gif",
     "moves": []
   },
   {
@@ -2844,9 +2844,9 @@
     "base_cp": 1074,
     "base_catch_rate": 0.03,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/mewtwo.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/mewtwo.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/mewtwo.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/mewtwo.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/mewtwo.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/mewtwo.gif",
     "moves": []
   },
   {
@@ -2863,9 +2863,9 @@
     "base_cp": 1000,
     "base_catch_rate": 0.03,
     "sprite_remote_url": "https://img.pokemondb.net/sprites/home/normal/mew.png",
-    "animation_remote_url": "https://play.pokemonshowdown.com/sprites/ani/mew.gif",
+    "animation_remote_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/mew.gif",
     "sprite_url": "https://img.pokemondb.net/sprites/home/normal/mew.png",
-    "animation_url": "https://play.pokemonshowdown.com/sprites/ani/mew.gif",
+    "animation_url": "https://img.pokemondb.net/sprites/black-white/anim/normal/mew.gif",
     "moves": []
   }
 ]

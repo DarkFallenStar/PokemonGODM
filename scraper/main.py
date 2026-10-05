@@ -30,19 +30,20 @@ def main():
     # 1. Extracción de Datos
     pokemon_list = scrape_gen1_pokemon(limit=args.limit)
 
-    # 2. Procesamiento de Multimedia (Storage)
+    # Asignar URLs remotas por defecto a todos los Pokémon
+    for p in pokemon_list:
+        p.sprite_url = p.sprite_remote_url
+        p.animation_url = p.animation_remote_url
+
+    # 2. Procesamiento Opcional de Multimedia en Storage
     if not args.dry_run and not args.skip_storage:
         print("\n[*] Verificando bucket de Supabase Storage ('pokemon-sprites')...")
         ensure_bucket_exists()
-        print("[*] Procesando y asociando URLs de sprites y animaciones...")
-        for p in pokemon_list[:10]: # Subir los primeros en demo y asignar URLs consistentes
+        print("[*] Procesando y asociando URLs de sprites y animaciones en Storage...")
+        for p in pokemon_list[:10]: # Probar en demo y mantener URLs si es exitoso
             s_url, a_url = process_pokemon_media(p.id, p.sprite_remote_url, p.animation_remote_url)
             p.sprite_url = s_url
             p.animation_url = a_url
-    else:
-        for p in pokemon_list:
-            p.sprite_url = p.sprite_remote_url
-            p.animation_url = p.animation_remote_url
 
     # 3. Exportación a JSON local (Backup / Auditoría)
     print(f"\n[*] Guardando respaldo JSON en: {OUTPUT_JSON}...")

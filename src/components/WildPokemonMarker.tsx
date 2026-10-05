@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import MapboxGL from '@rnmapbox/maps';
 import type { ActiveSpawn } from '../types/spawns';
-import { getPokemonAnimatedUrl, getPokemonStaticUrl } from '../utils/pokemonAssets';
+import { getPokemonSpriteSources } from '../utils/pokemonAssets';
 
 interface WildPokemonMarkerProps {
   spawn: ActiveSpawn;
@@ -14,19 +14,21 @@ export const WildPokemonMarker: React.FC<WildPokemonMarkerProps> = ({
   spawn,
   onPress,
 }) => {
-  // REGLA ESTRICTA: Solo visible si se encuentra dentro del radio visual de 30 metros
+  const { primaryUrl, fallbackUrl } = getPokemonSpriteSources(
+    spawn.pokemon || { id: spawn.pokemon_id }
+  );
+  const [currentUri, setCurrentUri] = useState<string>(primaryUrl);
+  const [hasError, setHasError] = useState<boolean>(false);
+
+  useEffect(() => {
+    setCurrentUri(primaryUrl);
+    setHasError(false);
+  }, [primaryUrl]);
+
+  // REGLA ESTRICTA DE REACT 19 / FABRIC: Retorno condicional SIEMPRE después de todos los Hooks
   if (!spawn.is_in_range) {
     return null;
   }
-
-  const animatedUrl = getPokemonAnimatedUrl(spawn.pokemon);
-  const staticUrl = getPokemonStaticUrl(spawn.pokemon);
-
-  const [currentUri, setCurrentUri] = useState<string>(animatedUrl);
-
-  useEffect(() => {
-    setCurrentUri(animatedUrl);
-  }, [animatedUrl]);
 
   return (
     <MapboxGL.MarkerView
@@ -43,8 +45,8 @@ export const WildPokemonMarker: React.FC<WildPokemonMarkerProps> = ({
         {/* Anillo de pulso de encuentro salvaje */}
         <View style={styles.pulseRing} />
 
-        {/* Sprite oficial de la criatura (GIF animado o fallback estático) */}
-        {currentUri ? (
+        {/* Sprite oficial de la criatura (GIF animado Gen 5 de PokemonDB) */}
+        {!hasError && currentUri ? (
           <Image
             source={{ uri: currentUri }}
             style={styles.spriteImage}
@@ -53,8 +55,10 @@ export const WildPokemonMarker: React.FC<WildPokemonMarkerProps> = ({
             priority="high"
             cachePolicy="memory-disk"
             onError={() => {
-              if (currentUri !== staticUrl) {
-                setCurrentUri(staticUrl);
+              if (currentUri === primaryUrl && fallbackUrl && fallbackUrl !== primaryUrl) {
+                setCurrentUri(fallbackUrl);
+              } else {
+                setHasError(true);
               }
             }}
           />
