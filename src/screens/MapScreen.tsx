@@ -45,6 +45,8 @@ export const MapScreen: React.FC = () => {
   const [pois, setPois] = useState<CampusPOIMarker[]>([]);
   const [activeSpawns, setActiveSpawns] = useState<ActiveSpawn[]>([]);
   const [cooldownMap, setCooldownMap] = useState<Record<string, boolean>>({});
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [justRefreshed, setJustRefreshed] = useState<boolean>(false);
 
   // Estados de Modales interactivos
   const [selectedPokestop, setSelectedPokestop] = useState<CampusPOIMarker | null>(null);
@@ -182,6 +184,29 @@ export const MapScreen: React.FC = () => {
     );
   };
 
+  // Manejador de actualización manual del mapa (recarga POIs, cooldowns y spawns sin reiniciar)
+  const handleManualRefresh = useCallback(async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    setJustRefreshed(false);
+    try {
+      await Promise.all([
+        loadCampusPOIs(),
+        refreshCooldowns(),
+        seedWildSpawnsIfLow(testZoneActive),
+      ]);
+      const nearby = await fetchNearbySpawns(currentCoords, testZoneActive);
+      setActiveSpawns(nearby);
+
+      setJustRefreshed(true);
+      setTimeout(() => setJustRefreshed(false), 2000);
+    } catch (e) {
+      console.warn('Error al actualizar el mapa:', e);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [loadCampusPOIs, refreshCooldowns, testZoneActive, currentCoords, isRefreshing]);
+
   if (!mapboxToken) {
     return (
       <View style={[styles.missingTokenContainer, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}>
@@ -317,20 +342,47 @@ export const MapScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* Botón de alternancia de Simulación */}
-        <TouchableOpacity
-          style={[styles.simButton, isMocked && styles.simButtonActive]}
-          onPress={toggleMockLocation}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.simButtonText}>
-            {mockMode === 'campus'
-              ? '📍 Campus'
-              : mockMode === 'cajica'
-              ? '📍 Cajicá'
-              : '📍 GPS Real'}
-          </Text>
-        </TouchableOpacity>
+        {/* Acciones de la esquina superior derecha */}
+        <View style={styles.hudActionsCol}>
+          {/* Botón de alternancia de Simulación */}
+          <TouchableOpacity
+            style={[styles.simButton, isMocked && styles.simButtonActive]}
+            onPress={toggleMockLocation}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.simButtonText}>
+              {mockMode === 'campus'
+                ? '📍 Campus'
+                : mockMode === 'cajica'
+                ? '📍 Cajicá'
+                : '📍 GPS Real'}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Botón de Actualizar Mapa */}
+          <TouchableOpacity
+            style={[
+              styles.refreshButton,
+              justRefreshed && styles.refreshButtonSuccess,
+            ]}
+            onPress={handleManualRefresh}
+            activeOpacity={0.8}
+            disabled={isRefreshing}
+          >
+            {isRefreshing ? (
+              <ActivityIndicator size="small" color="#38BDF8" />
+            ) : (
+              <Text
+                style={[
+                  styles.refreshButtonText,
+                  justRefreshed && styles.refreshButtonTextSuccess,
+                ]}
+              >
+                {justRefreshed ? '✓ Listo' : '🔄 Actualizar'}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Indicador de carga inicial */}
@@ -442,10 +494,14 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
   },
+  hudActionsCol: {
+    gap: 6,
+    alignItems: 'stretch',
+  },
   simButton: {
     backgroundColor: '#1E293B',
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 9,
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: '#38BDF8',
@@ -454,6 +510,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.4,
     shadowRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   simButtonActive: {
     backgroundColor: '#0284C7',
@@ -463,6 +521,34 @@ const styles = StyleSheet.create({
     color: '#F8FAFC',
     fontSize: 11,
     fontWeight: '700',
+  },
+  refreshButton: {
+    backgroundColor: 'rgba(30, 41, 59, 0.92)',
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 12,
+    borderWidth: 1.2,
+    borderColor: '#38BDF8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 32,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 3,
+  },
+  refreshButtonSuccess: {
+    backgroundColor: '#064E3B',
+    borderColor: '#22C55E',
+  },
+  refreshButtonText: {
+    color: '#38BDF8',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  refreshButtonTextSuccess: {
+    color: '#4ADE80',
   },
   poiBadge: {
     width: 34,

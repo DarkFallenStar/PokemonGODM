@@ -71,7 +71,7 @@ Tienes dos formas muy sencillas de editarlos:
      - `latitude`: Latitud decimal (ej. `4.86050`).
      - `longitude`: Longitud decimal (ej. `-74.03380`).
    - Pulsa **Save**.
-6. En tu teléfono, cambia de pestaña (a *Mochila*) y vuelve al *Mapa* (o recarga la app): **las nuevas paradas aparecerán en sus nuevas posiciones inmediatamente**.
+6. En tu teléfono, presiona el botón **`🔄 Actualizar`** en la esquina superior derecha del mapa: **las nuevas paradas, gimnasios y criaturas salvajes se sincronizarán al instante sin necesidad de reiniciar la app**.
 
 ---
 
