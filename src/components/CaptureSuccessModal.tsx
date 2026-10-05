@@ -71,7 +71,7 @@ export const CaptureSuccessModal: React.FC<CaptureSuccessModalProps> = ({
               <Text style={styles.ivValue}>{spawn.iv_defense ?? 10}/15</Text>
             </View>
             <View style={styles.ivChip}>
-              <Text style={styles.ivLabel}>HP</Text>
+              <Text style={styles.ivLabel}>PS</Text>
               <Text style={styles.ivValue}>{spawn.iv_hp ?? 10}/15</Text>
             </View>
           </View>

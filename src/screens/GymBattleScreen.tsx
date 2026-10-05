@@ -159,7 +159,7 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
           stats: {
             attack: { statName: 'Ataque', baseValue: 80, ivValue: 12, effectiveValue: 92, maxPossibleEffective: 95, ivPercentage: 80 },
             defense: { statName: 'Defensa', baseValue: 80, ivValue: 12, effectiveValue: 92, maxPossibleEffective: 95, ivPercentage: 80 },
-            hp: { statName: 'Salud (HP)', baseValue: 80, ivValue: 12, effectiveValue: packet.combatant.maxHp, maxPossibleEffective: 200, ivPercentage: 80 },
+            hp: { statName: 'PS', baseValue: 80, ivValue: 12, effectiveValue: packet.combatant.maxHp, maxPossibleEffective: 200, ivPercentage: 80 },
           },
           appraisal: { totalIV: 36, overallPercentage: 80, stars: 2, isPerfect: false, summaryText: 'Rival en vivo.', badgeColor: '#94A3B8' },
         };
@@ -307,11 +307,11 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
       const nextHp = Math.max(0, prev - damageResult.finalDamage);
 
       if (damageResult.wasDodged) {
-        triggerFloatingText(`¡Esquivado! -${damageResult.finalDamage} HP`, '#38BDF8');
+        triggerFloatingText(`¡Esquivado! -${damageResult.finalDamage} PS`, '#38BDF8');
       } else if (damageResult.isSuperEffective) {
-        triggerFloatingText(`¡Súper eficaz! -${damageResult.finalDamage} HP`, '#EF4444');
+        triggerFloatingText(`¡Súper eficaz! -${damageResult.finalDamage} PS`, '#EF4444');
       } else {
-        triggerFloatingText(`-${damageResult.finalDamage} HP`, '#F8FAFC');
+        triggerFloatingText(`-${damageResult.finalDamage} PS`, '#F8FAFC');
       }
 
       // Si estamos en P2P, reportar nueva salud autoritativa al rival
@@ -476,12 +476,12 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
     setPhase('FINISHED');
     if (aiAttackIntervalRef.current) clearInterval(aiAttackIntervalRef.current);
 
-    // Reclamar el gimnasio en Supabase de forma atómica
+    // Reclamar el gimnasio en Supabase de forma atómica mediante RPC finalize_gym_battle
     const res = await claimGymnasiumVictory(gymId, DEMO_USER_ID, 'mystic', playerPokemon?.id);
 
     Alert.alert(
       '🏆 ¡VICTORIA EN EL GIMNASIO!',
-      `Has derrotado al defensor de ${gymName}.\n\n${res.message || 'El gimnasio ahora ondea la bandera de tu equipo.'}`,
+      `Has derrotado al defensor de ${gymName}.\n\n${res.message || 'El gimnasio ahora ondea la bandera de tu equipo.'}\n\nLiderazgo transferido a: Equipo Místico (Sabiduría)\nTransacción RPC (finalize_gym_battle): ${res.success ? 'Ejecutada con éxito ✅' : 'Error: ' + res.error}`,
       [{ text: '¡Excelente!', onPress: () => navigation.goBack() }]
     );
   };
@@ -624,7 +624,7 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
                   />
                 </View>
                 <Text style={styles.hpNumber}>
-                  {opponentHp} / {opponentMaxHp} HP
+                  {opponentHp} / {opponentMaxHp} PS
                 </Text>
               </View>
 
@@ -664,7 +664,7 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
                   <Text style={styles.statusCp}>CP {playerPokemon?.cp}</Text>
                 </View>
 
-                {/* Barra de HP */}
+                {/* Barra de PS */}
                 <View style={styles.hpTrack}>
                   <View
                     style={[
@@ -682,7 +682,7 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
                   />
                 </View>
                 <Text style={styles.hpNumber}>
-                  {playerHp} / {playerMaxHp} HP
+                  {playerHp} / {playerMaxHp} PS
                 </Text>
 
                 {/* Barra de Energía para Ataque Cargado */}

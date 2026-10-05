@@ -27,8 +27,9 @@ export const GymModal: React.FC<GymModalProps> = ({
   if (!gym) return null;
 
   const isInRange = distanceMeters <= 40;
-  // Por defecto Mystic en demo
-  const team = TEAM_CONFIG.mystic;
+  // Equipo dinámico consultado de Supabase (mystic, valor, instinct o neutral)
+  const teamKey = gym.current_team || 'neutral';
+  const team = TEAM_CONFIG[teamKey] || TEAM_CONFIG.neutral;
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -54,7 +55,7 @@ export const GymModal: React.FC<GymModalProps> = ({
             <Text style={styles.defenderLabel}>Pokémon Defensor del Gimnasio</Text>
             <Text style={styles.defenderEmoji}>🐲</Text>
             <Text style={styles.defenderName}>Dragonite</Text>
-            <Text style={styles.defenderStats}>CP 3120 | HP 180/180</Text>
+            <Text style={styles.defenderStats}>CP 3120 | PS 180/180</Text>
             <Text style={styles.trainerName}>Entrenador: Campeón UniSabana</Text>
           </View>
 

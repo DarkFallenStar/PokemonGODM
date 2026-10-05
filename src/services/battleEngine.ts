@@ -240,7 +240,7 @@ export function createGymAIDefender(
         ivPercentage: Math.round((ivDefense / 15) * 100),
       },
       hp: {
-        statName: 'Salud (HP)',
+        statName: 'PS',
         baseValue: baseHp,
         ivValue: ivHp,
         effectiveValue: maxHp,

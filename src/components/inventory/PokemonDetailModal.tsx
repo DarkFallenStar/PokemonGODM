@@ -89,9 +89,9 @@ export const PokemonDetailModal: React.FC<PokemonDetailModalProps> = ({
             {/* Barra de Salud Actual vs Máxima */}
             <View style={styles.healthContainer}>
               <View style={styles.healthHeader}>
-                <Text style={styles.healthLabel}>Puntos de Salud (PS / HP)</Text>
+                <Text style={styles.healthLabel}>PS</Text>
                 <Text style={styles.healthValue}>
-                  {pokemon.current_hp} / {pokemon.maxHp} HP
+                  {pokemon.current_hp} / {pokemon.maxHp} PS
                 </Text>
               </View>
               <View style={styles.healthBarTrack}>
@@ -195,10 +195,10 @@ export const PokemonDetailModal: React.FC<PokemonDetailModalProps> = ({
                 </View>
               </View>
 
-              {/* Barra de HP */}
+              {/* Barra de PS */}
               <View style={styles.statRow}>
                 <View style={styles.statLabelRow}>
-                  <Text style={styles.statName}>❤️ Salud</Text>
+                  <Text style={styles.statName}>❤️ PS</Text>
                   <Text style={styles.statValues}>
                     Base: {stats.hp.baseValue} + <Text style={styles.ivHighlight}>IV: +{stats.hp.ivValue}</Text> = {stats.hp.effectiveValue}
                   </Text>

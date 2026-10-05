@@ -105,7 +105,7 @@ export const SpawnEncounterModal: React.FC<SpawnEncounterModalProps> = ({
               <Text style={styles.statVal}>{spawn.iv_defense ?? 10}/15</Text>
             </View>
             <View style={styles.statChip}>
-              <Text style={styles.statLabel}>HP</Text>
+              <Text style={styles.statLabel}>PS</Text>
               <Text style={styles.statVal}>{spawn.iv_hp ?? 10}/15</Text>
             </View>
           </View>

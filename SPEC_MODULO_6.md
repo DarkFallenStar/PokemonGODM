@@ -87,8 +87,8 @@ export interface ConsumableItemMetadata {
   category: 'ball' | 'medicine';
   description: string;
   iconEmoji: string;
-  healAmount?: number; // Poción: 20 HP, Superpoción: 50 HP
-  reviveHealthPercentage?: number; // Revivir: 50% de HP Máximo
+  healAmount?: number; // Poción: 20 PS, Superpoción: 50 PS
+  reviveHealthPercentage?: number; // Revivir: 50% de PS Máximo
 }
 
 export interface InventoryItemView {
@@ -99,7 +99,7 @@ export interface InventoryItemView {
 
 // Desglose analítico de estadísticas: Base vs. IVs
 export interface PokemonStatBreakdown {
-  statName: 'Ataque' | 'Defensa' | 'Salud (HP)';
+  statName: 'Ataque' | 'Defensa' | 'PS';
   baseValue: number;
   ivValue: number; // 0 a 15
   effectiveValue: number; // baseValue + ivValue
@@ -241,7 +241,7 @@ BEGIN
         RETURN jsonb_build_object('success', false, 'error', 'Stock insuficiente del objeto seleccionado.');
     END IF;
 
-    -- 2. Obtener datos de la criatura y calcular Max HP
+    -- 2. Obtener datos de la criatura y calcular Max PS
     SELECT c.current_hp, b.base_hp, c.iv_hp
     INTO v_cur_hp, v_base_hp, v_iv_hp
     FROM public.captured_instances c
@@ -275,7 +275,7 @@ BEGIN
 
     ELSIF p_item_type = 'revive' THEN
         IF v_cur_hp > 0 THEN
-            RETURN jsonb_build_object('success', false, 'error', 'El Revivir solo se puede aplicar a criaturas debilitadas (0 HP).');
+            RETURN jsonb_build_object('success', false, 'error', 'El Revivir solo se puede aplicar a criaturas debilitadas (0 PS).');
         END IF;
         v_new_hp := FLOOR(v_max_hp * 0.50);
 
@@ -378,7 +378,7 @@ Cada criatura capturada almacena tres IVs enteros entre 0 y 15 generados en el i
 - **Cálculo de Efectividad Real:**
   - `Ataque Efectivo = Base Attack + IV Attack` (Rango: `Base Attack + 0` a `Base Attack + 15`)
   - `Defensa Efectiva = Base Defense + IV Defense` (Rango: `Base Defense + 0` a `Base Defense + 15`)
-  - `HP Máximo = Base HP * 2 + IV HP + 50`
+  - `PS Máximo = Base PS * 2 + IV PS + 50`
 
 - **Visualización Gráfica:**
   En lugar de un número estático, la interfaz renderiza tres barras horizontales segmentadas:
@@ -427,7 +427,7 @@ sequenceDiagram
         P2->>P2: Verifica ventana de Esquiva (Dodge Window)
         P2->>P2: Calcula Daño Real (Defensa + Tipo + Esquiva)
         P2->>WS: Broadcast "battle:hp_update" (target: P2, newHp: 85, dodged: false)
-        WS-->>P1: Recibe HP Update -> Anima Barra de Vida de P2
+        WS-->>P1: Recibe Actualización de PS -> Anima Barra de Vida de P2
         
         P2->>WS: Broadcast "battle:dodge" (direction: 'left', seq: 2)
         WS-->>P1: Anima Pokémon de P2 desplazándose lateralmente
@@ -438,7 +438,7 @@ sequenceDiagram
         P2->>WS: Broadcast "battle:hp_update" (newHp: 82, dodged: true)
     end
     
-    Note over P2: HP de P2 llega a 0 (Debilitado)
+    Note over P2: PS de P2 llega a 0 (Debilitado)
     P2->>WS: Broadcast "battle:hp_update" (isFainted: true)
     P1->>DB: RPC finalize_gym_battle(gym_id, P1_id, P1_team, instance_id)
     DB-->>P1: Gimnasio Conquistado exitosamente
@@ -505,7 +505,7 @@ Para resolver la carrera de esquiva y la desincronización de salud:
   - ¿Cuánto daño neto recibo y cuánta salud me queda?
 - El receptor descuenta su salud localmente y emite hacia el canal WebSocket el paquete autoritativo:
   `battle:hp_update { targetUserId: "B", newHp: 42, damageTaken: 28, wasDodged: true }`.
-- El atacante recibe este paquete y simplemente anima la reducción de la barra del oponente al valor definitivo `42 HP`. De este modo, **es matemáticamente imposible que exista divergencia de salud entre ambos teléfonos**.
+- El atacante recibe este paquete y simplemente anima la reducción de la barra del oponente al valor definitivo `42 PS`. De este modo, **es matemáticamente imposible que exista divergencia de salud entre ambos teléfonos**.
 
 ### 6.2 Numeración Monotónica de Paquetes y Deduplicación
 - Todo paquete emitido viaja con un `seqId` entero autoincremental (`1, 2, 3...`) y un UUID `packetId`.
@@ -541,12 +541,12 @@ Para resolver la carrera de esquiva y la desincronización de salud:
 ### Escenario 3: Desglose de Estadísticas Base vs. IVs Obtenidos
 - **Given** que el usuario toca una criatura capturada en la lista
 - **When** se abre el modal de detalle
-- **Then** la interfaz debe desplegar tres barras compuestas (Ataque, Defensa, HP) diferenciando claramente el valor base de la especie y el bono genético individual de 0 a 15, junto con la calificación de estrellas del Appraisal.
+- **Then** la interfaz debe desplegar tres barras compuestas (Ataque, Defensa, PS) diferenciando claramente el valor base de la especie y el bono genético individual de 0 a 15, junto con la calificación de estrellas del Appraisal.
 
 ### Escenario 4: Uso de Poción en Criatura Herida
-- **Given** que el usuario tiene un Pikachu con 10/60 HP y al menos 1 "Poción" en su inventario
+- **Given** que el usuario tiene un Pikachu con 10/60 PS y al menos 1 "Poción" en su inventario
 - **When** selecciona usar la Poción sobre Pikachu
-- **Then** se invoca el RPC `apply_item_to_pokemon`, la salud de Pikachu sube a 30/60 HP y el contador de pociones se decrementa en 1 unidad en tiempo real.
+- **Then** se invoca el RPC `apply_item_to_pokemon`, la salud de Pikachu sube a 30/60 PS y el contador de pociones se decrementa en 1 unidad en tiempo real.
 
 ### Escenario 5: Validación de Geofencing en Gimnasios
 - **Given** que el usuario toca el marcador de un gimnasio en `MapScreen`
@@ -564,7 +564,7 @@ Para resolver la carrera de esquiva y la desincronización de salud:
 - **Then** el daño recibido por el Entrenador 2 se mitiga en un 75% y en pantalla aparece el mensaje flotante "¡Esquivado!".
 
 ### Escenario 8: Conquista Atómica de Gimnasio
-- **Given** que la criatura del Entrenador 2 llega a 0 HP
+- **Given** que la criatura del Entrenador 2 llega a 0 PS
 - **When** el combate concluye
 - **Then** se ejecuta `finalize_gym_battle` en Supabase con bloqueo a nivel de fila, actualizando el equipo del gimnasio al equipo del Entrenador 1 sin condiciones de carrera.
 

@@ -1,12 +1,11 @@
 {
     "schema_version": 2,
-    "commit": "6053ed27005ea644966534fa4463040f6d80d701",
-    "indexed_at": "2026-10-05T06:34:22Z",
+    "commit": "c5f15ae560d4c91c1224b76cb4289dfd62a2b0e2",
+    "indexed_at": "2026-10-05T15:05:53Z",
     "project": "C-Users-kenny-OneDrive-Documents-Cosas-de-movil-que-lo-buguie-todo-PokemonGoExam-PokemonGoExam",
-    "nodes": 924,
-    "edges": 1813,
-    "original_size": 7471104,
-    "compressed_size": 940149,
-    "compression_level": 3,
-    "reconcile_basis": "git-clean-head"
+    "nodes": 935,
+    "edges": 1858,
+    "original_size": 7602176,
+    "compressed_size": 955069,
+    "compression_level": 3
 }

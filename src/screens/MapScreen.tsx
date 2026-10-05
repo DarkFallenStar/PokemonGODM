@@ -71,7 +71,7 @@ export const MapScreen: React.FC = () => {
   const loadCampusPOIs = useCallback(async () => {
     try {
       let stopsQuery = supabase.from('pokestops').select('id, name, latitude, longitude, is_test_zone');
-      let gymsQuery = supabase.from('gymnasiums').select('id, name, latitude, longitude, is_test_zone');
+      let gymsQuery = supabase.from('gymnasiums').select('id, name, latitude, longitude, is_test_zone, current_team');
 
       // Si el modo de pruebas está apagado, filtrar estrictamente solo los POIs de UniSabana
       if (!testZoneActive) {
@@ -102,6 +102,7 @@ export const MapScreen: React.FC = () => {
             type: 'gym',
             latitude: g.latitude,
             longitude: g.longitude,
+            current_team: g.current_team,
           });
         }
       }
@@ -137,10 +138,13 @@ export const MapScreen: React.FC = () => {
   }, [pois, refreshCooldowns]);
 
   // Sincronización del Motor de Spawns
-  // Sincronización del Motor de Spawns con recarga inmediata al enfocar el mapa
+  // Sincronización del Motor de Spawns y recarga de POIs al enfocar el mapa
   useFocusEffect(
     useCallback(() => {
       let isMounted = true;
+
+      // Recargar POIs (refleja cambios inmediatos en el liderazgo de gimnasios)
+      loadCampusPOIs();
 
       async function syncSpawns() {
         // 1. Sembrar spawns si hay pocos (y purgar caducados/inactivos)
@@ -160,7 +164,7 @@ export const MapScreen: React.FC = () => {
         isMounted = false;
         clearInterval(interval);
       };
-    }, [currentCoords, testZoneActive])
+    }, [currentCoords, testZoneActive, loadCampusPOIs])
   );
 
   // Distancia calculada con Worklet de Haversine para la Poképarada seleccionada
@@ -199,7 +203,7 @@ export const MapScreen: React.FC = () => {
     navigation.navigate('GymBattle', {
       gymId: gym.id,
       gymName: gym.name,
-      initialTeam: 'mystic',
+      initialTeam: (gym.current_team as any) || 'neutral',
       distanceMeters: selectedGymDistance,
     });
   }, [navigation, selectedGymDistance]);
@@ -319,11 +323,14 @@ export const MapScreen: React.FC = () => {
           />
         </MapboxGL.ShapeSource>
 
-        {/* Marcadores de Hitos: Poképaradas y Gimnasios (MarkerView interactivo reactivo a cooldown) */}
+        {/* Marcadores de Hitos: Poképaradas y Gimnasios (MarkerView interactivo reactivo a cooldown y equipos) */}
         {pois.map(poi => {
           const isStop = poi.type === 'pokestop';
           const inCooldown = isStop && !!cooldownMap[poi.id];
-          const markerKey = `poi-${poi.id}-${inCooldown ? 'purple' : 'blue'}`;
+          const gymTeam = poi.current_team || 'neutral';
+          const gymEmoji =
+            gymTeam === 'mystic' ? '🦅' : gymTeam === 'valor' ? '🔥' : gymTeam === 'instinct' ? '⚡' : '⚪';
+          const markerKey = `poi-${poi.id}-${isStop ? (inCooldown ? 'purple' : 'blue') : gymTeam}`;
 
           return (
             <MapboxGL.MarkerView
@@ -345,14 +352,20 @@ export const MapScreen: React.FC = () => {
                 style={[
                   styles.poiBadge,
                   !isStop
-                    ? styles.gymBadge
+                    ? gymTeam === 'valor'
+                      ? styles.gymValorBadge
+                      : gymTeam === 'instinct'
+                      ? styles.gymInstinctBadge
+                      : gymTeam === 'neutral'
+                      ? styles.gymNeutralBadge
+                      : styles.gymMysticBadge
                     : inCooldown
                     ? styles.stopCooldownBadge
                     : styles.stopBadge,
                 ]}
               >
                 <Text style={styles.poiEmoji}>
-                  {!isStop ? '🏟️' : inCooldown ? '🟣' : '🔵'}
+                  {!isStop ? (gymTeam === 'neutral' ? '🏟️' : gymEmoji) : inCooldown ? '🟣' : '🔵'}
                 </Text>
               </TouchableOpacity>
             </MapboxGL.MarkerView>
@@ -673,6 +686,22 @@ const styles = StyleSheet.create({
   },
   gymBadge: {
     backgroundColor: '#DC2626',
+  },
+  gymMysticBadge: {
+    backgroundColor: '#2563EB',
+    borderColor: '#93C5FD',
+  },
+  gymValorBadge: {
+    backgroundColor: '#DC2626',
+    borderColor: '#FCA5A5',
+  },
+  gymInstinctBadge: {
+    backgroundColor: '#CA8A04',
+    borderColor: '#FDE047',
+  },
+  gymNeutralBadge: {
+    backgroundColor: '#475569',
+    borderColor: '#94A3B8',
   },
   poiEmoji: {
     fontSize: 15,

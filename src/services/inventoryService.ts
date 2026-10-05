@@ -388,7 +388,7 @@ export async function fetchCapturedPokemonCollection(
             ivPercentage: Math.round((ivDefense / 15) * 100),
           },
           hp: {
-            statName: 'Salud (HP)',
+            statName: 'PS',
             baseValue: base.base_hp,
             ivValue: ivHp,
             effectiveValue: maxHp,

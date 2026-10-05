@@ -197,7 +197,7 @@
 
 ### Pregunta 6.2: ¿Por qué es indispensable separar las tablas `pokemon_base` de `captured_instances` y qué anomalías de base de datos se previenen con esta separación?
 **Respuesta Modelo (100%):**
-> *"Esta separación es la aplicación directa de la **Tercera Forma Normal (3FN)**. `pokemon_base` representa el catálogo inmutable de la especie (sus estadísticas base universales, nombres y tipos), mientras que `captured_instances` representa la entidad transaccional mutable de un jugador (sus IVs aleatorios de 0 a 15, nivel, CP individual y HP actual). Si mezcláramos ambas entidades, incurriríamos en **anomalías de redundancia** (duplicar stats base por cada captura de un mismo Pokémon) y **anomalías de actualización** (un cambio en la descripción o tipo de un Pokémon requeriría modificar miles de filas de jugadores en lugar de un único registro maestro)."*
+> *"Esta separación es la aplicación directa de la **Tercera Forma Normal (3FN)**. `pokemon_base` representa el catálogo inmutable de la especie (sus estadísticas base universales, nombres y tipos), mientras que `captured_instances` representa la entidad transaccional mutable de un jugador (sus IVs aleatorios de 0 a 15, nivel, CP individual y PS actuales). Si mezcláramos ambas entidades, incurriríamos en **anomalías de redundancia** (duplicar stats base por cada captura de un mismo Pokémon) y **anomalías de actualización** (un cambio en la descripción o tipo de un Pokémon requeriría modificar miles de filas de jugadores en lugar de un único registro maestro)."*
 
 ---
 

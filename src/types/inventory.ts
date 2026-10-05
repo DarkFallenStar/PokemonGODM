@@ -10,8 +10,8 @@ export interface ConsumableItemMetadata {
   description: string;
   iconEmoji: string;
   badgeColor: string;
-  healAmount?: number; // Poción: 20 HP, Superpoción: 50 HP
-  reviveHealthPercentage?: number; // Revivir: 50% de HP Máximo
+  healAmount?: number; // Poción: 20 PS, Superpoción: 50 PS
+  reviveHealthPercentage?: number; // Revivir: 50% de PS Máximos
 }
 
 export interface InventoryItemView {
@@ -22,7 +22,7 @@ export interface InventoryItemView {
 
 // Desglose analítico de estadísticas: Base vs. IVs
 export interface PokemonStatBreakdown {
-  statName: 'Ataque' | 'Defensa' | 'Salud (HP)';
+  statName: 'Ataque' | 'Defensa' | 'PS';
   baseValue: number;
   ivValue: number; // 0 a 15
   effectiveValue: number; // baseValue + ivValue

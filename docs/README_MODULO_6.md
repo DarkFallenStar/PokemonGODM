@@ -25,8 +25,8 @@ En el universo competitivo de Pokémon GO, cada espécimen posee un potencial ge
 - **Defensa Efectiva:**
   `Defensa Efectiva = Base Defense + IV Defense`
   (Rango: `Base Defense + 0` a `Base Defense + 15`)
-- **Salud Máxima (HP):**
-  `Max HP = (Base HP * 2) + IV HP + 50`
+- **Salud Máxima (PS):**
+  `Max PS = (Base PS * 2) + IV PS + 50`
 
 #### Sistema de Valoración por Estrellas (Appraisal):
 - Suma Total de IVs: `Total IV = iv_attack + iv_defense + iv_hp` (Rango: 0 a 45)
@@ -67,8 +67,8 @@ sequenceDiagram
         WS-->>P2: Entregar Fast Attack
         P2->>P2: Verifica ventana de Esquiva (Dodge Window)
         P2->>P2: Calcula Daño Real (Defensa + Tipo + Esquiva)
-        P2->>WS: Broadcast "battle:hp_update" (target: P2, newHp: 85, dodged: false)
-        WS-->>P1: Recibe HP Update -> Anima Barra de Vida de P2
+        p2->>ws: Broadcast "battle:hp_update" (target: P2, newHp: 85, dodged: false)
+        WS-->>P1: Recibe Actualización de PS -> Anima Barra de Vida de P2
         
         P2->>WS: Broadcast "battle:dodge" (direction: 'left', seq: 2)
         WS-->>P1: Anima Pokémon de P2 desplazándose lateralmente
@@ -79,7 +79,7 @@ sequenceDiagram
         P2->>WS: Broadcast "battle:hp_update" (newHp: 82, dodged: true)
     end
     
-    Note over P2: HP de P2 llega a 0 (Debilitado)
+    Note over P2: PS de P2 llega a 0 (Debilitado)
     P2->>WS: Broadcast "battle:hp_update" (isFainted: true)
     P1->>DB: RPC finalize_gym_battle(gym_id, P1_id, P1_team, instance_id)
     DB-->>P1: Gimnasio Conquistado exitosamente
@@ -148,7 +148,7 @@ En caso contrario:
    - **Resultado Verificable:** Se abre el modal de detalle a pantalla completa con:
      - Sprite animado de Generación 5 de PokemonDB (`expo-image`).
      - Badges cromáticos oficiales del tipo elemental.
-     - Barra de salud interactiva (`PS / Max HP`).
+     - Barra de salud interactiva (`PS / Max PS`).
      - Tarjeta de **Valoración del Entrenador (Appraisal)**: Calificación de 0 a 3 estrellas según el porcentaje de IV (o distintivo `👑 100% PERFECTO` si suma 45/45).
      - Gráfico comparativo de tres barras:
        - **⚔️ Ataque:** Segmento base en gris pizarra + Bono IV (0 a 15) en ámbar brillante.
@@ -181,8 +181,58 @@ En caso contrario:
    - Cuando el oponente ataque, desliza el dedo hacia la izquierda o derecha: el sprite esquiva lateralmente con animación `withTiming`, activando el mensaje dorado `⚡ ¡Esquiva Activa!` y reduciendo el 75% del daño recibido.
 6. **Mecánica de Ataque Cargado:**
    - Al llenarse la barra de energía, el botón central de ataque cargado se ilumina. Presiónalo para desatar el ataque especial con animación y texto flotante.
-7. **Resolución Atómica del Gimnasio:**
-   - Al reducir la salud del rival a 0 HP, la aplicación despliega `🏆 ¡VICTORIA EN EL GIMNASIO!` y ejecuta el RPC `finalize_gym_battle` en PostgreSQL con bloqueo pesimista de fila, transfiriendo el liderazgo del gimnasio al equipo del jugador.
+7. **Resolución Atómica del Gimnasio y Evaluación del RPC `finalize_gym_battle`:**
+   - Al reducir los PS del rival a 0 PS, la aplicación despliega `🏆 ¡VICTORIA EN EL GIMNASIO!` y ejecuta el RPC `finalize_gym_battle` en PostgreSQL con bloqueo pesimista de fila, transfiriendo el liderazgo del gimnasio al equipo del jugador.
+
+### Paso 7: Procedimiento Específico para Evaluar y Demostrar el RPC `finalize_gym_battle`
+Para que el evaluador verifique al 100% que la función almacenada en PostgreSQL se ejecuta correctamente y modifica la base de datos atómicamente, se disponen de tres métodos de comprobación:
+
+#### Método A: Verificación en Vivo desde la Aplicación Móvil
+1. **Antes del Combate:**
+   - En el mapa, pulsa sobre un Gimnasio (ej. *"Gimnasio Ad Portas"* o *"Gimnasio Arena Deportiva"*).
+   - Observa en el modal su equipo y color actual (por ejemplo: `Gimnasio Neutral ⚪` o `Equipo Valor 🔥`).
+2. **Durante y al Finalizar el Combate:**
+   - Reduce los PS del defensor a 0 PS.
+   - En pantalla aparecerá la alerta:
+     ```text
+     🏆 ¡VICTORIA EN EL GIMNASIO!
+     Has derrotado al defensor de Gimnasio Ad Portas.
+     Liderazgo transferido a: Equipo Místico (Sabiduría)
+     Transacción RPC (finalize_gym_battle): Ejecutada con éxito ✅
+     ```
+3. **Verificación Inmediata en el Mapa:**
+   - Pulsa `¡Excelente!`. La aplicación regresará al mapa interactivo.
+   - Observa cómo el marcador del gimnasio en el mapa se actualiza automáticamente con el nuevo color y emblema (`🦅` azul para Místico).
+   - Vuelve a pulsar el gimnasio: el modal confirma que el nuevo equipo defensor es `Equipo Sabiduría (Místico)`.
+
+#### Método B: Verificación Automatizada mediante Script CLI
+Ejecuta en la terminal el script automatizado de evaluación de base de datos:
+```powershell
+scraper\venv\Scripts\python.exe scraper\test_finalize_gym.py
+```
+**Resultado en Pantalla:**
+- Consulta la tabla `gymnasiums` y lista los gimnasios con su equipo actual.
+- Invoca la función `public.finalize_gym_battle(gym_id, user_id, 'valor', NULL)` y luego `'mystic'`.
+- Muestra el JSONB retornado: `{"success": true, "message": "¡Gimnasio conquistado exitosamente!", "new_team": "mystic"}`.
+- Realiza una consulta `SELECT` directa confirmando que `current_team` cambió en PostgreSQL bajo bloqueo pesimista `FOR UPDATE`.
+
+#### Método C: Verificación Directa en PostgreSQL / Supabase SQL Editor
+Si el docente o evaluador desea abrir el editor SQL de Supabase o un cliente psql, puede ejecutar:
+```sql
+-- 1. Ver estado del gimnasio
+SELECT id, name, current_team, updated_at FROM public.gymnasiums;
+
+-- 2. Ejecutar manualmente el RPC
+SELECT public.finalize_gym_battle(
+    'fd36cc1b-fbb4-4ce8-b434-0f73f6853dcf', -- ID del gimnasio
+    '00000000-0000-0000-0000-000000000001', -- ID del usuario
+    'mystic',                                -- Nuevo equipo líder
+    NULL                                     -- Defensor opcional
+);
+
+-- 3. Confirmar la actualización atómica
+SELECT id, name, current_team, updated_at FROM public.gymnasiums;
+```
 
 ---
 

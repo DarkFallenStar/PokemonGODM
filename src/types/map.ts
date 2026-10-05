@@ -9,6 +9,7 @@ export interface CampusPOIMarker {
   type: 'pokestop' | 'gym';
   latitude: number;
   longitude: number;
+  current_team?: 'mystic' | 'valor' | 'instinct' | 'neutral';
 }
 
 export interface MapViewportState {
