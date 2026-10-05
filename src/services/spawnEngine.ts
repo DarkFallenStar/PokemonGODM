@@ -11,12 +11,29 @@ import {
 } from '../utils/geofence';
 import { getPokemonDbAnimatedSprite, getPokemonDbStaticSprite } from '../utils/pokemonAssets';
 
-// Especies según rareza de Generación 1
-const RARITY_POKEMON_IDS = {
-  common: [16, 19, 10, 13, 41, 43, 60, 69, 74, 96, 98, 118, 129], // Pidgey, Rattata, Caterpie, Zubat, Magikarp...
-  uncommon: [1, 4, 7, 25, 37, 58, 63, 66, 92, 133], // Starters, Pikachu, Vulpix, Growlithe, Eevee...
-  rare: [131, 143, 147, 123, 125, 126, 130, 65, 94], // Lapras, Snorlax, Dratini, Gyarados, Gengar...
-  epic: [149, 144, 145, 146, 150, 151], // Dragonite, Aves Legendarias, Mewtwo, Mew
+// Distribución oficial de los 151 Pokémon de Kanto según niveles de rareza
+export const RARITY_POKEMON_IDS = {
+  // Comunes (60% de probabilidad): 49 especies básicas habituales
+  common: [
+    1, 4, 7, 10, 11, 13, 14, 16, 19, 21, 23, 25, 27, 29, 32, 41, 43, 46, 48, 50,
+    52, 54, 56, 60, 63, 66, 69, 72, 74, 77, 79, 81, 83, 84, 86, 88, 90, 92, 96, 98,
+    100, 102, 104, 109, 111, 116, 118, 120, 129
+  ],
+  // Poco Comunes (25% de probabilidad): 54 especies intermedias y básicos destacados
+  uncommon: [
+    2, 5, 8, 12, 15, 17, 20, 22, 24, 28, 30, 33, 35, 37, 39, 42, 44, 47, 49, 51,
+    53, 55, 57, 58, 61, 64, 67, 70, 73, 75, 78, 82, 85, 87, 93, 95, 97, 99, 101, 105,
+    106, 107, 108, 114, 117, 119, 121, 122, 124, 132, 133, 138, 140, 147
+  ],
+  // Raros (12% de probabilidad): 42 terceras evoluciones y Pokémon únicos poderosos
+  rare: [
+    3, 6, 9, 18, 26, 31, 34, 36, 38, 40, 45, 59, 62, 65, 68, 71, 76, 80, 89, 91,
+    94, 103, 110, 112, 113, 115, 123, 125, 126, 127, 128, 130, 131, 134, 135, 136, 137, 139, 141, 142, 143, 148
+  ],
+  // Épicos / Legendarios (3% de probabilidad): 6 criaturas míticas y legendarias
+  epic: [
+    144, 145, 146, 149, 150, 151
+  ],
 };
 
 /**
