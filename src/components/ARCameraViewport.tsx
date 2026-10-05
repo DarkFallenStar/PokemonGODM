@@ -79,9 +79,10 @@ export const ARCameraViewport: React.FC<ARCameraViewportProps> = ({
       // - Al girar a la DERECHA (yaw < 0), el Pokémon debe desplazarse a la IZQUIERDA (-X).
       const rawOffsetX = yawRef.current * pixelPerRad;
 
-      // - Al inclinar hacia ARRIBA (pitch > 0), la cámara mira arriba, el Pokémon se desplaza hacia ABAJO (+Y).
-      // - Al inclinar hacia ABAJO (pitch < 0), la cámara mira abajo, el Pokémon se desplaza hacia ARRIBA (-Y).
-      const rawOffsetY = pitchRef.current * pixelPerRad;
+      // Compensación espacial AR inversa en vertical:
+      // - Al inclinar hacia ARRIBA, la cámara mira al cielo, el Pokémon desciende (-rawOffsetY).
+      // - Al inclinar hacia ABAJO, la cámara mira al suelo, el Pokémon asciende (+rawOffsetY).
+      const rawOffsetY = -pitchRef.current * pixelPerRad;
 
       // Clamping elástico para mantener al Pokémon en el área visible interactiva
       const maxClampX = SCREEN_WIDTH * 0.44;

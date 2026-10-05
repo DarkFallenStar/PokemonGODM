@@ -37,7 +37,7 @@ graph LR
    $$\theta_{\text{pitch}}(t) = 0.94 \cdot (\theta_{\text{pitch}}(t - \Delta t) + \omega_x \cdot \Delta t) + 0.06 \cdot \text{Pitch}_{\text{rel}}$$
    $$\theta_{\text{yaw}}(t) = 0.998 \cdot (\theta_{\text{yaw}}(t - \Delta t) + \omega_y \cdot \Delta t)$$
 4. **Mapeo a Píxeles de Pantalla ($\text{FOV} \approx 60^\circ$ o $1.05\text{ rad}$):**
-   $$X_{\text{offset}} = \theta_{\text{yaw}} \cdot \frac{W_{\text{pantalla}}}{\text{FOV}}, \quad Y_{\text{offset}} = \theta_{\text{pitch}} \cdot \frac{W_{\text{pantalla}}}{\text{FOV}}$$
+   $$X_{\text{offset}} = \theta_{\text{yaw}} \cdot \frac{W_{\text{pantalla}}}{\text{FOV}}, \quad Y_{\text{offset}} = -\theta_{\text{pitch}} \cdot \frac{W_{\text{pantalla}}}{\text{FOV}}$$
    *Comportamiento Espacial Verificable:*
    - **Giro a la Izquierda ($\omega_y > 0$):** La cámara rota a la izquierda; el Pokémon se traslada a la **derecha** ($+X$), manteniéndose anclado al mundo real.
    - **Giro a la Derecha ($\omega_y < 0$):** La cámara rota a la derecha; el Pokémon se traslada a la **izquierda** ($-X$).
