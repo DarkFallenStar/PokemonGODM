@@ -187,6 +187,13 @@
 
 ---
 
+### Pregunta 5.4: ¿Cómo se garantiza la atomicidad y la integridad de datos al transferir un Pokémon al Profesor Oak o al actualizar su salud tras un combate?
+**Respuesta Modelo (100%):**
+> *"La transferencia de Pokémon no es un simple borrado en cliente: se ejecuta mediante el procedimiento almacenado en PostgreSQL `transfer_pokemon_instance(p_user_id, p_instance_id)`. Este RPC realiza una comprobación atómica previa en la tabla `gyms`: si el Pokémon está registrado actualmente en la columna `defending_instance_id` de cualquier gimnasio, la transacción aborta con una excepción `RAISE EXCEPTION`, impidiendo dejar gimnasios huérfanos o con defensas corruptas.  
+> Adicionalmente, la salud tras el combate persiste mediante `updatePokemonHealth` directamente en `captured_instances.current_hp`. Al capturar una criatura, el servidor calcula de forma determinista su salud máxima `maxHp = (base_hp * 2) + iv_hp + 50` y le asigna el 100% de PS. Si un Pokémon es debilitado en batalla (0 PS), queda inhabilitado para combatir hasta ser curado, y la victoria en el gimnasio se asigna dinámicamente al equipo del entrenador configurado en su perfil (`user_profiles.team`), resolviendo el control de gimnasios entre Místico, Valor e Instinto."*
+
+---
+
 ## EJE 6: Web Scraping, Modelo Relacional 3FN y Seguridad de Datos
 
 ### Pregunta 6.1: El enunciado prohíbe taxativamente usar PokéAPI u otras APIs públicas. ¿Cómo garantizaste que tu pipeline de Web Scraping sea idempotente y no sature o sea bloqueado por el servidor de origen?
