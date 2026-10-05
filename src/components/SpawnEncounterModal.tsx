@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import type { ActiveSpawn } from '../types/spawns';
+import { getPokemonAnimatedUrl, getPokemonStaticUrl } from '../utils/pokemonAssets';
 
 interface SpawnEncounterModalProps {
   visible: boolean;
@@ -26,31 +27,24 @@ export const SpawnEncounterModal: React.FC<SpawnEncounterModalProps> = ({
   const pokemon = spawn?.pokemon;
   const pokemonId = spawn?.pokemon_id || pokemon?.id;
 
-  // Con expo-image, priorizamos el GIF animado oficial de combate (Showdown Gen 5)
-  const animatedUrl = pokemon?.animation_url;
-  const staticUrl =
-    pokemon?.sprite_url ||
-    (pokemonId
-      ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`
-      : null);
+  // GIF animado oficial de combate (PokeAPI Gen 5 B&W / Showdown)
+  const animatedUrl = getPokemonAnimatedUrl(pokemon, pokemonId);
+  const staticUrl = getPokemonStaticUrl(pokemon, pokemonId);
 
-  const primaryUrl = animatedUrl || staticUrl;
-  const fallbackUrl = staticUrl;
-
-  const [currentUrl, setCurrentUrl] = useState<string | null>(primaryUrl);
+  const [currentUrl, setCurrentUrl] = useState<string>(animatedUrl);
   const [hasError, setHasError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Reiniciar estado reactivo cuando cambie el spawn
   useEffect(() => {
-    setCurrentUrl(primaryUrl);
+    setCurrentUrl(animatedUrl);
     setHasError(false);
     setIsLoading(true);
-  }, [spawn?.id, primaryUrl]);
+  }, [spawn?.id, animatedUrl]);
 
   const handleImageError = () => {
-    if (currentUrl === primaryUrl && fallbackUrl) {
-      setCurrentUrl(fallbackUrl);
+    if (currentUrl === animatedUrl && staticUrl) {
+      setCurrentUrl(staticUrl);
     } else {
       setHasError(true);
       setIsLoading(false);

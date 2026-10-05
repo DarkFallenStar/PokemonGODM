@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import MapboxGL from '@rnmapbox/maps';
 import type { ActiveSpawn } from '../types/spawns';
+import { getPokemonAnimatedUrl, getPokemonStaticUrl } from '../utils/pokemonAssets';
 
 interface WildPokemonMarkerProps {
   spawn: ActiveSpawn;
@@ -19,12 +20,14 @@ export const WildPokemonMarker: React.FC<WildPokemonMarkerProps> = ({
   }
 
   const pokemonId = spawn.pokemon_id || spawn.pokemon?.id;
-  const spriteUrl =
-    spawn.pokemon?.animation_url ||
-    spawn.pokemon?.sprite_url ||
-    (pokemonId
-      ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`
-      : null);
+  const animatedUrl = getPokemonAnimatedUrl(spawn.pokemon, pokemonId);
+  const staticUrl = getPokemonStaticUrl(spawn.pokemon, pokemonId);
+
+  const [currentUri, setCurrentUri] = useState<string>(animatedUrl);
+
+  useEffect(() => {
+    setCurrentUri(animatedUrl);
+  }, [animatedUrl]);
 
   return (
     <MapboxGL.MarkerView
@@ -41,15 +44,20 @@ export const WildPokemonMarker: React.FC<WildPokemonMarkerProps> = ({
         {/* Anillo de pulso de encuentro salvaje */}
         <View style={styles.pulseRing} />
 
-        {/* Sprite oficial de la criatura (GIF animado o fallback) */}
-        {spriteUrl ? (
+        {/* Sprite oficial de la criatura (GIF animado o fallback estático) */}
+        {currentUri ? (
           <Image
-            source={{ uri: spriteUrl }}
+            source={{ uri: currentUri }}
             style={styles.spriteImage}
             contentFit="contain"
             autoplay={true}
             priority="high"
             cachePolicy="memory-disk"
+            onError={() => {
+              if (currentUri !== staticUrl) {
+                setCurrentUri(staticUrl);
+              }
+            }}
           />
         ) : (
           <Text style={styles.fallbackEmoji}>🐾</Text>
