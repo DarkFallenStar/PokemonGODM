@@ -1,12 +1,12 @@
 /**
- * Helper centralizado para resolución de sprites y animaciones de Pokémon.
+ * Helper para resolución de sprites y animaciones oficiales de Pokémon.
  * 
- * Estrategia de Resiliencia:
- * 1. Animaciones: PokeAPI Gen 5 Black & White Animated GIFs vía GitHub CDN
- *    (https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/{id}.gif).
- *    100% verificado HTTP 200, ultra ligero (~19KB), sin rate limit ni bloqueos CORS/Showdown.
- * 2. Fallback de Animación: Showdown con ruta corregida (/sprites/ani/ en vez de /sprites/gen5/).
- * 3. Sprites Estáticos: PokeAPI Official Artwork en alta resolución (PNG transparente de alta fidelidad).
+ * Cumplimiento Estricto del Enunciado (Módulo 2):
+ * - Queda terminantemente prohibido el uso de APIs preconstruidas (ej. PokéAPI).
+ * - Todos los recursos provienen exclusivamente del catálogo extraído mediante
+ *   Web Scraping y persistido en la base de datos Supabase (pokemon_base).
+ * - Sprites estáticos: Extraídos de PokemonDB (sprite_url).
+ * - Animaciones de combate: Extraídas de Pokémon Showdown (animation_url).
  */
 
 export interface PokemonAssetInfo {
@@ -17,20 +17,28 @@ export interface PokemonAssetInfo {
 }
 
 /**
- * Normaliza y devuelve la URL del GIF animado del Pokémon.
+ * Convierte el nombre del Pokémon al formato slug utilizado por el scraper de PokemonDB y Showdown.
+ */
+function getPokemonSlug(name?: string | null): string {
+  if (!name) return 'bulbasaur';
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/♀/g, '-f')
+    .replace(/♂/g, '-m')
+    .replace(/['.:]/g, '')
+    .replace(/\s+/g, '-');
+}
+
+/**
+ * Resuelve la URL de la animación de combate (GIF animado de Showdown)
+ * a partir de los datos almacenados en Supabase.
+ * Corrige automáticamente cualquier desfase en el path (/sprites/gen5/ -> /sprites/ani/).
  */
 export function getPokemonAnimatedUrl(
-  pokemon?: PokemonAssetInfo | null,
-  fallbackId?: number | null
+  pokemon?: PokemonAssetInfo | null
 ): string {
-  const id = pokemon?.id || fallbackId;
-
-  // 1. Prioridad: PokeAPI Gen 5 B&W Animated GIF (probado y 100% estable)
-  if (id && id >= 1 && id <= 151) {
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`;
-  }
-
-  // 2. Si viene una URL de Showdown con el path obsoleto /sprites/gen5/, corregir a /sprites/ani/
+  // 1. Si Supabase ya provee la URL de animación, normalizar el path de Showdown
   if (pokemon?.animation_url) {
     if (pokemon.animation_url.includes('/sprites/gen5/')) {
       return pokemon.animation_url.replace('/sprites/gen5/', '/sprites/ani/');
@@ -38,37 +46,23 @@ export function getPokemonAnimatedUrl(
     return pokemon.animation_url;
   }
 
-  // 3. Si tenemos nombre, intentar Showdown /sprites/ani/
-  if (pokemon?.name) {
-    const cleanName = pokemon.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return `https://play.pokemonshowdown.com/sprites/ani/${cleanName}.gif`;
-  }
-
-  // 4. Último recurso si no hay nada
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/1.gif`;
+  // 2. Construir la URL de animación de Showdown a partir del nombre extraído por el scraper
+  const slug = getPokemonSlug(pokemon?.name);
+  return `https://play.pokemonshowdown.com/sprites/ani/${slug}.gif`;
 }
 
 /**
- * Devuelve la URL del sprite estático oficial en alta resolución (Artwork oficial).
+ * Resuelve la URL del sprite estático oficial extraído de PokemonDB
+ * a partir de los datos almacenados en Supabase.
  */
 export function getPokemonStaticUrl(
-  pokemon?: PokemonAssetInfo | null,
-  fallbackId?: number | null
+  pokemon?: PokemonAssetInfo | null
 ): string {
-  const id = pokemon?.id || fallbackId;
-
-  if (id && id >= 1 && id <= 151) {
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
-  }
-
   if (pokemon?.sprite_url) {
     return pokemon.sprite_url;
   }
 
-  if (pokemon?.name) {
-    const cleanName = pokemon.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return `https://img.pokemondb.net/sprites/home/normal/${cleanName}.png`;
-  }
-
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png`;
+  // Fallback generado con el patrón exacto del Web Scraper (PokemonDB)
+  const slug = getPokemonSlug(pokemon?.name);
+  return `https://img.pokemondb.net/sprites/home/normal/${slug}.png`;
 }

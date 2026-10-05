@@ -91,9 +91,9 @@ def scrape_gen1_pokemon(limit: int = 151) -> List[PokemonScrapedModel]:
 
         # Enlaces de Sprites Estáticos y Animaciones
         # Fuente 1: PokemonDB sprites directos
-        # Fuente 2: Pokemon Showdown Gen 5 Animated GIFs (estándar de la industria)
+        # Fuente 2: Pokemon Showdown Animated GIFs (estándar de la industria)
         static_url = f"https://img.pokemondb.net/sprites/home/normal/{slug}.png"
-        animated_url = f"https://play.pokemonshowdown.com/sprites/gen5/{slug}.gif"
+        animated_url = f"https://play.pokemonshowdown.com/sprites/ani/{slug}.gif"
 
         poke = PokemonScrapedModel(
             id=poke_id,

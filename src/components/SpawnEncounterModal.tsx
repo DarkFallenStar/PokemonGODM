@@ -27,9 +27,9 @@ export const SpawnEncounterModal: React.FC<SpawnEncounterModalProps> = ({
   const pokemon = spawn?.pokemon;
   const pokemonId = spawn?.pokemon_id || pokemon?.id;
 
-  // GIF animado oficial de combate (PokeAPI Gen 5 B&W / Showdown)
-  const animatedUrl = getPokemonAnimatedUrl(pokemon, pokemonId);
-  const staticUrl = getPokemonStaticUrl(pokemon, pokemonId);
+  // GIF animado oficial de combate extraído en Supabase (Showdown)
+  const animatedUrl = getPokemonAnimatedUrl(pokemon);
+  const staticUrl = getPokemonStaticUrl(pokemon);
 
   const [currentUrl, setCurrentUrl] = useState<string>(animatedUrl);
   const [hasError, setHasError] = useState<boolean>(false);

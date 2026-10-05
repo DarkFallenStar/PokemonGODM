@@ -19,9 +19,8 @@ export const WildPokemonMarker: React.FC<WildPokemonMarkerProps> = ({
     return null;
   }
 
-  const pokemonId = spawn.pokemon_id || spawn.pokemon?.id;
-  const animatedUrl = getPokemonAnimatedUrl(spawn.pokemon, pokemonId);
-  const staticUrl = getPokemonStaticUrl(spawn.pokemon, pokemonId);
+  const animatedUrl = getPokemonAnimatedUrl(spawn.pokemon);
+  const staticUrl = getPokemonStaticUrl(spawn.pokemon);
 
   const [currentUri, setCurrentUri] = useState<string>(animatedUrl);
 
