@@ -3,37 +3,63 @@ import * as Location from 'expo-location';
 import type { Coordinate } from '../types/map';
 import {
   CAMPUS_CENTER_COORDINATE,
+  HOME_CAJICA_CENTER,
   isPointInAuthorizedZonesWorklet,
+  isTestZoneEnabled,
 } from '../utils/geofence';
+
+export type MockGpsMode = 'real' | 'campus' | 'cajica';
 
 export function useLocationTracker() {
   const [location, setLocation] = useState<Coordinate | null>(null);
   const [isInsideGeofence, setIsInsideGeofence] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [isMocked, setIsMocked] = useState<boolean>(false);
+  const [mockMode, setMockMode] = useState<MockGpsMode>('real');
 
   const subscriberRef = useRef<Location.LocationSubscription | null>(null);
+  const realLocationRef = useRef<Coordinate | null>(null);
 
   // Evalúa si la coordenada se encuentra dentro de las zonas autorizadas (UniSabana o Cajicá)
   const checkGeofence = useCallback((coords: Coordinate) => {
-    const inside = isPointInAuthorizedZonesWorklet(coords);
+    const inside = isPointInAuthorizedZonesWorklet(coords, isTestZoneEnabled());
     setIsInsideGeofence(inside);
   }, []);
 
-  // Función para alternar modo simulación en campus (útil para pruebas en emulador o sustentación)
+  // Función para alternar modo simulación (Real -> Campus UniSabana -> Cajicá -> Real)
   const toggleMockLocation = useCallback(() => {
-    setIsMocked(prev => {
-      const nextMock = !prev;
+    const testZoneActive = isTestZoneEnabled();
+    setMockMode(prev => {
+      let nextMode: MockGpsMode = 'real';
+      if (prev === 'real') {
+        nextMode = 'campus';
+      } else if (prev === 'campus') {
+        nextMode = testZoneActive ? 'cajica' : 'real';
+      } else {
+        nextMode = 'real';
+      }
+
       setIsLoading(false);
-      if (nextMock) {
-        // Simular ubicación dentro del campus
+
+      if (nextMode === 'campus') {
         setLocation(CAMPUS_CENTER_COORDINATE);
         checkGeofence(CAMPUS_CENTER_COORDINATE);
+      } else if (nextMode === 'cajica') {
+        setLocation(HOME_CAJICA_CENTER);
+        checkGeofence(HOME_CAJICA_CENTER);
+      } else {
+        // Restaurar GPS real si existe
+        if (realLocationRef.current) {
+          setLocation(realLocationRef.current);
+          checkGeofence(realLocationRef.current);
+        }
       }
-      return nextMock;
+
+      return nextMode;
     });
   }, [checkGeofence]);
+
+  const isMocked = mockMode !== 'real';
 
   useEffect(() => {
     let isMounted = true;
@@ -56,14 +82,17 @@ export function useLocationTracker() {
 
         // 1. Obtener última posición conocida inmediatamente (0ms latencia)
         const lastKnown = await Location.getLastKnownPositionAsync().catch(() => null);
-        if (lastKnown && isMounted && !isMocked) {
+        if (lastKnown) {
           const coords: Coordinate = {
             latitude: lastKnown.coords.latitude,
             longitude: lastKnown.coords.longitude,
           };
-          setLocation(coords);
-          checkGeofence(coords);
-          setIsLoading(false);
+          realLocationRef.current = coords;
+          if (isMounted && mockMode === 'real') {
+            setLocation(coords);
+            checkGeofence(coords);
+            setIsLoading(false);
+          }
         }
 
         // 2. Obtener posición actual con timeout para evitar colgado indefinido en interiores
@@ -72,14 +101,17 @@ export function useLocationTracker() {
           new Promise<null>(resolve => setTimeout(() => resolve(null), 3500)),
         ]).catch(() => null);
 
-        if (initial && isMounted && !isMocked) {
+        if (initial) {
           const coords: Coordinate = {
             latitude: initial.coords.latitude,
             longitude: initial.coords.longitude,
           };
-          setLocation(coords);
-          checkGeofence(coords);
-          setIsLoading(false);
+          realLocationRef.current = coords;
+          if (isMounted && mockMode === 'real') {
+            setLocation(coords);
+            checkGeofence(coords);
+            setIsLoading(false);
+          }
         } else if (isMounted) {
           setIsLoading(false);
         }
@@ -93,11 +125,12 @@ export function useLocationTracker() {
             distanceInterval: 3,
           },
           newLoc => {
-            if (isMounted && !isMocked) {
-              const coords: Coordinate = {
-                latitude: newLoc.coords.latitude,
-                longitude: newLoc.coords.longitude,
-              };
+            const coords: Coordinate = {
+              latitude: newLoc.coords.latitude,
+              longitude: newLoc.coords.longitude,
+            };
+            realLocationRef.current = coords;
+            if (isMounted && mockMode === 'real') {
               setLocation(coords);
               checkGeofence(coords);
             }
@@ -122,7 +155,7 @@ export function useLocationTracker() {
         subscriberRef.current = null;
       }
     };
-  }, [isMocked, checkGeofence]);
+  }, [mockMode, isMocked, checkGeofence]);
 
   return {
     location,
@@ -130,6 +163,7 @@ export function useLocationTracker() {
     isLoading,
     errorMsg,
     isMocked,
+    mockMode,
     toggleMockLocation,
   };
 }

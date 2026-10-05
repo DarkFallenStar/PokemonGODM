@@ -110,7 +110,7 @@ Sigue esta secuencia para demostrar el 100% de los criterios de la rúbrica ante
    npx expo start --dev-client
    ```
 2. Abre la aplicación en el dispositivo físico.
-3. Observa el HUD superior: confirma que el chip indica **"GPS: Real"** o presiona **"GPS: Campus"** para teletransportarte de inmediato al corazón de la Universidad de La Sabana (o a Buena Suerte si estás en Cajicá).
+3. Observa el HUD superior: confirma que el chip indica **"📍 GPS Real"** o presiónalo para alternar entre **"📍 Campus"** (UniSabana) y **"📍 Cajicá"** (Sector Buena Suerte) para teletransportarte de inmediato a cualquiera de las dos zonas de prueba.
 
 ### Paso 2: Prueba de Poképaradas ($< 20$ metros) y Cooldown (5 minutos)
 1. Ubícate a más de 20 metros de una Poképarada azul:

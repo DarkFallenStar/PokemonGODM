@@ -36,6 +36,7 @@ export const MapScreen: React.FC = () => {
     isInsideGeofence,
     isLoading: isLoadingLocation,
     isMocked,
+    mockMode,
     toggleMockLocation,
   } = useLocationTracker();
 
@@ -209,6 +210,9 @@ export const MapScreen: React.FC = () => {
         rotateEnabled={isInsideGeofence}
         zoomEnabled={isInsideGeofence}
         compassEnabled={false}
+        scaleBarEnabled={false}
+        logoEnabled={false}
+        attributionEnabled={false}
       >
         <MapboxGL.Camera
           centerCoordinate={[currentCoords.longitude, currentCoords.latitude]}
@@ -294,13 +298,16 @@ export const MapScreen: React.FC = () => {
       </MapboxGL.MapView>
 
       {/* Barra de Estado Superior HUD */}
-      <View style={[styles.hudOverlay, { top: insets.top + 8 }]}>
+      <View
+        pointerEvents="box-none"
+        style={[styles.hudOverlay, { top: Math.max(insets.top, 24) + 8 }]}
+      >
         <View style={styles.hudCard}>
           <Text style={styles.hudTitle}>
-            {testZoneActive ? '📍 UniSabana + Cajicá (Demo)' : '📍 Campus UniSabana'}
+            {testZoneActive ? '📍 UniSabana + Cajicá' : '📍 Campus UniSabana'}
           </Text>
           <Text style={styles.hudCoords}>
-            {currentCoords.latitude.toFixed(5)}, {currentCoords.longitude.toFixed(5)} | Rumbo: {heading}°
+            {currentCoords.latitude.toFixed(5)}, {currentCoords.longitude.toFixed(5)} | {heading}°
           </Text>
           <View style={styles.statusRow}>
             <View style={[styles.statusDot, isInsideGeofence ? styles.dotGreen : styles.dotRed]} />
@@ -317,7 +324,11 @@ export const MapScreen: React.FC = () => {
           activeOpacity={0.8}
         >
           <Text style={styles.simButtonText}>
-            {isMocked ? '📍 GPS: Simulado' : '📍 GPS: Real'}
+            {mockMode === 'campus'
+              ? '📍 Campus'
+              : mockMode === 'cajica'
+              ? '📍 Cajicá'
+              : '📍 GPS Real'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -375,41 +386,50 @@ const styles = StyleSheet.create({
   },
   hudOverlay: {
     position: 'absolute',
-    left: 16,
-    right: 16,
+    left: 12,
+    right: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    zIndex: 9999,
+    elevation: 30,
   },
   hudCard: {
-    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    flex: 1,
+    marginRight: 8,
+    backgroundColor: 'rgba(15, 23, 42, 0.90)',
     borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderWidth: 1,
     borderColor: '#334155',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
   },
   hudTitle: {
     color: '#F8FAFC',
     fontWeight: '700',
-    fontSize: 13,
+    fontSize: 12,
   },
   hudCoords: {
     color: '#94A3B8',
-    fontSize: 11,
+    fontSize: 10,
     fontFamily: 'monospace',
-    marginTop: 2,
+    marginTop: 1,
   },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 4,
-    gap: 6,
+    marginTop: 3,
+    gap: 5,
   },
   statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
   },
   dotGreen: {
     backgroundColor: '#22C55E',
@@ -419,7 +439,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     color: '#F8FAFC',
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '600',
   },
   simButton: {
@@ -427,8 +447,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 12,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#38BDF8',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
   },
   simButtonActive: {
     backgroundColor: '#0284C7',
@@ -436,7 +461,7 @@ const styles = StyleSheet.create({
   },
   simButtonText: {
     color: '#F8FAFC',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
   },
   poiBadge: {
