@@ -26,6 +26,24 @@ export function useLocationTracker() {
     setIsInsideGeofence(inside);
   }, []);
 
+  // Forzar reevaluación inmediata de geofencing (ej. tras actualizar vértices del polígono)
+  const recheckGeofence = useCallback(() => {
+    const testZoneActive = isTestZoneEnabled();
+    const current =
+      location ||
+      (mockMode === 'campus'
+        ? CAMPUS_CENTER_COORDINATE
+        : mockMode === 'cajica'
+        ? HOME_CAJICA_CENTER
+        : realLocationRef.current);
+    if (current) {
+      const inside = isPointInAuthorizedZonesWorklet(current, testZoneActive);
+      setIsInsideGeofence(inside);
+      return inside;
+    }
+    return true;
+  }, [location, mockMode]);
+
   // Función para alternar modo simulación (Real -> Campus UniSabana -> Cajicá -> Real)
   const toggleMockLocation = useCallback(() => {
     const testZoneActive = isTestZoneEnabled();
@@ -165,5 +183,6 @@ export function useLocationTracker() {
     isMocked,
     mockMode,
     toggleMockLocation,
+    recheckGeofence,
   };
 }

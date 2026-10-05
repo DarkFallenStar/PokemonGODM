@@ -10,6 +10,7 @@ import {
   CAMPUS_CENTER_COORDINATE,
   getGeofenceGeoJSON,
   isTestZoneEnabled,
+  UNISABANA_POLYGON,
 } from '../utils/geofence';
 import { calculateHaversineDistanceWorklet } from '../utils/haversine';
 import { OutOfBoundsModal } from '../components/OutOfBoundsModal';
@@ -46,6 +47,7 @@ export const MapScreen: React.FC = () => {
     isMocked,
     mockMode,
     toggleMockLocation,
+    recheckGeofence,
   } = useLocationTracker();
 
   const { heading } = useHeadingTracker();
@@ -61,8 +63,13 @@ export const MapScreen: React.FC = () => {
   const [selectedGym, setSelectedGym] = useState<CampusPOIMarker | null>(null);
   const [selectedSpawn, setSelectedSpawn] = useState<ActiveSpawn | null>(null);
 
-  // GeoJSON según entorno (Solo UniSabana o UniSabana + Cajicá)
-  const geofenceGeoJSON = useMemo(() => getGeofenceGeoJSON(testZoneActive), [testZoneActive]);
+  // GeoJSON según entorno (Solo UniSabana o UniSabana + Cajicá) con versión dinámica reactiva
+  const [polygonVersion, setPolygonVersion] = useState<number>(0);
+  const [refreshToast, setRefreshToast] = useState<string | null>(null);
+
+  const geofenceGeoJSON = useMemo(() => {
+    return getGeofenceGeoJSON(testZoneActive);
+  }, [testZoneActive, polygonVersion]);
 
   // Coordenada activa (real o campus por defecto mientras carga GPS)
   const currentCoords = location || CAMPUS_CENTER_COORDINATE;
@@ -257,28 +264,39 @@ export const MapScreen: React.FC = () => {
     });
   }, [navigation, selectedGymDistance]);
 
-  // Manejador de actualización manual del mapa (recarga POIs, cooldowns y spawns sin reiniciar)
+  // Manejador de actualización manual del mapa (recarga POIs, cooldowns, polígono y spawns sin reiniciar)
   const handleManualRefresh = useCallback(async () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
     setJustRefreshed(false);
     try {
-      await Promise.all([
-        loadCampusPOIs(),
-        refreshCooldowns(),
-        seedWildSpawnsIfLow(testZoneActive),
-      ]);
+      // 1. Forzar re-lectura y redibujado nativo del polígono perimetral en Mapbox
+      setPolygonVersion(v => v + 1);
+      const isInside = recheckGeofence();
+
+      // 2. Recargar POIs de Supabase (gimnasios, poképaradas y defensores)
+      await loadCampusPOIs();
+
+      // 3. Recargar cooldowns de poképaradas
+      await refreshCooldowns();
+
+      // 4. Sembrar y buscar criaturas cercanas
+      await seedWildSpawnsIfLow(testZoneActive);
       const nearby = await fetchNearbySpawns(currentCoords, testZoneActive);
       setActiveSpawns(nearby);
 
       setJustRefreshed(true);
-      setTimeout(() => setJustRefreshed(false), 2000);
+      setRefreshToast(
+        `🗺️ Polígono y Mapa actualizados (${UNISABANA_POLYGON.length} vértices) • ${isInside ? 'Dentro de Zona' : 'Fuera de Límites'}`
+      );
+      setTimeout(() => setJustRefreshed(false), 2500);
+      setTimeout(() => setRefreshToast(null), 3000);
     } catch (e) {
       console.warn('Error al actualizar el mapa:', e);
     } finally {
       setIsRefreshing(false);
     }
-  }, [loadCampusPOIs, refreshCooldowns, testZoneActive, currentCoords, isRefreshing]);
+  }, [loadCampusPOIs, refreshCooldowns, testZoneActive, currentCoords, isRefreshing, recheckGeofence]);
 
   // Manejador de cooldown optimista cuando se gira una Poképarada
   const handlePokestopSpun = useCallback((stopId: string) => {
@@ -353,17 +371,21 @@ export const MapScreen: React.FC = () => {
           animationDuration={1500}
         />
 
-        {/* Polígonos Perimetrales de Geofencing */}
-        <MapboxGL.ShapeSource id="campusGeofenceSource" shape={geofenceGeoJSON as any}>
+        {/* Polígonos Perimetrales de Geofencing (Re-renderizado nativo reactivo a polygonVersion) */}
+        <MapboxGL.ShapeSource
+          id={`campusGeofenceSource-${polygonVersion}`}
+          key={`campusGeofenceSource-${polygonVersion}`}
+          shape={geofenceGeoJSON as any}
+        >
           <MapboxGL.FillLayer
-            id="campusGeofenceFill"
+            id={`campusGeofenceFill-${polygonVersion}`}
             style={{
               fillColor: '#38BDF8',
               fillOpacity: 0.12,
             }}
           />
           <MapboxGL.LineLayer
-            id="campusGeofenceBorder"
+            id={`campusGeofenceBorder-${polygonVersion}`}
             style={{
               lineColor: '#38BDF8',
               lineWidth: 2.5,
@@ -478,7 +500,7 @@ export const MapScreen: React.FC = () => {
             </Text>
           </TouchableOpacity>
 
-          {/* Botón de Actualizar Mapa */}
+          {/* Botón de Actualizar Mapa y Polígono */}
           <TouchableOpacity
             style={[
               styles.refreshButton,
@@ -497,7 +519,7 @@ export const MapScreen: React.FC = () => {
                   justRefreshed && styles.refreshButtonTextSuccess,
                 ]}
               >
-                {justRefreshed ? '✓ Listo' : '🔄 Actualizar'}
+                {justRefreshed ? '✓ ¡Actualizado!' : '🔄 Actualizar Mapa'}
               </Text>
             )}
           </TouchableOpacity>
@@ -521,7 +543,14 @@ export const MapScreen: React.FC = () => {
         </View>
       </View>
 
-      {/* Indicador de carga inicial */}
+      {/* Toast Flotante de Confirmación de Actualización */}
+      {refreshToast && (
+        <View style={styles.refreshToastContainer} pointerEvents="none">
+          <View style={styles.refreshToastCard}>
+            <Text style={styles.refreshToastText}>{refreshToast}</Text>
+          </View>
+        </View>
+      )}
       {isLoadingLocation && !isMocked && !location && (
         <View style={[styles.loadingBox, { bottom: insets.bottom + 16 }]}>
           <ActivityIndicator size="small" color="#38BDF8" />
@@ -660,20 +689,21 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   refreshButton: {
-    backgroundColor: 'rgba(30, 41, 59, 0.92)',
-    paddingHorizontal: 10,
-    paddingVertical: 7,
+    backgroundColor: 'rgba(30, 41, 59, 0.94)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderRadius: 12,
-    borderWidth: 1.2,
+    borderWidth: 1.5,
     borderColor: '#38BDF8',
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 32,
+    minHeight: 34,
+    minWidth: 110,
     elevation: 6,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35,
-    shadowRadius: 3,
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
   },
   refreshButtonSuccess: {
     backgroundColor: '#064E3B',
@@ -682,10 +712,37 @@ const styles = StyleSheet.create({
   refreshButtonText: {
     color: '#38BDF8',
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   refreshButtonTextSuccess: {
-    color: '#4ADE80',
+    color: '#34D399',
+  },
+  refreshToastContainer: {
+    position: 'absolute',
+    top: 105,
+    left: 20,
+    right: 20,
+    alignItems: 'center',
+    zIndex: 9999,
+  },
+  refreshToastCard: {
+    backgroundColor: 'rgba(15, 23, 42, 0.96)',
+    borderColor: '#38BDF8',
+    borderWidth: 1.5,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  refreshToastText: {
+    color: '#F8FAFC',
+    fontSize: 12,
+    fontWeight: '700',
+    textAlign: 'center',
   },
   debugSpawnButton: {
     backgroundColor: 'rgba(30, 41, 59, 0.92)',
