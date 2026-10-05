@@ -104,6 +104,13 @@ export async function seedWildSpawnsIfLow(isTestZone: boolean): Promise<void> {
   try {
     const nowIso = new Date().toISOString();
 
+    // 0. Purgar criaturas caducadas o inactivas de la base de datos
+    await supabase.rpc('purge_expired_spawns');
+    await supabase
+      .from('active_spawns')
+      .delete()
+      .or(`expires_at.lt.${nowIso},is_active.eq.false`);
+
     // 1. Contar spawns vigentes
     let query = supabase
       .from('active_spawns')
@@ -332,6 +339,12 @@ export async function spawnPokemonNearPlayer(
 
     const nowIso = new Date().toISOString();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutos
+
+    // Purgar cualquier spawn vencido previo
+    await supabase
+      .from('active_spawns')
+      .delete()
+      .or(`expires_at.lt.${nowIso},is_active.eq.false`);
 
     const newSpawnPayload = {
       pokemon_id: pokemonId,

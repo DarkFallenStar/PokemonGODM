@@ -92,10 +92,9 @@ BEGIN
     )
     RETURNING id INTO v_capture_id;
 
-    -- Desactivar el spawn en active_spawns si existe
+    -- ELIMINAR DE FORMA DEFINITIVA el spawn de active_spawns para que no se acumulen
     IF p_spawn_id IS NOT NULL THEN
-        UPDATE public.active_spawns 
-        SET is_active = false 
+        DELETE FROM public.active_spawns 
         WHERE id = p_spawn_id;
     END IF;
 
@@ -107,3 +106,22 @@ BEGIN
     RETURN v_capture_id;
 END;
 $$;
+
+-- 6. PROCEDIMIENTO PARA PURGAR SPAWNS CADUCADOS O INACTIVOS
+CREATE OR REPLACE FUNCTION public.purge_expired_spawns()
+RETURNS INT
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    v_count INT;
+BEGIN
+    DELETE FROM public.active_spawns 
+    WHERE expires_at < now() OR is_active = false;
+    GET DIAGNOSTICS v_count = ROW_COUNT;
+    RETURN v_count;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.purge_expired_spawns TO anon, authenticated, service_role;
+

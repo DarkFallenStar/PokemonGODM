@@ -117,10 +117,10 @@ export async function recordSuccessfulCapture(
       return { success: false };
     }
 
-    // Desactivar el spawn en active_spawns
+    // Eliminar de forma definitiva el spawn de active_spawns
     await supabase
       .from('active_spawns')
-      .update({ is_active: false })
+      .delete()
       .eq('id', spawn.id);
 
     return { success: true, captureId: insertData?.id };
@@ -129,3 +129,20 @@ export async function recordSuccessfulCapture(
     return { success: false };
   }
 }
+
+/**
+ * Elimina una criatura salvaje de active_spawns (por ejemplo, cuando huye del combate)
+ */
+export async function removeActiveSpawn(spawnId: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('active_spawns')
+      .delete()
+      .eq('id', spawnId);
+    return !error;
+  } catch (err) {
+    console.warn('Error eliminando spawn activo:', err);
+    return false;
+  }
+}
+

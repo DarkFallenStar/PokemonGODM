@@ -24,7 +24,9 @@ import {
   getBallInventory,
   consumeBall,
   recordSuccessfulCapture,
+  removeActiveSpawn,
 } from '../services/captureService';
+import { supabase } from '../services/supabase';
 
 type CaptureScreenRouteProp = NativeStackScreenProps<
   RootStackParamList,
@@ -57,6 +59,8 @@ export const CaptureScreen: React.FC = () => {
   const [currentRingRatio, setCurrentRingRatio] = useState<number>(1.0);
   const [throwBanner, setThrowBanner] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
+
+  const lastCaptureIdRef = useRef<string | undefined>(undefined);
 
   // Cargar inventario inicial de Pokéballs
   useEffect(() => {
@@ -152,7 +156,8 @@ export const CaptureScreen: React.FC = () => {
               if (outcome.isCaptured) {
                 // ¡Captura Exitosa!
                 setState('captured');
-                await recordSuccessfulCapture(spawn, selectedBall);
+                const captureResult = await recordSuccessfulCapture(spawn, selectedBall);
+                lastCaptureIdRef.current = captureResult.captureId;
                 setShowSuccessModal(true);
               } else {
                 handleEscape(outcome.hasFled);
@@ -165,9 +170,10 @@ export const CaptureScreen: React.FC = () => {
     [currentRingRatio, selectedBall, baseCatchRate, spawn]
   );
 
-  const handleEscape = (hasFled: boolean) => {
+  const handleEscape = async (hasFled: boolean) => {
     if (hasFled) {
       setState('fled');
+      await removeActiveSpawn(spawn.id);
       Alert.alert(
         '¡Oh no!',
         `¡${pokemonName} se ha escapado y huyó!`,
@@ -195,8 +201,11 @@ export const CaptureScreen: React.FC = () => {
 
   const handleConfirmCapture = async (nickname?: string) => {
     setShowSuccessModal(false);
-    if (nickname) {
-      await recordSuccessfulCapture(spawn, selectedBall, nickname);
+    if (nickname && lastCaptureIdRef.current) {
+      await supabase
+        .from('captured_instances')
+        .update({ nickname })
+        .eq('id', lastCaptureIdRef.current);
     }
     navigation.goBack();
   };

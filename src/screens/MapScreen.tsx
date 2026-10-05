@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import MapboxGL from '@rnmapbox/maps';
 import { useLocationTracker } from '../hooks/useLocationTracker';
@@ -137,28 +137,31 @@ export const MapScreen: React.FC = () => {
   }, [pois, refreshCooldowns]);
 
   // Sincronización del Motor de Spawns
-  useEffect(() => {
-    let isMounted = true;
+  // Sincronización del Motor de Spawns con recarga inmediata al enfocar el mapa
+  useFocusEffect(
+    useCallback(() => {
+      let isMounted = true;
 
-    async function syncSpawns() {
-      // 1. Sembrar spawns si hay pocos
-      await seedWildSpawnsIfLow(testZoneActive);
+      async function syncSpawns() {
+        // 1. Sembrar spawns si hay pocos (y purgar caducados/inactivos)
+        await seedWildSpawnsIfLow(testZoneActive);
 
-      // 2. Consultar y evaluar proximidad a 30 metros con Haversine
-      const nearby = await fetchNearbySpawns(currentCoords, testZoneActive);
-      if (isMounted) {
-        setActiveSpawns(nearby);
+        // 2. Consultar y evaluar proximidad a 30 metros con Haversine
+        const nearby = await fetchNearbySpawns(currentCoords, testZoneActive);
+        if (isMounted) {
+          setActiveSpawns(nearby);
+        }
       }
-    }
 
-    syncSpawns();
-    const interval = setInterval(syncSpawns, 12000); // Cada 12 segundos
+      syncSpawns();
+      const interval = setInterval(syncSpawns, 10000); // Cada 10 segundos
 
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
-  }, [currentCoords, testZoneActive]);
+      return () => {
+        isMounted = false;
+        clearInterval(interval);
+      };
+    }, [currentCoords, testZoneActive])
+  );
 
   // Distancia calculada con Worklet de Haversine para la Poképarada seleccionada
   const selectedPokestopDistance = useMemo(() => {
@@ -185,6 +188,8 @@ export const MapScreen: React.FC = () => {
   // Manejador de encuentro salvaje: Transición fluida a la pantalla de Captura AR
   const handleStartCapture = (spawn: ActiveSpawn) => {
     setSelectedSpawn(null);
+    // Remover optimísticamente la criatura seleccionada para que no aparezca duplicada
+    setActiveSpawns(prev => prev.filter(s => s.id !== spawn.id));
     navigation.navigate('Capture', { spawn });
   };
 
