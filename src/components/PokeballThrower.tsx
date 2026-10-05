@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View, Dimensions } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
@@ -6,17 +6,10 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
   withSequence,
-  runOnJS,
+  withSpring,
   Easing,
 } from 'react-native-reanimated';
 import type { BallType, CaptureScreenState } from '../types/capture';
-import {
-  calculateInitialVelocityWorklet,
-  getBallPosition3DWorklet,
-  project3DtoScreenWorklet,
-  checkHitboxCollisionWorklet,
-  TARGET_Z_DEPTH,
-} from '../utils/ballPhysics';
 
 interface PokeballThrowerProps {
   ballType: BallType;
@@ -40,148 +33,179 @@ export const PokeballThrower: React.FC<PokeballThrowerProps> = ({
   onMiss,
   disabled = false,
 }) => {
-  const [isThrowing, setIsThrowing] = useState<boolean>(false);
+  // Referencia mutable para evitar que el estado de React interrumpa el gesto
+  const isFlightActive = useRef<boolean>(false);
 
-  // Posición inicial y de vuelo de la bola
-  const ballX = useSharedValue(0); // Offset horizontal
-  const ballY = useSharedValue(0); // Offset vertical
-  const ballZ = useSharedValue(0); // Profundidad
+  // Valores compartidos de Reanimated en UI Thread
+  const ballX = useSharedValue(0);
+  const ballY = useSharedValue(0);
   const ballScale = useSharedValue(1.0);
   const ballRotation = useSharedValue(0);
 
-  // Resetear bola a la posición de origen
+  // Resetear la Pokéball a la mano del jugador
   const resetBall = () => {
-    ballX.value = withTiming(0, { duration: 250 });
-    ballY.value = withTiming(0, { duration: 250 });
-    ballZ.value = 0;
-    ballScale.value = withTiming(1.0, { duration: 250 });
-    ballRotation.value = 0;
-    setIsThrowing(false);
+    isFlightActive.current = false;
+    ballX.value = withTiming(0, { duration: 240 });
+    ballY.value = withTiming(0, { duration: 240 });
+    ballScale.value = withTiming(1.0, { duration: 240 });
+    ballRotation.value = withTiming(0, { duration: 240 });
   };
 
+  // Reaccionar a cambios de estado del ciclo de captura
+  useEffect(() => {
+    if (state === 'ball_hit') {
+      // La bola cae al suelo tras absorber al Pokémon y rebota
+      const currentY = ballY.value;
+      ballY.value = withSequence(
+        withTiming(currentY + 110, { duration: 320, easing: Easing.in(Easing.quad) }),
+        withTiming(currentY + 95, { duration: 130, easing: Easing.out(Easing.quad) }),
+        withTiming(currentY + 110, { duration: 110, easing: Easing.in(Easing.quad) })
+      );
+    } else if (state === 'shaking_1' || state === 'shaking_2' || state === 'shaking_3') {
+      // Secuencia de sacudida lateral clásica de Pokéball (Wobble)
+      ballRotation.value = withSequence(
+        withTiming(-22, { duration: 110, easing: Easing.linear }),
+        withTiming(22, { duration: 220, easing: Easing.linear }),
+        withTiming(-14, { duration: 180, easing: Easing.linear }),
+        withTiming(14, { duration: 150, easing: Easing.linear }),
+        withTiming(0, { duration: 110, easing: Easing.linear })
+      );
+    } else if (state === 'aiming') {
+      resetBall();
+    }
+  }, [state]);
+
   const handleImpact = (distancePx: number, hitX: number, hitY: number) => {
-    setIsThrowing(false);
     onHit?.({ distancePx, hitX, hitY });
   };
 
   const handleMiss = () => {
-    setIsThrowing(false);
     onMiss?.();
-    resetBall();
+    setTimeout(() => {
+      resetBall();
+    }, 600);
   };
 
-  // Simulación del vuelo cinemático y animación parabólica
-  const runFlightSimulation = (
-    v0x: number,
-    v0y: number,
-    v0z: number
+  // Simulación cinemática del vuelo balístico hacia el objetivo
+  const launchBall = (
+    transX: number,
+    transY: number,
+    velX: number,
+    velY: number
   ) => {
-    const totalFlightTime = Math.min(1.2, TARGET_Z_DEPTH / v0z);
-
-    // Calcular posición final proyectada en el plano del Pokémon
-    const posFinal3D = getBallPosition3DWorklet(totalFlightTime, v0x, v0y, v0z);
-    const projFinal = project3DtoScreenWorklet(
-      posFinal3D.x,
-      posFinal3D.y,
-      posFinal3D.z,
-      SCREEN_WIDTH,
-      SCREEN_HEIGHT
-    );
-
-    // Coordenadas en pantalla del Pokémon (centro de la pantalla + compensación AR)
+    // Coordenadas objetivo en pantalla del Pokémon (centro + offset AR)
     const pokeScreenX = SCREEN_WIDTH / 2 + targetOffset.x;
     const pokeScreenY = SCREEN_HEIGHT * 0.38 + targetOffset.y;
 
-    const collision = checkHitboxCollisionWorklet(
-      projFinal.screenX,
-      projFinal.screenY,
-      posFinal3D.z,
-      pokeScreenX,
-      pokeScreenY,
-      65
-    );
+    // Distancia y velocidad hacia arriba (positivas)
+    const upwardDistance = Math.max(30, -transY);
+    const upwardSpeed = Math.max(80, -velY);
 
-    // Animación de trayectoria parabólica suave
-    ballX.value = withTiming(projFinal.screenX - SCREEN_WIDTH / 2, {
-      duration: totalFlightTime * 1000,
+    // Potencia del tiro calibrada: swipe de ~170px o ~1100px/s equivale a potencia 1.0 (centro)
+    const powerFromDist = upwardDistance / 170;
+    const powerFromSpeed = upwardSpeed / 1100;
+    const rawPower = powerFromDist * 0.45 + powerFromSpeed * 0.55;
+    const throwPower = Math.min(1.35, Math.max(0.68, rawPower));
+
+    // Desviación horizontal del tiro (ángulo y velocidad transversal)
+    const horizontalLead = velX * 0.05;
+    const targetX = SCREEN_WIDTH / 2 + transX + horizontalLead;
+
+    // Altura de llegada en pantalla (potencia 1.0 llega al centro del Pokémon)
+    const targetY = pokeScreenY + (1.0 - throwPower) * 150;
+
+    const flightTimeMs = 760;
+
+    // Desplazamiento relativo desde el origen de la Pokéball (SCREEN_HEIGHT * 0.76)
+    const deltaTargetX = targetX - SCREEN_WIDTH / 2;
+    const deltaTargetY = targetY - SCREEN_HEIGHT * 0.76;
+    const apexRelativeY = Math.min(deltaTargetY, 0) - 80;
+
+    // 1. Animación X
+    ballX.value = withTiming(deltaTargetX, {
+      duration: flightTimeMs,
       easing: Easing.bezier(0.25, 0.1, 0.25, 1),
     });
 
+    // 2. Parábola balística Y (sube al apex y desciende bajo aceleración hacia el objetivo)
     ballY.value = withSequence(
-      // Subida de la parábola
-      withTiming((projFinal.screenY - SCREEN_HEIGHT * 0.76) * 1.25, {
-        duration: (totalFlightTime * 1000) / 2,
+      withTiming(apexRelativeY, {
+        duration: flightTimeMs * 0.44,
         easing: Easing.out(Easing.quad),
       }),
-      // Caída hacia el objetivo
-      withTiming(projFinal.screenY - SCREEN_HEIGHT * 0.76, {
-        duration: (totalFlightTime * 1000) / 2,
+      withTiming(deltaTargetY, {
+        duration: flightTimeMs * 0.56,
         easing: Easing.in(Easing.quad),
       })
     );
 
-    ballScale.value = withTiming(projFinal.scale, {
-      duration: totalFlightTime * 1000,
+    // 3. Perspectiva cónica en profundidad (reducción de tamaño)
+    ballScale.value = withTiming(0.38, {
+      duration: flightTimeMs,
+      easing: Easing.bezier(0.2, 0.8, 0.2, 1),
+    });
+
+    // 4. Giro balístico
+    ballRotation.value = withTiming(ballRotation.value + 720, {
+      duration: flightTimeMs,
       easing: Easing.linear,
     });
 
-    ballRotation.value = withTiming(720, {
-      duration: totalFlightTime * 1000,
-    });
-
-    // Callback de fin de vuelo al impactar o fallar
+    // Verificación de impacto con Hitbox al culminar la parábola
     setTimeout(() => {
-      if (collision.isHit) {
-        handleImpact(collision.distancePx, projFinal.screenX, projFinal.screenY);
+      const dx = targetX - pokeScreenX;
+      const dy = targetY - pokeScreenY;
+      const distancePx = Math.sqrt(dx * dx + dy * dy);
+
+      // Hitbox amigable de 85px de radio sobre el Pokémon
+      const HITBOX_RADIUS = 85;
+
+      if (distancePx <= HITBOX_RADIUS) {
+        handleImpact(distancePx, targetX, targetY);
       } else {
         handleMiss();
       }
-    }, totalFlightTime * 1000);
+    }, flightTimeMs);
   };
 
-  // Gesto Pan para el Swipe Gesture (ejecutado en JS thread para interacción limpia con timers y estados)
+  // Gesto Pan con área de toque ampliada (hitSlop) y seguimiento instantáneo
   const panGesture = Gesture.Pan()
     .runOnJS(true)
-    .enabled(!disabled && state === 'aiming' && !isThrowing)
+    .enabled(!disabled && state === 'aiming')
+    .hitSlop({ top: 90, bottom: 60, left: 90, right: 90 })
     .onStart(() => {
-      setIsThrowing(true);
-      if (onThrowStart) {
-        onThrowStart();
-      }
+      if (isFlightActive.current) return;
+      onThrowStart?.();
     })
     .onUpdate(e => {
-      // Arrastre 2D mientras el dedo está sobre la pantalla
+      if (isFlightActive.current) return;
+      // Arrastre 1:1 con el dedo
       ballX.value = e.translationX;
-      ballY.value = Math.min(0, e.translationY); // Solo permitir arrastrar hacia arriba
+      ballY.value = e.translationY;
+      ballRotation.value = e.translationX * 0.35;
     })
     .onEnd(e => {
-      // Swipe hacia arriba válido
-      if (e.translationY < -45 && e.velocityY < -150) {
-        const vel = calculateInitialVelocityWorklet({
-          startX: 0,
-          startY: 0,
-          endX: e.translationX,
-          endY: e.translationY,
-          durationMs: 250,
-        });
+      if (isFlightActive.current) return;
 
-        runFlightSimulation(vel.vx, vel.vy, vel.vz);
+      // Lanzamiento válido: swipe hacia arriba mayor a 35px o velocidad mayor a 100px/s
+      const isUpwardSwipe = e.translationY < -35 || e.velocityY < -100;
+
+      if (isUpwardSwipe) {
+        isFlightActive.current = true;
+        launchBall(e.translationX, e.translationY, e.velocityX, e.velocityY);
       } else {
-        // Gesto cancelado o insuficiente -> resetear
-        resetBall();
+        // Gesto cancelado o insuficiente -> resorte elástico de regreso al origen
+        ballX.value = withSpring(0);
+        ballY.value = withSpring(0);
+        ballRotation.value = withSpring(0);
       }
     });
 
-  // Animación reactiva para sacudidas de captura
+  // Estilo animado de la bola
   const animatedBallStyle = useAnimatedStyle(() => {
-    let shakeOffset = 0;
-    if (state === 'shaking_1' || state === 'shaking_2' || state === 'shaking_3') {
-      shakeOffset = Math.sin(ballRotation.value * 0.1) * 8;
-    }
-
     return {
       transform: [
-        { translateX: ballX.value + shakeOffset },
+        { translateX: ballX.value },
         { translateY: ballY.value },
         { scale: ballScale.value },
         { rotate: `${ballRotation.value}deg` },
