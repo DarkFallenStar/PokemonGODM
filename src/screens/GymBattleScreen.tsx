@@ -7,8 +7,11 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  ScrollView,
+  Platform,
+  StatusBar,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import Animated, {
   useSharedValue,
@@ -54,6 +57,7 @@ function getPokemonTypeIds(base?: { type_primary_id?: number | null; type_second
 
 export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigation }) => {
   const { gymId, gymName, initialTeam, distanceMeters, defender } = route.params;
+  const insets = useSafeAreaInsets();
 
   // Estados de Combate
   const [phase, setPhase] = useState<BattlePhase>('MATCHMAKING');
@@ -603,9 +607,20 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
     playerPokemon && playerEnergy >= Math.abs(playerPokemon.chargedMove.energy_delta);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
-      {/* Barra de Título Superior con Nombre del Gimnasio y Distancia */}
-      <View style={styles.topHud}>
+    <View style={styles.container}>
+      {/* Barra de Título Superior con Nombre del Gimnasio y Distancia (respetando Status Bar) */}
+      <View
+        style={[
+          styles.topHud,
+          {
+            paddingTop: Math.max(
+              insets.top,
+              Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0,
+              12
+            ),
+          },
+        ]}
+      >
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>✕ Salir</Text>
         </TouchableOpacity>
@@ -622,126 +637,166 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
 
       {/* Fase 1: Selección de Combatiente */}
       {phase === 'MATCHMAKING' && (
-        <View style={styles.matchmakingOverlay}>
-          <Text style={styles.matchmakingTitle}>Selecciona tu Criatura de Combate</Text>
-          <Text style={styles.matchmakingSubtitle}>
-            Elige un Pokémon con PS disponibles para entrar a la arena del gimnasio:
-          </Text>
-
-          {/* Tarjeta del Defensor Rival a Vencer */}
-          {opponentPokemon && (
-            <View style={styles.defenderPreviewCard}>
-              <Text style={styles.defenderPreviewLabel}>🛡️ Defensor del Gimnasio</Text>
-              <View style={styles.defenderPreviewRow}>
-                <Image
-                  source={{
-                    uri:
-                      opponentPokemon.base.animation_url ||
-                      `https://img.pokemondb.net/sprites/black-white/anim/normal/${opponentPokemon.base.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.gif`,
-                  }}
-                  style={styles.defenderPreviewSprite}
-                  contentFit="contain"
-                />
-                <View style={styles.defenderPreviewDetails}>
-                  <Text style={styles.defenderPreviewName}>
-                    {opponentPokemon.nickname || opponentPokemon.base.name}
-                  </Text>
-                  <Text style={styles.defenderPreviewStats}>
-                    CP {opponentPokemon.cp} | PS {opponentHp}/{opponentMaxHp}
-                  </Text>
-                  <View style={styles.typesRow}>
-                    {getPokemonTypeIds(opponentPokemon.base).map(tId => (
-                      <View
-                        key={tId}
-                        style={[
-                          styles.typeBadgeSmall,
-                          { backgroundColor: TYPE_COLORS[tId] || '#64748B' },
-                        ]}
-                      >
-                        <Text style={styles.typeBadgeTextSmall}>
-                          {TYPE_NAMES[tId] || 'Tipo'}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              </View>
-            </View>
-          )}
-
-          {/* Indicador del Equipo del Jugador */}
-          <View style={[styles.teamIndicatorPill, { borderColor: TEAMS[playerTeam].color }]}>
-            <Text style={styles.teamIndicatorEmoji}>{TEAMS[playerTeam].badge}</Text>
-            <Text style={[styles.teamIndicatorText, { color: TEAMS[playerTeam].accentColor }]}>
-              Representando al {TEAMS[playerTeam].name}
+        <View style={styles.matchmakingContainer}>
+          <ScrollView
+            style={styles.matchmakingScroll}
+            contentContainerStyle={styles.matchmakingScrollContent}
+            showsVerticalScrollIndicator={true}
+            bounces={true}
+          >
+            <Text style={styles.matchmakingTitle}>Selecciona tu Criatura de Combate</Text>
+            <Text style={styles.matchmakingSubtitle}>
+              Elige un Pokémon con PS disponibles para entrar a la arena del gimnasio:
             </Text>
-          </View>
 
-          {/* Lista de Selección Rápida */}
-          <View style={styles.combatantList}>
-            {collection.map(p => {
-              const isSelected = playerPokemon?.id === p.id;
-              const isFainted = p.current_hp <= 0;
-              return (
-                <TouchableOpacity
-                  key={p.id}
-                  style={[
-                    styles.combatantCard,
-                    isSelected && styles.selectedCombatantCard,
-                    isFainted && styles.faintedCombatantCard,
-                  ]}
-                  onPress={() => {
-                    if (isFainted) {
-                      Alert.alert(
-                        'Pokémon Debilitado',
-                        `${p.nickname || p.base.name} tiene 0 PS y no puede combatir. Usa un Revivir en la Mochila.`
-                      );
-                      return;
-                    }
-                    setPlayerPokemon(p);
-                  }}
-                  activeOpacity={0.8}
-                >
+            {/* Tarjeta del Defensor Rival a Vencer */}
+            {opponentPokemon && (
+              <View style={styles.defenderPreviewCard}>
+                <Text style={styles.defenderPreviewLabel}>🛡️ Defensor del Gimnasio</Text>
+                <View style={styles.defenderPreviewRow}>
                   <Image
                     source={{
                       uri:
-                        p.base.animation_url ||
-                        `https://img.pokemondb.net/sprites/black-white/anim/normal/${p.base.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.gif`,
+                        opponentPokemon.base.animation_url ||
+                        `https://img.pokemondb.net/sprites/black-white/anim/normal/${opponentPokemon.base.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.gif`,
                     }}
-                    style={styles.combatantSprite}
+                    style={styles.defenderPreviewSprite}
                     contentFit="contain"
                   />
-                  <Text style={styles.combatantName} numberOfLines={1}>
-                    {p.nickname || p.base.name}
-                  </Text>
-                  {/* Tipos Elementales del Pokémon */}
-                  <View style={styles.typesRow}>
-                    {getPokemonTypeIds(p.base).map(tId => (
-                      <View
-                        key={tId}
-                        style={[
-                          styles.typeBadgeMicro,
-                          { backgroundColor: TYPE_COLORS[tId] || '#64748B' },
-                        ]}
-                      >
-                        <Text style={styles.typeBadgeTextMicro}>
-                          {TYPE_NAMES[tId] || 'Tipo'}
-                        </Text>
-                      </View>
-                    ))}
+                  <View style={styles.defenderPreviewDetails}>
+                    <Text style={styles.defenderPreviewName}>
+                      {opponentPokemon.nickname || opponentPokemon.base.name}
+                    </Text>
+                    <Text style={styles.defenderPreviewStats}>
+                      CP {opponentPokemon.cp} | PS {opponentHp}/{opponentMaxHp}
+                    </Text>
+                    <View style={styles.typesRow}>
+                      {getPokemonTypeIds(opponentPokemon.base).map(tId => (
+                        <View
+                          key={tId}
+                          style={[
+                            styles.typeBadgeSmall,
+                            { backgroundColor: TYPE_COLORS[tId] || '#64748B' },
+                          ]}
+                        >
+                          <Text style={styles.typeBadgeTextSmall}>
+                            {TYPE_NAMES[tId] || 'Tipo'}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
                   </View>
-                  <Text style={styles.combatantCp}>CP {p.cp}</Text>
-                  <Text style={[styles.combatantHp, isFainted && styles.combatantHpFainted]}>
-                    {isFainted ? '💀 0 PS' : `${p.current_hp}/${p.maxHp} PS`}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+                </View>
+              </View>
+            )}
 
-          <TouchableOpacity style={styles.startBattleButton} onPress={startCombat} activeOpacity={0.85}>
-            <Text style={styles.startBattleText}>⚔️ Entrar a la Arena</Text>
-          </TouchableOpacity>
+            {/* Indicador del Equipo del Jugador */}
+            <View style={[styles.teamIndicatorPill, { borderColor: TEAMS[playerTeam].color }]}>
+              <Text style={styles.teamIndicatorEmoji}>{TEAMS[playerTeam].badge}</Text>
+              <Text style={[styles.teamIndicatorText, { color: TEAMS[playerTeam].accentColor }]}>
+                Representando al {TEAMS[playerTeam].name}
+              </Text>
+            </View>
+
+            {/* Encabezado de la Sección de Criaturas */}
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionHeaderTitle}>Tus Criaturas Disponibles</Text>
+              <Text style={styles.sectionHeaderSubtitle}>
+                {collection.filter(p => p.current_hp > 0).length} listas de {collection.length}
+              </Text>
+            </View>
+
+            {/* Lista de Selección Rápida en Grid con Scroll */}
+            <View style={styles.combatantList}>
+              {collection.map(p => {
+                const isSelected = playerPokemon?.id === p.id;
+                const isFainted = p.current_hp <= 0;
+                return (
+                  <TouchableOpacity
+                    key={p.id}
+                    style={[
+                      styles.combatantCard,
+                      isSelected && styles.selectedCombatantCard,
+                      isFainted && styles.faintedCombatantCard,
+                    ]}
+                    onPress={() => {
+                      if (isFainted) {
+                        Alert.alert(
+                          'Pokémon Debilitado',
+                          `${p.nickname || p.base.name} tiene 0 PS y no puede combatir. Usa un Revivir en la Mochila.`
+                        );
+                        return;
+                      }
+                      setPlayerPokemon(p);
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    {isSelected && (
+                      <View style={styles.selectedBadge}>
+                        <Text style={styles.selectedBadgeText}>✓ ELEGIDO</Text>
+                      </View>
+                    )}
+                    <Image
+                      source={{
+                        uri:
+                          p.base.animation_url ||
+                          `https://img.pokemondb.net/sprites/black-white/anim/normal/${p.base.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.gif`,
+                      }}
+                      style={styles.combatantSprite}
+                      contentFit="contain"
+                    />
+                    <Text style={styles.combatantName} numberOfLines={1}>
+                      {p.nickname || p.base.name}
+                    </Text>
+                    {/* Tipos Elementales del Pokémon */}
+                    <View style={styles.typesRow}>
+                      {getPokemonTypeIds(p.base).map(tId => (
+                        <View
+                          key={tId}
+                          style={[
+                            styles.typeBadgeMicro,
+                            { backgroundColor: TYPE_COLORS[tId] || '#64748B' },
+                          ]}
+                        >
+                          <Text style={styles.typeBadgeTextMicro}>
+                            {TYPE_NAMES[tId] || 'Tipo'}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                    <Text style={styles.combatantCp}>CP {p.cp}</Text>
+                    <Text style={[styles.combatantHp, isFainted && styles.combatantHpFainted]}>
+                      {isFainted ? '💀 0 PS' : `${p.current_hp}/${p.maxHp} PS`}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </ScrollView>
+
+          {/* Footer Fijo para Iniciar Pelea (Sticky Bottom Bar con Safe Area) */}
+          <View
+            style={[
+              styles.matchmakingFooter,
+              { paddingBottom: Math.max(insets.bottom, 16) },
+            ]}
+          >
+            <TouchableOpacity
+              style={[
+                styles.startBattleButton,
+                (!playerPokemon || playerPokemon.current_hp <= 0) && styles.startBattleButtonDisabled,
+              ]}
+              onPress={startCombat}
+              activeOpacity={0.85}
+              disabled={!playerPokemon || playerPokemon.current_hp <= 0}
+            >
+              <Text style={styles.startBattleText}>
+                {playerPokemon && playerPokemon.current_hp > 0
+                  ? `⚔️ Entrar a la Arena con ${playerPokemon.nickname || playerPokemon.base.name}`
+                  : '⚔️ Selecciona un Pokémon para Combatir'}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
 
@@ -758,7 +813,10 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
       {(phase === 'ACTIVE_COMBAT' || phase === 'FINISHED') && (
         <GestureDetector gesture={panGesture}>
           <TouchableOpacity
-            style={styles.arenaContainer}
+            style={[
+              styles.arenaContainer,
+              { paddingBottom: Math.max(insets.bottom, 14) },
+            ]}
             activeOpacity={1}
             onPress={handlePlayerFastAttack}
           >
@@ -970,7 +1028,7 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
           </TouchableOpacity>
         </GestureDetector>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -1024,41 +1082,73 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#FFFFFF',
   },
-  matchmakingOverlay: {
+  matchmakingContainer: {
     flex: 1,
-    padding: 20,
-    justifyContent: 'center',
+    backgroundColor: '#0F172A',
+  },
+  matchmakingScroll: {
+    flex: 1,
+  },
+  matchmakingScrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 20,
     alignItems: 'center',
   },
   matchmakingTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '800',
     color: '#F8FAFC',
-    marginBottom: 6,
+    marginBottom: 4,
     textAlign: 'center',
   },
   matchmakingSubtitle: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#94A3B8',
     textAlign: 'center',
-    marginBottom: 20,
-    lineHeight: 18,
+    marginBottom: 14,
+    lineHeight: 16,
+    paddingHorizontal: 12,
+  },
+  sectionHeaderRow: {
+    width: '100%',
+    maxWidth: 360,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 6,
+    marginBottom: 10,
+    paddingHorizontal: 4,
+  },
+  sectionHeaderTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#F8FAFC',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  sectionHeaderSubtitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#38BDF8',
   },
   combatantList: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: 12,
-    marginBottom: 24,
+    gap: 10,
+    width: '100%',
+    maxWidth: 360,
   },
   combatantCard: {
     backgroundColor: '#1E293B',
     borderRadius: 16,
-    padding: 10,
+    padding: 8,
     alignItems: 'center',
-    width: 104,
+    width: 106,
     borderWidth: 2,
     borderColor: '#334155',
+    position: 'relative',
   },
   defenderPreviewCard: {
     backgroundColor: '#1E293B',
@@ -1181,20 +1271,58 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
   },
+  selectedBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    backgroundColor: '#38BDF8',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#0F172A',
+    zIndex: 10,
+  },
+  selectedBadgeText: {
+    fontSize: 8,
+    fontWeight: '900',
+    color: '#0F172A',
+  },
+  matchmakingFooter: {
+    backgroundColor: '#1E293B',
+    borderTopWidth: 1,
+    borderTopColor: '#334155',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 10,
+  },
   startBattleButton: {
     backgroundColor: '#2563EB',
     paddingVertical: 14,
-    paddingHorizontal: 36,
+    paddingHorizontal: 20,
     borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#2563EB',
     shadowOpacity: 0.5,
     shadowRadius: 10,
     elevation: 6,
   },
+  startBattleButtonDisabled: {
+    backgroundColor: '#334155',
+    shadowOpacity: 0,
+    elevation: 0,
+    opacity: 0.6,
+  },
   startBattleText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '800',
     color: '#FFFFFF',
+    textAlign: 'center',
   },
   countdownOverlay: {
     flex: 1,
