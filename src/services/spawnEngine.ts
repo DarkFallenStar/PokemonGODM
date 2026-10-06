@@ -261,8 +261,7 @@ export async function fetchNearbySpawns(
       `)
       .gt('expires_at', nowIso);
 
-    // Exclusivamente criaturas salvajes del campus universitario de UniSabana
-    query = query.eq('is_test_zone', false);
+    // Consultar todos los spawns vigentes no caducados en el mundo
 
     const [spawnsRes, interactionsRes] = await Promise.all([
       query,
@@ -386,7 +385,7 @@ export async function spawnPokemonNearPlayer(
       pokemon_id: pokemonId,
       latitude: spawnLat,
       longitude: spawnLon,
-      is_test_zone: isTestZone,
+      is_test_zone: false,
       spawned_at: nowIso,
       expires_at: expiresAt,
       iv_attack: ivAtk,

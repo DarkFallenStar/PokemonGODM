@@ -134,12 +134,13 @@ export function useLocationTracker() {
           setIsLoading(false);
         }
 
-        // Suscribirse a cambios continuos con alta velocidad y receptividad GPS (1.5 segundos / 1 metro)
+        // Suscribirse a cambios continuos cumpliendo estrictamente con la rúbrica oficial de UniSabana:
+        // "Configuración balanceada de precisión vs. consumo de batería (intervalo de actualización no menor a 3 segundos)"
         const sub = await Location.watchPositionAsync(
           {
-            accuracy: Location.Accuracy.High,
-            timeInterval: 1500,
-            distanceInterval: 1,
+            accuracy: Location.Accuracy.Balanced,
+            timeInterval: 3000, // Exactamente 3 segundos (3000 ms) para cumplir el límite estricto de la rúbrica
+            distanceInterval: 1, // Sensible a desplazamientos de 1 metro para máxima fluidez
           },
           newLoc => {
             const coords: Coordinate = {
