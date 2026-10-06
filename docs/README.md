@@ -5,9 +5,9 @@ Bienvenido al repositorio documental del proyecto **Pokémon GO — Edición Cam
 
 ---
 
-### 🌟 Documento Central de Estudio y Comprensión Profunda
-Para entender **cada punto técnico desde la raíz** (qué es, cómo funciona internamente, por qué se utilizó y cómo se conecta con el resto del sistema):
-👉 **[Enciclopedia Técnica Exhaustiva (README Maestro)](file:///c:/Users/kenny/OneDrive/Documents/Cosas%20de%20movil%20que%20lo%20buguie%20todo/PokemonGoExam/PokemonGoExam/docs/README_ENCICLOPEDIA_TECNICA.md)**
+### 🌟 Documentos Centrales de Estudio y Comprensión Profunda
+* **[Enciclopedia Técnica Exhaustiva (README Maestro)](file:///c:/Users/kenny/OneDrive/Documents/Cosas%20de%20movil%20que%20lo%20buguie%20todo/PokemonGoExam/PokemonGoExam/docs/README_ENCICLOPEDIA_TECNICA.md)**: Explicación integral módulo a módulo con líneas de código y fundamentos.
+* **[Enciclopedia de Conceptos Técnicos (README Conceptos)](file:///c:/Users/kenny/OneDrive/Documents/Cosas%20de%20movil%20que%20lo%20buguie%20todo/PokemonGoExam/PokemonGoExam/docs/README_CONCEPTOS.md)**: Qué son, cómo funcionan por debajo y por qué se usan (Worklets, hilos, JSI, Geofencing, Haversine, WebSockets, RLS, Sensor Fusion, etc.).
 
 ---
 
