@@ -11,7 +11,24 @@ import type { Move, PokemonBase } from '../types/pokemon';
 import { getTypeThemedMoves } from './battleEngine';
 import { getPokemonDbStaticSprite, getPokemonDbAnimatedSprite } from '../utils/pokemonAssets';
 
-export const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001';
+export const TRAINER_1_ID = '00000000-0000-0000-0000-000000000001';
+export const TRAINER_2_ID = '00000000-0000-0000-0000-000000000002';
+
+export let DEMO_USER_ID = process.env.EXPO_PUBLIC_TRAINER_ID || TRAINER_1_ID;
+
+export function getActiveTrainerId(): string {
+  return DEMO_USER_ID;
+}
+
+export function setActiveTrainerId(id: string): string {
+  DEMO_USER_ID = id;
+  return DEMO_USER_ID;
+}
+
+export function toggleActiveTrainer(): string {
+  DEMO_USER_ID = DEMO_USER_ID === TRAINER_1_ID ? TRAINER_2_ID : TRAINER_1_ID;
+  return DEMO_USER_ID;
+}
 
 export const CONSUMABLE_METADATA_MAP: Record<InventoryItemType, ConsumableItemMetadata> = {
   pokeball: {

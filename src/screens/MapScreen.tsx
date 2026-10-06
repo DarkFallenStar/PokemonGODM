@@ -20,7 +20,13 @@ import { GymModal } from '../components/GymModal';
 import { WildPokemonMarker } from '../components/WildPokemonMarker';
 import { SpawnEncounterModal } from '../components/SpawnEncounterModal';
 import { supabase } from '../services/supabase';
-import { checkPokestopCooldown } from '../services/inventoryService';
+import {
+  checkPokestopCooldown,
+  getActiveTrainerId,
+  toggleActiveTrainer,
+  TRAINER_1_ID,
+  TRAINER_2_ID,
+} from '../services/inventoryService';
 import {
   seedWildSpawnsIfLow,
   fetchNearbySpawns,
@@ -67,13 +73,23 @@ export const MapScreen: React.FC = () => {
   // GeoJSON según entorno (Solo UniSabana o UniSabana + Cajicá) con versión dinámica reactiva
   const [polygonVersion, setPolygonVersion] = useState<number>(0);
   const [refreshToast, setRefreshToast] = useState<string | null>(null);
+  const [currentTrainer, setCurrentTrainer] = useState<string>(getActiveTrainerId());
+
+  // Coordenada activa (real o campus por defecto mientras carga GPS)
+  const currentCoords = location || CAMPUS_CENTER_COORDINATE;
+
+  const handleToggleTrainer = useCallback(() => {
+    const nextTrainer = toggleActiveTrainer();
+    setCurrentTrainer(nextTrainer);
+    seedWildSpawnsIfLow(testZoneActive, nextTrainer);
+    fetchNearbySpawns(currentCoords, testZoneActive, nextTrainer).then(setActiveSpawns);
+    setRefreshToast(nextTrainer === TRAINER_2_ID ? '👤 Modo: Gary Oak (P2)' : '👤 Modo: Ash Ketchum (P1)');
+    setTimeout(() => setRefreshToast(null), 2500);
+  }, [testZoneActive, currentCoords]);
 
   const geofenceGeoJSON = useMemo(() => {
     return getGeofenceGeoJSON(testZoneActive);
   }, [testZoneActive, polygonVersion]);
-
-  // Coordenada activa (real o campus por defecto mientras carga GPS)
-  const currentCoords = location || CAMPUS_CENTER_COORDINATE;
 
   // Cargar Poképaradas y Gimnasios desde Supabase
   const loadCampusPOIs = useCallback(async () => {
@@ -501,6 +517,25 @@ export const MapScreen: React.FC = () => {
             </Text>
           </TouchableOpacity>
 
+          {/* Botón de Selección de Entrenador (Pruebas Multijugador) */}
+          <TouchableOpacity
+            style={[
+              styles.trainerButton,
+              currentTrainer === TRAINER_2_ID && styles.trainerButtonP2,
+            ]}
+            onPress={handleToggleTrainer}
+            activeOpacity={0.8}
+          >
+            <Text
+              style={[
+                styles.trainerButtonText,
+                currentTrainer === TRAINER_2_ID && styles.trainerButtonTextP2,
+              ]}
+            >
+              {currentTrainer === TRAINER_2_ID ? '👤 Gary (P2)' : '👤 Ash (P1)'}
+            </Text>
+          </TouchableOpacity>
+
           {/* Botón de Actualizar Mapa y Polígono */}
           <TouchableOpacity
             style={[
@@ -717,6 +752,35 @@ const styles = StyleSheet.create({
   },
   refreshButtonTextSuccess: {
     color: '#34D399',
+  },
+  trainerButton: {
+    backgroundColor: 'rgba(30, 41, 59, 0.95)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#38BDF8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 34,
+    minWidth: 110,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+  },
+  trainerButtonP2: {
+    backgroundColor: 'rgba(76, 29, 149, 0.95)',
+    borderColor: '#A855F7',
+  },
+  trainerButtonText: {
+    color: '#38BDF8',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  trainerButtonTextP2: {
+    color: '#E9D5FF',
   },
   refreshToastContainer: {
     position: 'absolute',

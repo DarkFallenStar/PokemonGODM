@@ -114,15 +114,16 @@ function calculateCombatPower(
   return Math.max(10, cpCalc);
 }
 
-const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001';
+import { getActiveTrainerId } from './inventoryService';
 
 /**
  * Genera spawns salvajes en Supabase si el número de criaturas activas es bajo
  */
 export async function seedWildSpawnsIfLow(
   isTestZone: boolean,
-  userId: string = DEMO_USER_ID
+  userId?: string
 ): Promise<void> {
+  const activeUserId = userId || getActiveTrainerId();
   try {
     const nowIso = new Date().toISOString();
 
@@ -144,7 +145,7 @@ export async function seedWildSpawnsIfLow(
       supabase
         .from('user_spawn_interactions')
         .select('spawn_id')
-        .eq('user_id', userId),
+        .eq('user_id', activeUserId),
     ]);
 
     if (spawnsRes.error || !spawnsRes.data) {
@@ -154,13 +155,13 @@ export async function seedWildSpawnsIfLow(
     const interactedIds = new Set((interactionsRes.data || []).map(i => i.spawn_id));
     const availableForUser = spawnsRes.data.filter(s => !interactedIds.has(s.id));
 
-    // Mantener un mínimo de 6 criaturas simultáneas disponibles para el entrenador en el campus
+    // Mantener un mínimo de 15 criaturas simultáneas disponibles para el entrenador en el campus
     const currentActive = availableForUser.length;
-    if (currentActive >= 6) {
+    if (currentActive >= 15) {
       return;
     }
 
-    const needed = 6 - currentActive;
+    const needed = 15 - currentActive;
     const newSpawns: any[] = [];
 
     // Cargar estadísticas base de los Pokémon disponibles
@@ -232,8 +233,9 @@ export async function seedWildSpawnsIfLow(
 export async function fetchNearbySpawns(
   userCoords: Coordinate,
   isTestZone: boolean,
-  userId: string = DEMO_USER_ID
+  userId?: string
 ): Promise<ActiveSpawn[]> {
+  const activeUserId = userId || getActiveTrainerId();
   try {
     const nowIso = new Date().toISOString();
 
@@ -274,7 +276,7 @@ export async function fetchNearbySpawns(
       supabase
         .from('user_spawn_interactions')
         .select('spawn_id')
-        .eq('user_id', userId),
+        .eq('user_id', activeUserId),
     ]);
 
     if (spawnsRes.error || !spawnsRes.data) {

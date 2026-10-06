@@ -27,6 +27,8 @@ import {
   fetchCapturedPokemonCollection,
   updatePokemonHealth,
   DEMO_USER_ID,
+  getActiveTrainerId,
+  TRAINER_2_ID,
 } from '../services/inventoryService';
 import {
   calculateBattleDamage,
@@ -102,9 +104,10 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
   // Cargar criaturas del jugador y perfil de entrenador al iniciar
   useEffect(() => {
     (async () => {
+      const activeId = getActiveTrainerId();
       const [coll, profile] = await Promise.all([
-        fetchCapturedPokemonCollection(DEMO_USER_ID),
-        fetchTrainerProfile(DEMO_USER_ID),
+        fetchCapturedPokemonCollection(activeId),
+        fetchTrainerProfile(activeId),
       ]);
       setPlayerTeam(profile.team);
       setCollection(coll);
@@ -144,7 +147,10 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
 
     setupAIOpponent();
 
-    const manager = new BattleRealtimeManager(gymId, DEMO_USER_ID, {
+    const currentTrainer = getActiveTrainerId();
+    const isPlayer2 = currentTrainer === TRAINER_2_ID;
+
+    const manager = new BattleRealtimeManager(gymId, currentTrainer, {
       onPeerJoined: peer => {
         // Un rival presencial se unió al gimnasio
         setIsOpponentAI(false);
@@ -235,9 +241,9 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
 
     // Conectar WebSocket
     manager.connect({
-      userId: DEMO_USER_ID,
-      username: 'Entrenador UniSabana',
-      team: playerTeam,
+      userId: currentTrainer,
+      username: isPlayer2 ? 'Gary Oak (P2)' : 'Ash Ketchum (P1)',
+      team: isPlayer2 ? 'valor' : playerTeam,
       role: 'challenger',
       status: 'ready',
       combatant: {
