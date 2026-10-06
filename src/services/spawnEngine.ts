@@ -4,9 +4,7 @@ import type { ActiveSpawn } from '../types/spawns';
 import { calculateHaversineDistanceWorklet } from '../utils/haversine';
 import {
   UNISABANA_POLYGON,
-  HOME_CAJICA_POLYGON,
   CAMPUS_CENTER_COORDINATE,
-  HOME_CAJICA_CENTER,
   isPointInPolygonWorklet,
 } from '../utils/geofence';
 import { getPokemonDbAnimatedSprite, getPokemonDbStaticSprite } from '../utils/pokemonAssets';
@@ -136,9 +134,8 @@ export async function seedWildSpawnsIfLow(
       .select('id')
       .gt('expires_at', nowIso);
 
-    if (!isTestZone) {
-      query = query.eq('is_test_zone', false);
-    }
+    // Solo contar spawns legítimos del campus de la Universidad
+    query = query.eq('is_test_zone', false);
 
     const [spawnsRes, interactionsRes] = await Promise.all([
       query,
@@ -155,13 +152,13 @@ export async function seedWildSpawnsIfLow(
     const interactedIds = new Set((interactionsRes.data || []).map(i => i.spawn_id));
     const availableForUser = spawnsRes.data.filter(s => !interactedIds.has(s.id));
 
-    // Mantener un mínimo de 15 criaturas simultáneas disponibles para el entrenador en el campus
+    // Mantener un mínimo de 50 criaturas simultáneas disponibles en el campus de la Universidad
     const currentActive = availableForUser.length;
-    if (currentActive >= 15) {
+    if (currentActive >= 50) {
       return;
     }
 
-    const needed = 15 - currentActive;
+    const needed = 50 - currentActive;
     const newSpawns: any[] = [];
 
     // Cargar estadísticas base de los Pokémon disponibles
@@ -192,11 +189,8 @@ export async function seedWildSpawnsIfLow(
         ivHp
       );
 
-      // Decidir zona de spawn
-      const inCajica = isTestZone && Math.random() > 0.4;
-      const coords = inCajica
-        ? getRandomCoordinateInPolygon(HOME_CAJICA_POLYGON, HOME_CAJICA_CENTER)
-        : getRandomCoordinateInPolygon(UNISABANA_POLYGON, CAMPUS_CENTER_COORDINATE);
+      // Generar coordenada aleatoria estrictamente dentro del polígono de la Universidad de La Sabana
+      const coords = getRandomCoordinateInPolygon(UNISABANA_POLYGON, CAMPUS_CENTER_COORDINATE);
 
       // TTL de 10 a 15 minutos (600 a 900 segundos)
       const ttlMinutes = 10 + Math.floor(Math.random() * 6);
@@ -206,7 +200,7 @@ export async function seedWildSpawnsIfLow(
         pokemon_id: pokemonId,
         latitude: coords.latitude,
         longitude: coords.longitude,
-        is_test_zone: inCajica,
+        is_test_zone: false,
         spawned_at: nowIso,
         expires_at: expiresAt,
         iv_attack: ivAtk,
@@ -267,9 +261,8 @@ export async function fetchNearbySpawns(
       `)
       .gt('expires_at', nowIso);
 
-    if (!isTestZone) {
-      query = query.eq('is_test_zone', false);
-    }
+    // Exclusivamente criaturas salvajes del campus universitario de UniSabana
+    query = query.eq('is_test_zone', false);
 
     const [spawnsRes, interactionsRes] = await Promise.all([
       query,

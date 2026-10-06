@@ -113,10 +113,10 @@ export function useLocationTracker() {
           }
         }
 
-        // 2. Obtener posición actual con timeout para evitar colgado indefinido en interiores
+        // 2. Obtener posición actual con alta precisión y timeout rápido
         const initial = await Promise.race([
-          Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
-          new Promise<null>(resolve => setTimeout(() => resolve(null), 3500)),
+          Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }),
+          new Promise<null>(resolve => setTimeout(() => resolve(null), 2500)),
         ]).catch(() => null);
 
         if (initial) {
@@ -134,13 +134,12 @@ export function useLocationTracker() {
           setIsLoading(false);
         }
 
-        // Suscribirse a cambios continuos con balance de consumo de batería
-        // timeInterval >= 3000ms (3.5 segundos) según requerimiento de rúbrica
+        // Suscribirse a cambios continuos con alta velocidad y receptividad GPS (1.5 segundos / 1 metro)
         const sub = await Location.watchPositionAsync(
           {
-            accuracy: Location.Accuracy.Balanced,
-            timeInterval: 3500,
-            distanceInterval: 3,
+            accuracy: Location.Accuracy.High,
+            timeInterval: 1500,
+            distanceInterval: 1,
           },
           newLoc => {
             const coords: Coordinate = {
