@@ -68,6 +68,26 @@
 
 ---
 
+### Pregunta 1.6: ¿Por qué en el módulo de combate se implementó WebSockets Broadcast y Presence en lugar de peticiones HTTP/REST tradicionales con Polling a la base de datos?
+**Respuesta Modelo (100%):**
+> *"Por tres razones críticas de arquitectura de sistemas distribuidos y limitaciones de hardware móvil:  
+> 1. **Latencia Inaceptable de HTTP vs. WebSockets:** El combate requiere respuestas táctiles y reducción de barras de vida en menos de 50 ms. Una petición HTTP estándar incurre en sobrecarga de handshake TCP/TLS y encabezados HTTP en cada tap (latencia típica de 300 a 800 ms). WebSockets establece un canal bidireccional dúplex permanente (`wss://`), reduciendo el retardo a sub-red (< 40 ms).  
+> 2. **Saturación de I/O en la Base de Datos:** Enviar 3 taps por segundo mediante `UPDATE` o `INSERT` en PostgreSQL por cada usuario saturaría el motor relacional con bloqueos y escritura en disco innecesaria. El mecanismo `broadcast` de Supabase Realtime transmite los paquetes volátiles de ataque y esquiva en memoria RAM a través del broker Phoenix/Elixir sin tocar el disco de la base de datos.  
+> 3. **Gestión de Presencia Distribuida (Presence):** En vez de hacer polling constante para saber si hay un rival en el gimnasio, el protocolo Presence utiliza un algoritmo CRDT (Conflict-free Replicated Data Type) en el servidor que notifica instantáneamente mediante eventos `join` y `leave` cuando otro entrenador entra o sale del radio del gimnasio."*
+
+---
+
+### Pregunta 1.7: ¿Cómo se resolvió la arquitectura multijugador para probar con 2 dispositivos concurrentes sin colisión de identidades ni falsos positivos en Presence?
+**Respuesta Modelo (100%):**
+> *"En un entorno de desarrollo donde ambos teléfonos apuntan al mismo servidor Metro, si ambos compartieran un único identificador de demostración, el canal de WebSockets descartaría los paquetes del rival por considerarlos ecos propios (`senderId === this.userId`), y al capturar un Pokémon uno de los dispositivos, el otro lo ocultaría al instante.  
+> Para resolverlo con rigor ingenieril:  
+> 1. Implementamos un sistema de doble identidad persistente: **Entrenador 1 (Ash Ketchum)** y **Entrenador 2 (Gary Oak)** con UUIDs estables y aislados en Supabase (`TRAINER_1_ID` y `TRAINER_2_ID`).  
+> 2. Cada entrenador cuenta con su propio inventario de consumibles y su propio equipo de combate de alto nivel en `captured_instances`.  
+> 3. Un conmutador dinámico en el HUD del mapa (`handleToggleTrainer`) permite alternar el dispositivo entre P1 y P2.  
+> 4. `BattleRealtimeManager` suscribe la presencia con el ID del entrenador activo. Al detectar `peer.userId !== this.userId`, el sistema conmuta automáticamente el combate de un bot IA a un combate PvP humano real con handshake bidireccional."*
+
+---
+
 ## EJE 2: Arquitectura Móvil, Hilos y Gestión de Memoria
 
 ### Pregunta 2.1: ¿Por qué la cinemática balística parabólica y las animaciones táctiles se ejecutan en Worklets de Reanimated y no en el JavaScript Thread tradicional?
