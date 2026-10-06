@@ -26,6 +26,7 @@ import {
   fetchNearbySpawns,
   spawnPokemonNearPlayer,
 } from '../services/spawnEngine';
+import { getPokemonDbStaticSprite, getPokemonDbAnimatedSprite } from '../utils/pokemonAssets';
 import type { CampusPOIMarker } from '../types/map';
 import type { ActiveSpawn } from '../types/spawns';
 import type { RootStackParamList } from '../types/navigation';
@@ -122,8 +123,8 @@ export const MapScreen: React.FC = () => {
               cp: d.cp,
               current_hp: d.current_hp ?? maxHp,
               max_hp: maxHp,
-              sprite_url: b?.sprite_url || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${b?.id || 1}.png`,
-              animation_url: b?.animation_url || null,
+              sprite_url: b?.sprite_url || getPokemonDbStaticSprite(b?.name, b?.id || 1),
+              animation_url: b?.animation_url || getPokemonDbAnimatedSprite(b?.name, b?.id || 1),
               trainer_name: d.user_id === '00000000-0000-0000-0000-000000000099' ? 'Líder del Gimnasio' : 'Entrenador UniSabana',
               types: [b?.type_primary_id, b?.type_secondary_id].filter(Boolean),
               base_attack: b?.base_attack,

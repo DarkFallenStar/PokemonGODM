@@ -119,30 +119,43 @@ const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001';
 /**
  * Genera spawns salvajes en Supabase si el número de criaturas activas es bajo
  */
-export async function seedWildSpawnsIfLow(isTestZone: boolean): Promise<void> {
+export async function seedWildSpawnsIfLow(
+  isTestZone: boolean,
+  userId: string = DEMO_USER_ID
+): Promise<void> {
   try {
     const nowIso = new Date().toISOString();
 
     // 0. Recolector de basura: purgar criaturas caducadas por TTL (10-15 minutos)
     await supabase.rpc('purge_expired_spawns');
 
-    // 1. Contar spawns vigentes no caducados en el mapa
+    // 1. Contar spawns vigentes no caducados disponibles para este entrenador
     let query = supabase
       .from('active_spawns')
-      .select('id', { count: 'exact', head: true })
+      .select('id')
       .gt('expires_at', nowIso);
 
     if (!isTestZone) {
       query = query.eq('is_test_zone', false);
     }
 
-    const { count, error } = await query;
-    if (error) {
+    const [spawnsRes, interactionsRes] = await Promise.all([
+      query,
+      supabase
+        .from('user_spawn_interactions')
+        .select('spawn_id')
+        .eq('user_id', userId),
+    ]);
+
+    if (spawnsRes.error || !spawnsRes.data) {
       return;
     }
 
-    // Mantener un mínimo de 6 criaturas simultáneas en el campus
-    const currentActive = count || 0;
+    const interactedIds = new Set((interactionsRes.data || []).map(i => i.spawn_id));
+    const availableForUser = spawnsRes.data.filter(s => !interactedIds.has(s.id));
+
+    // Mantener un mínimo de 6 criaturas simultáneas disponibles para el entrenador en el campus
+    const currentActive = availableForUser.length;
     if (currentActive >= 6) {
       return;
     }

@@ -96,7 +96,71 @@ WHERE name = 'Edificio Ad Portas';
 
 ---
 
-## 3. Tip Pro: ¿Cómo simular el juego en tu propia casa o barrio para probar caminando?
+## 3. Cómo Asignar y Gestionar Defensores en los Gimnasios
+
+Cuando creas un gimnasio en la tabla `gymnasiums`, su campo `defending_instance_id` queda en blanco (`NULL`). En la aplicación se mostrará el mensaje *«Sin Defensor Asignado»*.
+
+Para que un gimnasio tenga un defensor activo, dicho Pokémon debe existir en la tabla `captured_instances` vinculado al usuario de sistema guardián (`00000000-0000-0000-0000-000000000099`), con sus movimientos cargados y el 100% de sus Puntos de Salud (PS).
+
+Tienes **tres formas muy sencillas** de asignarle un defensor a cualquier gimnasio:
+
+---
+
+### Método 1: Con una sola línea de SQL en Supabase (Recomendado y más rápido)
+
+Hemos instalado la función `public.assign_gym_defender_by_name` en tu base de datos de Supabase.
+
+1. Ve a tu panel de **[Supabase -> SQL Editor](https://supabase.com/dashboard/project/ugvoqswljfvwftoinyxt/sql)**.
+2. Escribe y ejecuta una sola línea con el nombre de tu gimnasio y el Pokémon que quieras:
+
+```sql
+-- Asignar a Snorlax al gimnasio Mesón para el equipo Místico (azul):
+SELECT public.assign_gym_defender_by_name('Mesón', 'Snorlax', 'mystic', 'Snorlax del Mesón');
+
+-- O asignar a cualquier otro Pokémon (puedes usar el nombre en inglés o el ID del 1 al 151):
+SELECT public.assign_gym_defender_by_name('Gimnasio Biblioteca', 'Arcanine', 'valor', 'Guardián Arcanine');
+SELECT public.assign_gym_defender_by_name('Gimnasio Deportivo', 'Gengar', 'instinct', 'Fantasma del Gym');
+```
+
+> **¿Qué hace automáticamente esta función SQL?**
+> 1. Busca el gimnasio por coincidencia de nombre.
+> 2. Consulta la especie Pokémon (1 al 151) y calcula sus estadísticas base, IVs de guardián (14/14/15) y Puntos de Combate (CP).
+> 3. Asigna automáticamente sus movimientos canónicos (un ataque rápido y un ataque cargado de la tabla `moves`).
+> 4. Cura su salud al **100% de PS** (`(base_hp * 2) + iv_hp + 50`).
+> 5. Lo vincula al gimnasio bajo el usuario guardián del sistema, evitando duplicados en la Pokédex personal de los jugadores.
+
+---
+
+### Método 2: Desde la consola con el Script de Python
+
+Puedes usar la herramienta CLI [`scraper/assign_gym_defender.py`](file:///c:/Users/kenny/OneDrive/Documents/Cosas%20de%20movil%20que%20lo%20buguie%20todo/PokemonGoExam/PokemonGoExam/scraper/assign_gym_defender.py) desde tu terminal:
+
+```bash
+# 1. Ver todos los gimnasios y qué defensor tienen actualmente:
+python scraper/assign_gym_defender.py --list
+
+# 2. Asignar un defensor específico:
+python scraper/assign_gym_defender.py --gym "Mesón" --pokemon "Snorlax" --team "mystic" --nickname "Snorlax del Mesón"
+
+# 3. Asignar a cualquier otro gimnasio:
+python scraper/assign_gym_defender.py --gym "NombreGym" --pokemon "Lapras" --team "valor"
+```
+
+Si ejecutas `python scraper/assign_gym_defender.py` sin argumentos, el script detectará automáticamente los gimnasios que no tengan defensor y te propondrá uno para asignarlo de inmediato.
+
+---
+
+### Método 3: En el juego conquistando el Gimnasio (Flujo del Jugador)
+
+Cuando un jugador derrota en combate al defensor de un gimnasio:
+1. El motor del juego ejecuta la función `finalize_gym_battle` en Supabase.
+2. Clona automáticamente a la criatura ganadora como un guardián independiente al 100% de PS para defender el gimnasio.
+3. El gimnasio cambia al color y equipo del jugador conquistador (*Valor*, *Místico* o *Instinto*).
+4. El Pokémon original en la Pokédex del jugador **no sufre alteraciones ni pierde vida**.
+
+---
+
+## 4. Tip Pro: ¿Cómo simular el juego en tu propia casa o barrio para probar caminando?
 
 Si deseas probar el juego caminando en la vida real pero no estás en Chía:
 
@@ -106,3 +170,4 @@ Si deseas probar el juego caminando en la vida real pero no estás en Chía:
 4. En Supabase, mueve 2 Poképaradas a las esquinas de tu calle.
 5. **Resultado:** Al salir a caminar con la app en modo `GPS: Real`, el geofencing detectará que estás "dentro del campus" en tu propio barrio, y podrás ver cómo la flecha y las Poképaradas reaccionan a tus pasos reales.
 6. Al terminar las pruebas, simplemente vuelves a restaurar las coordenadas originales de UniSabana.
+

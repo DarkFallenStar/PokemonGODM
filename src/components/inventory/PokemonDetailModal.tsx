@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import { Image } from 'expo-image';
 import type { EnrichedCapturedPokemon } from '../../types/inventory';
@@ -17,6 +19,7 @@ interface PokemonDetailModalProps {
   pokemon: EnrichedCapturedPokemon | null;
   onClose: () => void;
   onTransfer?: (instanceId: string) => void;
+  onRename?: (instanceId: string, newNickname: string) => Promise<any> | void;
 }
 
 export const PokemonDetailModal: React.FC<PokemonDetailModalProps> = ({
@@ -24,11 +27,50 @@ export const PokemonDetailModal: React.FC<PokemonDetailModalProps> = ({
   pokemon,
   onClose,
   onTransfer,
+  onRename,
 }) => {
+  // REGLA ESTRICTA DE REACT: Todos los Hooks deben ejecutarse al inicio, antes de cualquier retorno condicional
+  const [isEditingNickname, setIsEditingNickname] = useState<boolean>(false);
+  const [nicknameInput, setNicknameInput] = useState<string>('');
+  const [savingNickname, setSavingNickname] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsEditingNickname(false);
+    setNicknameInput(pokemon?.nickname || '');
+  }, [pokemon?.id, pokemon?.nickname]);
+
   if (!pokemon) return null;
 
   const { base, appraisal, stats, fastMove, chargedMove } = pokemon;
   const primaryTypeColor = TYPE_COLORS[base.type_primary_id] || '#64748B';
+
+  const handleStartEditing = () => {
+    setNicknameInput(pokemon.nickname || '');
+    setIsEditingNickname(true);
+  };
+
+  const handleSaveNickname = async () => {
+    if (!onRename) return;
+    setSavingNickname(true);
+    try {
+      await onRename(pokemon.id, nicknameInput.trim());
+      setIsEditingNickname(false);
+    } finally {
+      setSavingNickname(false);
+    }
+  };
+
+  const handleResetNickname = async () => {
+    if (!onRename) return;
+    setSavingNickname(true);
+    try {
+      await onRename(pokemon.id, '');
+      setNicknameInput('');
+      setIsEditingNickname(false);
+    } finally {
+      setSavingNickname(false);
+    }
+  };
 
   const handleConfirmTransfer = () => {
     const displayName = pokemon.nickname || base.name;
@@ -53,16 +95,72 @@ export const PokemonDetailModal: React.FC<PokemonDetailModalProps> = ({
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.sheetContainer}>
-          {/* Header con número, nombre y botón de cierre */}
+          {/* Header con número, nombre (editable) y botón de cierre */}
           <View style={styles.header}>
-            <View>
+            <View style={{ flex: 1, marginRight: 12 }}>
               <Text style={styles.pokedexNumber}>
                 #{String(pokemon.pokemon_id).padStart(3, '0')}
               </Text>
-              <Text style={styles.pokemonName}>
-                {pokemon.nickname || base.name}
-              </Text>
-              {pokemon.nickname && pokemon.nickname !== base.name && (
+              {isEditingNickname ? (
+                <View style={styles.renameContainer}>
+                  <TextInput
+                    style={styles.renameInput}
+                    value={nicknameInput}
+                    onChangeText={setNicknameInput}
+                    placeholder={base.name}
+                    placeholderTextColor="#64748B"
+                    maxLength={20}
+                    autoFocus
+                  />
+                  <View style={styles.renameActionsRow}>
+                    <TouchableOpacity
+                      style={styles.renameSaveBtn}
+                      onPress={handleSaveNickname}
+                      disabled={savingNickname}
+                      activeOpacity={0.8}
+                    >
+                      {savingNickname ? (
+                        <ActivityIndicator size="small" color="#FFFFFF" />
+                      ) : (
+                        <Text style={styles.renameSaveText}>✓ Guardar</Text>
+                      )}
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.renameCancelBtn}
+                      onPress={() => setIsEditingNickname(false)}
+                      disabled={savingNickname}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={styles.renameCancelText}>✕</Text>
+                    </TouchableOpacity>
+                    {pokemon.nickname ? (
+                      <TouchableOpacity
+                        style={styles.renameResetBtn}
+                        onPress={handleResetNickname}
+                        disabled={savingNickname}
+                        activeOpacity={0.8}
+                      >
+                        <Text style={styles.renameResetText}>Restaurar</Text>
+                      </TouchableOpacity>
+                    ) : null}
+                  </View>
+                </View>
+              ) : (
+                <View style={styles.nameRow}>
+                  <Text style={styles.pokemonName}>
+                    {pokemon.nickname || base.name}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.editPencilButton}
+                    onPress={handleStartEditing}
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <Text style={styles.editPencilEmoji}>✏️</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+              {!isEditingNickname && pokemon.nickname && pokemon.nickname !== base.name && (
                 <Text style={styles.speciesSubtitle}>Especie: {base.name}</Text>
               )}
             </View>
@@ -366,6 +464,76 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '800',
     color: '#F8FAFC',
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  editPencilButton: {
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#38BDF8',
+  },
+  editPencilEmoji: {
+    fontSize: 13,
+  },
+  renameContainer: {
+    marginTop: 4,
+    marginBottom: 6,
+  },
+  renameInput: {
+    backgroundColor: '#0F172A',
+    color: '#F8FAFC',
+    fontSize: 16,
+    fontWeight: '700',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#38BDF8',
+    marginBottom: 8,
+  },
+  renameActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  renameSaveBtn: {
+    backgroundColor: '#0284C7',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  renameSaveText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 12,
+  },
+  renameCancelBtn: {
+    backgroundColor: '#334155',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  renameCancelText: {
+    color: '#94A3B8',
+    fontWeight: '700',
+    fontSize: 12,
+  },
+  renameResetBtn: {
+    backgroundColor: '#475569',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  renameResetText: {
+    color: '#F8FAFC',
+    fontSize: 11,
+    fontWeight: '600',
   },
   cpBadge: {
     backgroundColor: '#1E293B',

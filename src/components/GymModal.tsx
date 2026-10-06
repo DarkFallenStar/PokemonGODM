@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, Modal, TouchableOpacity, Image } from 'react-native';
 import type { CampusPOIMarker } from '../types/map';
+import { TYPE_NAMES, TYPE_COLORS } from '../services/battleEngine';
 
 interface GymModalProps {
   visible: boolean;
@@ -67,6 +68,22 @@ export const GymModal: React.FC<GymModalProps> = ({
                 {defender.nickname && defender.nickname !== defender.name && (
                   <Text style={styles.defenderSpecies}>({defender.name})</Text>
                 )}
+                {/* Rótulo de Tipos Elementales del Defensor */}
+                <View style={styles.defenderTypesRow}>
+                  {(defender.types && defender.types.length > 0 ? defender.types : [1]).map((typeId: number) => (
+                    <View
+                      key={typeId}
+                      style={[
+                        styles.defenderTypeBadge,
+                        { backgroundColor: TYPE_COLORS[typeId] || '#64748B' },
+                      ]}
+                    >
+                      <Text style={styles.defenderTypeText}>
+                        {TYPE_NAMES[typeId] || 'Normal'}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
                 <Text style={styles.defenderStats}>
                   CP {defender.cp} | PS {defender.current_hp}/{defender.max_hp}
                 </Text>
@@ -208,6 +225,23 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     marginTop: 2,
+  },
+  defenderTypesRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 6,
+    marginVertical: 4,
+  },
+  defenderTypeBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  defenderTypeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '800',
+    textTransform: 'uppercase',
   },
   trainerName: {
     color: '#64748B',

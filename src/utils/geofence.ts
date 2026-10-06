@@ -2,14 +2,15 @@ import type { Coordinate } from '../types/map';
 
 // Coordenadas perimetrales de alta precisión del Campus Universidad de La Sabana (Chía, Cundinamarca)
 export const UNISABANA_POLYGON: Coordinate[] = [
-  { latitude: 4.86430, longitude: -74.03520 }, // 1. Puente del Común (Norte)
-  { latitude: 4.86302, longitude: -74.03469 }, // 2. Edificio Ad Portas (Noroeste)
-  { latitude: 4.86050, longitude: -74.03550 }, // 3. Costado Occidental / Parqueaderos
-  { latitude: 4.85680, longitude: -74.03620 }, // 4. Canchas Deportivas / Pistas (Suroeste)
-  { latitude: 4.85620, longitude: -74.03380 }, // 5. Edificio O / Zona Río (Sur)
-  { latitude: 4.85900, longitude: -74.03150 }, // 6. Zona del Lago / Costado Oriental
-  { latitude: 4.86200, longitude: -74.03180 }, // 7. Biblioteca / Plazoleta Central (Noreste)
-  { latitude: 4.86430, longitude: -74.03520 }, // 8. Cierre del polígono al vértice inicial
+  { latitude: 4.86300, longitude: -74.03550 }, // 1. Entrada Peatonal Cerca de la Rotonda
+  { latitude: 4.86073, longitude: -74.03600 }, // 2. Abajo del 1, Parqueaderos
+  { latitude: 4.85975, longitude: -74.03510 }, // 3. Costado Occidental / Parqueaderos
+  { latitude: 4.86000, longitude: -74.03355 }, // 4. Canchas Deportivas / Pistas (Suroeste)
+  { latitude: 4.85825, longitude: -74.03450 }, // 5.
+  { latitude: 4.85770, longitude: -74.03410 }, // 6. Edificio O / Zona Río (Sur)
+  { latitude: 4.85970, longitude: -74.03090 }, // 7. Zona del Lago / Costado Oriental
+  { latitude: 4.86240, longitude: -74.03050 }, // 8. Biblioteca / Plazoleta Central (Noreste)
+  { latitude: 4.86330, longitude: -74.03120 }, // 9. Cierre del polígono al vértice inicial
 ];
 
 // Punto céntrico de referencia del Campus (Biblioteca Octavio Arizmendi)

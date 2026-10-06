@@ -9,6 +9,7 @@ import type {
 } from '../types/inventory';
 import type { Move, PokemonBase } from '../types/pokemon';
 import { getTypeThemedMoves } from './battleEngine';
+import { getPokemonDbStaticSprite, getPokemonDbAnimatedSprite } from '../utils/pokemonAssets';
 
 export const DEMO_USER_ID = '00000000-0000-0000-0000-000000000001';
 
@@ -342,7 +343,8 @@ export async function fetchCapturedPokemonCollection(
         base_speed: 50,
         base_cp: row.cp,
         base_catch_rate: 0.2,
-        sprite_url: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${row.pokemon_id}.png`,
+        sprite_url: getPokemonDbStaticSprite(null, row.pokemon_id),
+        animation_url: getPokemonDbAnimatedSprite(null, row.pokemon_id),
       };
 
       const ivAttack = row.iv_attack ?? 8;
@@ -526,6 +528,34 @@ export async function updatePokemonHealth(
     return true;
   } catch (err) {
     console.warn('Excepción en updatePokemonHealth:', err);
+    return false;
+  }
+}
+
+/**
+ * Actualiza el apodo de una criatura capturada en Supabase.
+ * Si newNickname es vacío o null, se almacena null para restaurar el nombre de la especie.
+ */
+export async function updatePokemonNickname(
+  instanceId: string,
+  newNickname: string | null,
+  userId: string = DEMO_USER_ID
+): Promise<boolean> {
+  try {
+    const trimmed = newNickname?.trim() || null;
+    const { error } = await supabase
+      .from('captured_instances')
+      .update({ nickname: trimmed })
+      .eq('id', instanceId)
+      .eq('user_id', userId);
+
+    if (error) {
+      console.warn('Error actualizando apodo en Supabase:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('Excepción al actualizar apodo:', err);
     return false;
   }
 }

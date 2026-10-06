@@ -24,6 +24,7 @@ import {
   fetchCapturedPokemonCollection,
   fetchInventoryItemsDetailed,
   transferPokemonInstance,
+  updatePokemonNickname,
   DEMO_USER_ID,
 } from '../services/inventoryService';
 import {
@@ -111,6 +112,32 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = () => {
       setCollection(prev => prev.filter(p => p.id !== instanceId));
       setInspectPokemon(null);
       Alert.alert('¡Transferencia Exitosa!', res.message || 'El Pokémon fue entregado al Profesor Oak.');
+    } catch (e: any) {
+      Alert.alert('Error', e?.message || 'Error de conexión.');
+    }
+  }, []);
+
+  // Manejador de actualización de apodo
+  const handleRenamePokemon = useCallback(async (instanceId: string, newNickname: string) => {
+    try {
+      const success = await updatePokemonNickname(instanceId, newNickname, DEMO_USER_ID);
+      if (success) {
+        const finalNick = newNickname.trim() || null;
+        setCollection(prev =>
+          prev.map(p => (p.id === instanceId ? { ...p, nickname: finalNick } : p))
+        );
+        setInspectPokemon(prev =>
+          prev && prev.id === instanceId ? { ...prev, nickname: finalNick } : prev
+        );
+        Alert.alert(
+          '¡Apodo Actualizado!',
+          finalNick
+            ? `El apodo se ha guardado como "${finalNick}".`
+            : 'Se ha restaurado el nombre original de la especie.'
+        );
+      } else {
+        Alert.alert('Error', 'No se pudo guardar el nuevo apodo en la base de datos.');
+      }
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'Error de conexión.');
     }
@@ -455,12 +482,13 @@ export const InventoryScreen: React.FC<InventoryScreenProps> = () => {
         </View>
       )}
 
-      {/* Modal de Detalle de Pokémon: Base vs IVs y Transferencia */}
+      {/* Modal de Detalle de Pokémon: Base vs IVs, Transferencia y Apodo */}
       <PokemonDetailModal
         visible={!!inspectPokemon}
         pokemon={inspectPokemon}
         onClose={() => setInspectPokemon(null)}
         onTransfer={handleTransferPokemon}
+        onRename={handleRenamePokemon}
       />
 
       {/* Modal para Aplicar Poción o Revivir */}

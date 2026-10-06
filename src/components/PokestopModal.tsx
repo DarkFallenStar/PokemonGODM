@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -8,6 +8,7 @@ import {
   Animated,
   Easing,
   ActivityIndicator,
+  PanResponder,
 } from 'react-native';
 import type { CampusPOIMarker } from '../types/map';
 import type { PokestopRewardItem } from '../types/interaction';
@@ -88,16 +89,16 @@ export const PokestopModal: React.FC<PokestopModalProps> = ({
     return () => clearInterval(timer);
   }, [cooldownSeconds]);
 
-  const handleSpin = async () => {
+  const handleSpin = useCallback(() => {
     if (!pokestop || !isInRange || !canSpin || isSpinning) return;
 
     setIsSpinning(true);
 
-    // Iniciar rotación del disco
+    // Iniciar rotación del disco (4 vueltas completas)
     spinAnim.setValue(0);
     Animated.timing(spinAnim, {
-      toValue: 3, // 3 vueltas completas
-      duration: 1200,
+      toValue: 4, // 4 vueltas completas
+      duration: 1300,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start(async () => {
@@ -115,7 +116,47 @@ export const PokestopModal: React.FC<PokestopModalProps> = ({
         onSpunSuccess(pokestop.id);
       }
     });
-  };
+  }, [pokestop, isInRange, canSpin, isSpinning, onSpunSuccess, spinAnim]);
+
+  // Detector de gesto de deslizamiento (Swipe / Drag) para el fotodisco
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => isInRange && canSpin && !isSpinning,
+        onMoveShouldSetPanResponder: (_, gestureState) =>
+          isInRange &&
+          canSpin &&
+          !isSpinning &&
+          (Math.abs(gestureState.dx) > 10 || Math.abs(gestureState.vx) > 0.2),
+        onPanResponderMove: (_, gestureState) => {
+          if (!isSpinning && canSpin && isInRange) {
+            // Rotación interactiva con el dedo mientras se desliza
+            const offsetTurns = gestureState.dx / 140;
+            spinAnim.setValue(offsetTurns);
+          }
+        },
+        onPanResponderRelease: (_, gestureState) => {
+          if (!isInRange || !canSpin || isSpinning) return;
+          const isSwipe =
+            Math.abs(gestureState.dx) > 25 || Math.abs(gestureState.vx) > 0.25;
+          const isTap =
+            Math.abs(gestureState.dx) < 12 && Math.abs(gestureState.dy) < 12;
+
+          if (isSwipe || isTap) {
+            handleSpin();
+          } else {
+            // Retorno elástico al centro si no se alcanzó impulso suficiente
+            Animated.spring(spinAnim, {
+              toValue: 0,
+              friction: 6,
+              tension: 40,
+              useNativeDriver: true,
+            }).start();
+          }
+        },
+      }),
+    [isInRange, canSpin, isSpinning, handleSpin, spinAnim]
+  );
 
   const spinInterpolate = spinAnim.interpolate({
     inputRange: [0, 1],
@@ -146,11 +187,9 @@ export const PokestopModal: React.FC<PokestopModalProps> = ({
             </Text>
           </View>
 
-          {/* Disco Giratorio Interactivo */}
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={handleSpin}
-            disabled={!isInRange || !canSpin || isSpinning}
+          {/* Disco Giratorio Interactivo con Soporte de Deslizamiento (Swipe Gesture) */}
+          <View
+            {...panResponder.panHandlers}
             style={styles.discContainer}
           >
             <Animated.View
@@ -162,7 +201,7 @@ export const PokestopModal: React.FC<PokestopModalProps> = ({
             >
               <Text style={styles.discEmoji}>{canSpin ? '🏛️' : '⌛'}</Text>
             </Animated.View>
-          </TouchableOpacity>
+          </View>
 
           {/* Estado de Enfriamiento o Instrucción */}
           {isLoadingStatus ? (
@@ -177,7 +216,7 @@ export const PokestopModal: React.FC<PokestopModalProps> = ({
               <Text style={styles.cooldownTimer}>{formatCooldown(cooldownSeconds)}</Text>
             </View>
           ) : (
-            <Text style={styles.spinPrompt}>¡Toca el fotodisco para girar!</Text>
+            <Text style={styles.spinPrompt}>¡Desliza el fotodisco para girar!</Text>
           )}
 
           {/* Recompensas entregadas */}

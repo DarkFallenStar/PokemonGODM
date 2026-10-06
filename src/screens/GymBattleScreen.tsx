@@ -43,6 +43,13 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 type GymBattleScreenProps = NativeStackScreenProps<RootStackParamList, 'GymBattle'>;
 
+function getPokemonTypeIds(base?: { type_primary_id?: number | null; type_secondary_id?: number | null } | null): number[] {
+  if (!base || !base.type_primary_id) return [1];
+  const list: number[] = [base.type_primary_id];
+  if (base.type_secondary_id) list.push(base.type_secondary_id);
+  return list;
+}
+
 export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigation }) => {
   const { gymId, gymName, initialTeam, distanceMeters, defender } = route.params;
 
@@ -615,6 +622,47 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
             Elige un Pokémon con PS disponibles para entrar a la arena del gimnasio:
           </Text>
 
+          {/* Tarjeta del Defensor Rival a Vencer */}
+          {opponentPokemon && (
+            <View style={styles.defenderPreviewCard}>
+              <Text style={styles.defenderPreviewLabel}>🛡️ Defensor del Gimnasio</Text>
+              <View style={styles.defenderPreviewRow}>
+                <Image
+                  source={{
+                    uri:
+                      opponentPokemon.base.animation_url ||
+                      `https://img.pokemondb.net/sprites/black-white/anim/normal/${opponentPokemon.base.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.gif`,
+                  }}
+                  style={styles.defenderPreviewSprite}
+                  contentFit="contain"
+                />
+                <View style={styles.defenderPreviewDetails}>
+                  <Text style={styles.defenderPreviewName}>
+                    {opponentPokemon.nickname || opponentPokemon.base.name}
+                  </Text>
+                  <Text style={styles.defenderPreviewStats}>
+                    CP {opponentPokemon.cp} | PS {opponentHp}/{opponentMaxHp}
+                  </Text>
+                  <View style={styles.typesRow}>
+                    {getPokemonTypeIds(opponentPokemon.base).map(tId => (
+                      <View
+                        key={tId}
+                        style={[
+                          styles.typeBadgeSmall,
+                          { backgroundColor: TYPE_COLORS[tId] || '#64748B' },
+                        ]}
+                      >
+                        <Text style={styles.typeBadgeTextSmall}>
+                          {TYPE_NAMES[tId] || 'Tipo'}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              </View>
+            </View>
+          )}
+
           {/* Indicador del Equipo del Jugador */}
           <View style={[styles.teamIndicatorPill, { borderColor: TEAMS[playerTeam].color }]}>
             <Text style={styles.teamIndicatorEmoji}>{TEAMS[playerTeam].badge}</Text>
@@ -660,6 +708,22 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
                   <Text style={styles.combatantName} numberOfLines={1}>
                     {p.nickname || p.base.name}
                   </Text>
+                  {/* Tipos Elementales del Pokémon */}
+                  <View style={styles.typesRow}>
+                    {getPokemonTypeIds(p.base).map(tId => (
+                      <View
+                        key={tId}
+                        style={[
+                          styles.typeBadgeMicro,
+                          { backgroundColor: TYPE_COLORS[tId] || '#64748B' },
+                        ]}
+                      >
+                        <Text style={styles.typeBadgeTextMicro}>
+                          {TYPE_NAMES[tId] || 'Tipo'}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
                   <Text style={styles.combatantCp}>CP {p.cp}</Text>
                   <Text style={[styles.combatantHp, isFainted && styles.combatantHpFainted]}>
                     {isFainted ? '💀 0 PS' : `${p.current_hp}/${p.maxHp} PS`}
@@ -725,7 +789,26 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
               {/* Barra de Vida del Oponente */}
               <View style={styles.statusBox}>
                 <View style={styles.statusNameRow}>
-                  <Text style={styles.statusName}>{opponentPokemon?.base.name}</Text>
+                  <View style={{ flex: 1, marginRight: 6 }}>
+                    <Text style={styles.statusName} numberOfLines={1}>
+                      {opponentPokemon?.nickname || opponentPokemon?.base.name}
+                    </Text>
+                    <View style={styles.typesRow}>
+                      {getPokemonTypeIds(opponentPokemon?.base).map(tId => (
+                        <View
+                          key={tId}
+                          style={[
+                            styles.typeBadgeMicro,
+                            { backgroundColor: TYPE_COLORS[tId] || '#64748B' },
+                          ]}
+                        >
+                          <Text style={styles.typeBadgeTextMicro}>
+                            {TYPE_NAMES[tId] || 'Tipo'}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
                   <Text style={styles.statusCp}>CP {opponentPokemon?.cp}</Text>
                 </View>
                 <View style={styles.hpTrack}>
@@ -781,7 +864,26 @@ export const GymBattleScreen: React.FC<GymBattleScreenProps> = ({ route, navigat
               {/* Barra de Vida y Energía del Jugador */}
               <View style={[styles.statusBox, styles.playerStatusBox]}>
                 <View style={styles.statusNameRow}>
-                  <Text style={styles.statusName}>{playerPokemon?.base.name}</Text>
+                  <View style={{ flex: 1, marginRight: 6 }}>
+                    <Text style={styles.statusName} numberOfLines={1}>
+                      {playerPokemon?.nickname || playerPokemon?.base.name}
+                    </Text>
+                    <View style={styles.typesRow}>
+                      {getPokemonTypeIds(playerPokemon?.base).map(tId => (
+                        <View
+                          key={tId}
+                          style={[
+                            styles.typeBadgeMicro,
+                            { backgroundColor: TYPE_COLORS[tId] || '#64748B' },
+                          ]}
+                        >
+                          <Text style={styles.typeBadgeTextMicro}>
+                            {TYPE_NAMES[tId] || 'Tipo'}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
                   <Text style={styles.statusCp}>CP {playerPokemon?.cp}</Text>
                 </View>
 
@@ -946,11 +1048,81 @@ const styles = StyleSheet.create({
   combatantCard: {
     backgroundColor: '#1E293B',
     borderRadius: 16,
-    padding: 12,
+    padding: 10,
     alignItems: 'center',
-    width: 100,
+    width: 104,
     borderWidth: 2,
     borderColor: '#334155',
+  },
+  defenderPreviewCard: {
+    backgroundColor: '#1E293B',
+    borderRadius: 16,
+    padding: 12,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    width: '100%',
+    maxWidth: 340,
+    marginBottom: 16,
+  },
+  defenderPreviewLabel: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#94A3B8',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 6,
+  },
+  defenderPreviewRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  defenderPreviewSprite: {
+    width: 52,
+    height: 52,
+  },
+  defenderPreviewDetails: {
+    flex: 1,
+  },
+  defenderPreviewName: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#F8FAFC',
+  },
+  defenderPreviewStats: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#38BDF8',
+    marginTop: 2,
+    marginBottom: 3,
+  },
+  typesRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
+  typeBadgeSmall: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  typeBadgeTextSmall: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+  },
+  typeBadgeMicro: {
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 5,
+  },
+  typeBadgeTextMicro: {
+    color: '#FFFFFF',
+    fontSize: 8,
+    fontWeight: '800',
+    textTransform: 'uppercase',
   },
   selectedCombatantCard: {
     borderColor: '#38BDF8',
